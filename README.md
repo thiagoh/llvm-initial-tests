@@ -35,3 +35,14 @@ nhaaaaaaaaaaaaa huuuuuuuuuuu: 3
 nhaaaaaaaaaaaaa huuuuuuuuuuu: 2
 nhaaaaaaaaaaaaa huuuuuuuuuuu: 1
 ```
+
+
+## Testing toy language
+```
+# Compile and Run
+$ clang++ -g -O3 toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core` -o toy.app && ./toy.app
+
+ready> def bar(a b c d e f g h) a + b + (c + d) * g * f + h;
+ready> Parsed a function definition.
+ready>
+```
