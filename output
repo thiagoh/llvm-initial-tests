@@ -3,22 +3,77 @@ source_filename = "file.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.12.0"
 
-@.str = private unnamed_addr constant [22 x i8] c"nhaaaaaaaaaaaaa haha!\00", align 1
+@.str = private unnamed_addr constant [34 x i8] c"nhaaaaaaaaaaaaa huuuuuuuuuuu: %d\0A\00", align 1
+@.str.1 = private unnamed_addr constant [24 x i8] c"my num of args are: %d\0A\00", align 1
+@.str.3 = private unnamed_addr constant [8 x i8] c"%d: %s\0A\00", align 1
+@str = private unnamed_addr constant [16 x i8] c"and they are...\00"
 
 ; Function Attrs: nounwind ssp uwtable
-define i32 @main(i32, i8** nocapture readnone) #0 {
-  %3 = tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([22 x i8], [22 x i8]* @.str, i64 0, i64 0))
-  ret i32 0
+define void @print_it(i32) #0 {
+  %2 = icmp eq i32 %0, 0
+  br i1 %2, label %10, label %3
+
+; <label>:3                                       ; preds = %1
+  br label %4
+
+; <label>:4                                       ; preds = %3, %4
+  %5 = phi i32 [ %7, %4 ], [ %0, %3 ]
+  %6 = tail call i32 (i8*, ...) @printf(i8* nonnull getelementptr inbounds ([34 x i8], [34 x i8]* @.str, i64 0, i64 0), i32 %5)
+  %7 = add i32 %5, -1
+  %8 = icmp eq i32 %7, 0
+  br i1 %8, label %9, label %4
+
+; <label>:9                                       ; preds = %4
+  br label %10
+
+; <label>:10                                      ; preds = %9, %1
+  ret void
 }
 
 ; Function Attrs: nounwind
 declare i32 @printf(i8* nocapture readonly, ...) #1
 
-attributes #0 = { nounwind ssp uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sse,+sse2,+sse3,+sse4.1,+ssse3" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #1 = { nounwind "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sse,+sse2,+sse3,+sse4.1,+ssse3" "unsafe-fp-math"="false" "use-soft-float"="false" }
+; Function Attrs: nounwind ssp uwtable
+define i32 @main(i32, i8** nocapture readonly) #0 {
+  %3 = tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([24 x i8], [24 x i8]* @.str.1, i64 0, i64 0), i32 %0)
+  %4 = icmp sgt i32 %0, 1
+  br i1 %4, label %5, label %17
+
+; <label>:5                                       ; preds = %2
+  %6 = tail call i32 @puts(i8* nonnull getelementptr inbounds ([16 x i8], [16 x i8]* @str, i64 0, i64 0))
+  %7 = sext i32 %0 to i64
+  br label %8
+
+; <label>:8                                       ; preds = %5, %8
+  %9 = phi i64 [ 0, %5 ], [ %14, %8 ]
+  %10 = getelementptr inbounds i8*, i8** %1, i64 %9
+  %11 = load i8*, i8** %10, align 8, !tbaa !2
+  %12 = trunc i64 %9 to i32
+  %13 = tail call i32 (i8*, ...) @printf(i8* nonnull getelementptr inbounds ([8 x i8], [8 x i8]* @.str.3, i64 0, i64 0), i32 %12, i8* %11)
+  %14 = add nuw nsw i64 %9, 2
+  %15 = icmp sgt i64 %14, %7
+  br i1 %15, label %16, label %8
+
+; <label>:16                                      ; preds = %8
+  br label %17
+
+; <label>:17                                      ; preds = %16, %2
+  ret i32 0
+}
+
+; Function Attrs: nounwind
+declare i32 @puts(i8* nocapture readonly) #2
+
+attributes #0 = { nounwind ssp uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sse,+sse2,+sse3,+sse4.1,+ssse3" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { nounwind "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sse,+sse2,+sse3,+sse4.1,+ssse3" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #2 = { nounwind }
 
 !llvm.module.flags = !{!0}
 !llvm.ident = !{!1}
 
 !0 = !{i32 1, !"PIC Level", i32 2}
 !1 = !{!"Apple LLVM version 8.0.0 (clang-800.0.42.1)"}
+!2 = !{!3, !3, i64 0}
+!3 = !{!"any pointer", !4, i64 0}
+!4 = !{!"omnipotent char", !5, i64 0}
+!5 = !{!"Simple C/C++ TBAA"}

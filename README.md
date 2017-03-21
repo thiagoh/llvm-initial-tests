@@ -6,8 +6,11 @@
 # emit LLVM
 $ clang file.c -fomit-frame-pointer -S -emit-llvm -o -
 
-# emit assembly
+# emit optimized assembly
 $ clang file.c -fomit-frame-pointer -O3 -S -o -
+
+# emit non-optimized assembly
+$ clang file.c -fomit-frame-pointer -S -emit-llvm -o -
 
 # compile with clang 
 $ clang file.c 

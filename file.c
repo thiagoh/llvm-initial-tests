@@ -2,6 +2,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void print_it(unsigned int i) {
+
+  printf("I am calling the function print_it\n");
+
+  for (; i > 0; i--) {
+    printf("nhaaaaaaaaaaaaa huuuuuuuuuuu: %d\n", i);
+  }
+}
+
 int main(int c, char **args) {
 
   printf("my num of args are: %d\n", c);
@@ -17,9 +26,7 @@ int main(int c, char **args) {
     i = atoi(args[1]);
   }
 
-  for (; i > 0; i--) {
-    printf("nhaaaaaaaaaaaaa huuuuuuuuuuu: %d\n", i);
-  }
+  print_it(i);
 
   return 0;
 }
