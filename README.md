@@ -1,6 +1,6 @@
-# llvm-initial-tests
+# LLVM and Toy language
 
-## run the tests
+## Playing around LLVM
 
 ```
 # emit LLVM
@@ -42,6 +42,7 @@ nhaaaaaaaaaaaaa huuuuuuuuuuu: 1
 # Compile and Run
 $ clang++ -g -O3 toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core` -o toy.app && ./toy.app
 
+# Now test the parsing of 'def bar(a b c d e f g h) a + b + (c + d) * g * f + h;'
 ready> def bar(a b c d e f g h) a + b + (c + d) * g * f + h;
 ready> Parsed a function definition.
 ready>
