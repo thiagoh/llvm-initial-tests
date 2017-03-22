@@ -95,6 +95,7 @@ namespace {
 class ExprAST {
 public:
   virtual ~ExprAST() = default;
+  virtual Value *codegen() = 0;
 };
 
 /// NumberExprAST - Expression class for numeric literals like "1.0".
@@ -103,6 +104,7 @@ class NumberExprAST : public ExprAST {
 
 public:
   NumberExprAST(double Val) : Val(Val) {}
+  virtual Value *codegen();
 };
 
 /// VariableExprAST - Expression class for referencing a variable, like "a".
@@ -160,6 +162,7 @@ public:
 
 /// FunctionAST - This class represents a function definition itself.
 class FunctionAST {
+  // something like a function signature
   std::unique_ptr<PrototypeAST> Proto;
   std::unique_ptr<ExprAST> Body;
 
@@ -323,7 +326,8 @@ static std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec,
 }
 
 /// expression
-///   ::= primary binoprhs
+///   ::= expression
+///   ::= ret expression
 ///
 static std::unique_ptr<ExprAST> ParseExpression() {
 
