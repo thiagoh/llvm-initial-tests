@@ -38,7 +38,9 @@ nhaaaaaaaaaaaaa huuuuuuuuuuu: 1
 
 
 ## Testing toy language
+
 ```
+# Chapters 2 and 3
 # Compile and Run
 $ clang++ -g -O3 toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core` -o toy.app && ./toy.app
 
@@ -69,4 +71,6 @@ entry:
 
 entry1:                                           ; No predecessors!
 }
+
+$ clang++ -g -O3 toy-4.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -I ../llvm/examples/Kaleidoscope/include/ -o toy-4.app && ./toy-4.app
 ```

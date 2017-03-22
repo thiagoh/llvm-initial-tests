@@ -41,6 +41,7 @@ enum Token {
   // commands
   tok_def = -2,
   tok_extern = -3,
+  // @EDITED by Thiago
   tok_return = -4,
 
   // primary
@@ -68,6 +69,9 @@ static int gettok() {
       return tok_def;
     if (IdentifierStr == "extern")
       return tok_extern;
+    // @EDITED by Thiago
+    if (IdentifierStr == "return" || IdentifierStr == "ret")
+      return tok_return;
     return tok_identifier;
   }
 
@@ -124,6 +128,18 @@ public:
   NumberExprAST(double Val) : Val(Val) {}
 
   Value *codegen() override;
+};
+
+// @EDITED by Thiago
+/// ReturnExprAST - Expression class for a return instruction.
+class ReturnExprAST : public ExprAST {
+  std::unique_ptr<ExprAST> ReturnExpr;
+
+public:
+  ReturnExprAST(std::unique_ptr<ExprAST> ReturnExpr)
+      : ReturnExpr(std::move(ReturnExpr)) {}
+
+  ReturnInst *codegen() override;
 };
 
 /// VariableExprAST - Expression class for referencing a variable, like "a".
@@ -345,11 +361,25 @@ static std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec,
 ///   ::= primary binoprhs
 ///
 static std::unique_ptr<ExprAST> ParseExpression() {
-  auto LHS = ParsePrimary();
-  if (!LHS)
-    return nullptr;
+  // @EDITED by Thiago
+  if (CurTok == tok_return) {
+    getNextToken();
 
-  return ParseBinOpRHS(0, std::move(LHS));
+    auto LHS = ParseExpression();
+
+    if (!LHS)
+      return nullptr;
+
+    return llvm::make_unique<ReturnExprAST>(std::move(LHS));
+
+  } else {
+
+    auto LHS = ParsePrimary();
+    if (!LHS)
+      return nullptr;
+
+    return ParseBinOpRHS(0, std::move(LHS));
+  }
 }
 
 /// prototype
@@ -365,8 +395,21 @@ static std::unique_ptr<PrototypeAST> ParsePrototype() {
     return LogErrorP("Expected '(' in prototype");
 
   std::vector<std::string> ArgNames;
-  while (getNextToken() == tok_identifier)
+
+  // @EDITED by Thiago
+  getNextToken();
+
+  while (CurTok == tok_identifier) {
+
     ArgNames.push_back(IdentifierStr);
+
+    getNextToken();
+
+    if (CurTok == ',') {
+      getNextToken();
+    }
+  }
+
   if (CurTok != ')')
     return LogErrorP("Expected ')' in prototype");
 
@@ -528,7 +571,8 @@ Function *FunctionAST::codegen() {
 
   if (Value *RetVal = Body->codegen()) {
     // Finish off the function.
-    Builder.CreateRet(RetVal);
+    // @EDITED by Thiago
+    // Builder.CreateRet(RetVal);
 
     // Validate the generated code, checking for consistency.
     verifyFunction(*TheFunction);
@@ -542,6 +586,16 @@ Function *FunctionAST::codegen() {
   // Error reading body, remove function.
   TheFunction->eraseFromParent();
   return nullptr;
+}
+// @EDITED by Thiago
+ReturnInst *ReturnExprAST::codegen() {
+
+  Value *TheValue = ReturnExpr->codegen();
+
+  if (!TheValue)
+    return nullptr;
+
+  return Builder.CreateRet(TheValue);
 }
 
 //===----------------------------------------------------------------------===//
