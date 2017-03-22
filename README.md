@@ -46,4 +46,27 @@ $ clang++ -g -O3 toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs 
 ready> def bar(a b c d e f g h) a + b + (c + d) * g * f + h;
 ready> Parsed a function definition.
 ready>
+ready> def foo(a,b) ret a + b;
+ready> Read function definition:
+define double @foo(double %a, double %b) {
+entry:
+  %addtmp = fadd double %a, %b
+  ret double %addtmp
+}
+
+ready> foo(3.2,0.5);
+ready> Read top-level expression:
+define double @__anon_expr() {
+entry:
+  %calltmp = call double @foo(double 3.200000e+00, double 5.000000e-01)
+}
+
+ready> 3.2+1.1;
+Read top-level expression:
+define double @__anon_expr() {
+entry:
+  %calltmp = call double @foo(double 3.200000e+00, double 5.000000e-01)
+
+entry1:                                           ; No predecessors!
+}
 ```
