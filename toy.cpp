@@ -20,10 +20,11 @@ enum Token {
   // commands
   tok_def = -2,
   tok_extern = -3,
+  tok_return = -4,
 
   // primary
-  tok_identifier = -4,
-  tok_number = -5
+  tok_identifier = -5,
+  tok_number = -6
 };
 
 static std::string IdentifierStr; // Filled in if tok_identifier
@@ -38,7 +39,9 @@ static int gettok() {
     LastChar = getchar();
 
   if (isalpha(LastChar)) { // identifier: [a-zA-Z][a-zA-Z0-9]*
+
     IdentifierStr = LastChar;
+
     while (isalnum((LastChar = getchar())))
       IdentifierStr += LastChar;
 
@@ -46,6 +49,8 @@ static int gettok() {
       return tok_def;
     if (IdentifierStr == "extern")
       return tok_extern;
+    if (IdentifierStr == "return" || IdentifierStr == "ret")
+      return tok_return;
     return tok_identifier;
   }
 
@@ -117,6 +122,15 @@ public:
   BinaryExprAST(char Op, std::unique_ptr<ExprAST> LHS,
                 std::unique_ptr<ExprAST> RHS)
       : Op(Op), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
+};
+
+/// ReturnExprAST - Expression class for a binary operator.
+class ReturnExprAST : public ExprAST {
+  std::unique_ptr<ExprAST> ReturnExpr;
+
+public:
+  ReturnExprAST(std::unique_ptr<ExprAST> ReturnExpr)
+      : ReturnExpr(std::move(ReturnExpr)) {}
 };
 
 /// CallExprAST - Expression class for function calls.
@@ -231,6 +245,7 @@ static std::unique_ptr<ExprAST> ParseIdentifierExpr() {
   std::vector<std::unique_ptr<ExprAST>> Args;
   if (CurTok != ')') {
     while (true) {
+
       if (auto Arg = ParseExpression())
         Args.push_back(std::move(Arg));
       else
@@ -302,7 +317,8 @@ static std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec,
     }
 
     // Merge LHS/RHS.
-    LHS = llvm::make_unique<BinaryExprAST>(BinOp, std::move(LHS), std::move(RHS));
+    LHS =
+        llvm::make_unique<BinaryExprAST>(BinOp, std::move(LHS), std::move(RHS));
   }
 }
 
@@ -310,11 +326,25 @@ static std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec,
 ///   ::= primary binoprhs
 ///
 static std::unique_ptr<ExprAST> ParseExpression() {
-  auto LHS = ParsePrimary();
-  if (!LHS)
-    return nullptr;
 
-  return ParseBinOpRHS(0, std::move(LHS));
+  if (CurTok == tok_return) {
+    getNextToken();
+
+    auto LHS = ParseExpression();
+
+    if (!LHS)
+      return nullptr;
+
+    return llvm::make_unique<ReturnExprAST>(std::move(LHS));
+
+  } else {
+
+    auto LHS = ParsePrimary();
+    if (!LHS)
+      return nullptr;
+
+    return ParseBinOpRHS(0, std::move(LHS));
+  }
 }
 
 /// prototype
@@ -331,8 +361,17 @@ static std::unique_ptr<PrototypeAST> ParsePrototype() {
 
   std::vector<std::string> ArgNames;
 
-  while (getNextToken() == tok_identifier) {
+  getNextToken();
+
+  while (CurTok == tok_identifier) {
+
     ArgNames.push_back(IdentifierStr);
+
+    getNextToken();
+
+    if (CurTok == ',') {
+      getNextToken();
+    }
   }
 
   if (CurTok != ')')
@@ -348,11 +387,13 @@ static std::unique_ptr<PrototypeAST> ParsePrototype() {
 static std::unique_ptr<FunctionAST> ParseDefinition() {
   getNextToken(); // eat def.
   auto Proto = ParsePrototype();
+
   if (!Proto)
     return nullptr;
 
   if (auto E = ParseExpression())
     return llvm::make_unique<FunctionAST>(std::move(Proto), std::move(E));
+
   return nullptr;
 }
 
