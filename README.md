@@ -87,7 +87,8 @@ ready>bar(123,321);
 Evaluated tp 444.000000
 ready> ^C
 ```
-#### Debugging toy-4 with LLDB
+
+## Debugging toy-4 with LLDB
 
 If for some reason you need to debug toy-4 you can always use [LLDB](https://lldb.llvm.org/lldb-gdb.html)
 
