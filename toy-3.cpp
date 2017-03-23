@@ -353,7 +353,7 @@ static std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec,
 ///   ::= ret expression
 ///
 static std::unique_ptr<ExprAST> ParseExpression() {
-
+  // @EDITED by Thiago
   if (CurTok == tok_return) {
     getNextToken();
 

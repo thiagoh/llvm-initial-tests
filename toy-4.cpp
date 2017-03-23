@@ -26,6 +26,8 @@
 #include <string>
 #include <vector>
 
+#define LLVM_IR_DEBUG_PRINT
+
 using namespace llvm;
 using namespace llvm::orc;
 
@@ -358,14 +360,24 @@ static std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec,
 }
 
 /// expression
-///   ::= primary binoprhs
+///   ::= expression
+///   ::= ret expression
 ///
 static std::unique_ptr<ExprAST> ParseExpression() {
+
+  std::unique_ptr<ExprAST> LHS;
+
   // @EDITED by Thiago
   if (CurTok == tok_return) {
+
     getNextToken();
 
-    auto LHS = ParseExpression();
+#ifdef LLVM_IR_DEBUG_PRINT
+    fprintf(stderr, "ParseExpression and it is a Return : %d %s\n", CurTok,
+            IdentifierStr.c_str());
+#endif
+
+    LHS = ParseExpression();
 
     if (!LHS)
       return nullptr;
@@ -374,7 +386,12 @@ static std::unique_ptr<ExprAST> ParseExpression() {
 
   } else {
 
-    auto LHS = ParsePrimary();
+#ifdef LLVM_IR_DEBUG_PRINT
+    fprintf(stderr, "ParseExpression but not a Return : %d %s \n", CurTok,
+            IdentifierStr.c_str());
+#endif
+
+    LHS = ParsePrimary();
     if (!LHS)
       return nullptr;
 
@@ -571,8 +588,11 @@ Function *FunctionAST::codegen() {
 
   if (Value *RetVal = Body->codegen()) {
     // Finish off the function.
+
     // @EDITED by Thiago
-    // Builder.CreateRet(RetVal);
+    if (ReturnInst::classof(RetVal) == 0) {
+      Builder.CreateRet(RetVal);
+    }
 
     // Validate the generated code, checking for consistency.
     verifyFunction(*TheFunction);
@@ -654,7 +674,14 @@ static void HandleExtern() {
 static void HandleTopLevelExpression() {
   // Evaluate a top-level expression into an anonymous function.
   if (auto FnAST = ParseTopLevelExpr()) {
-    if (FnAST->codegen()) {
+    if (auto *FnIR = FnAST->codegen()) {
+
+#ifdef LLVM_IR_DEBUG_PRINT
+      fprintf(stderr, "Read top level expression: ");
+      FnIR->print(errs());
+      fprintf(stderr, "\n");
+#endif
+
       // JIT the module containing the anonymous expression, keeping a handle so
       // we can free it later.
       auto H = TheJIT->addModule(std::move(TheModule));
