@@ -188,3 +188,11 @@ libsystem_kernel.dylib`__read_nocancel:
 (lldb) quit
 Quitting LLDB will kill one or more processes. Do you really want to proceed: [Y/n] y
 ```
+
+## Generating Graphs with Graphviz
+
+```
+llvm-as < toy-4-sample-output.ll | opt -analyze -view-cfg
+```
+
+<img src="if-else-graph-output.png" alt="Generating Graphs with Graphviz"></img>
