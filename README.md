@@ -39,8 +39,9 @@ nhaaaaaaaaaaaaa huuuuuuuuuuu: 1
 
 ## Testing toy language
 
+### Chapters 2 and 3 (Parser)
+
 ```
-# Chapters 2 and 3
 # Compile and Run
 $ clang++ -g -O3 toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core` -o toy.app && ./toy.app
 
@@ -71,6 +72,119 @@ entry:
 
 entry1:                                           ; No predecessors!
 }
+```
 
+### Chapter 4 (JIT)
+
+```
 $ clang++ -g -O3 toy-4.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -I ../llvm/examples/Kaleidoscope/include/ -o toy-4.app && ./toy-4.app
+
+ready> def foo(x,y) ret x+y;
+ready> def bar(x,y) x+y;
+ready>foo(123,321);
+Evaluated tp 444.000000
+ready>bar(123,321);
+Evaluated tp 444.000000
+ready> ^C
+```
+#### Debugging toy-4 with LLDB
+
+If for some reason you need to debug toy-4 you can always use [LLDB](https://lldb.llvm.org/lldb-gdb.html)
+
+```
+# Starting the debugger
+$ lldb toy-4.app
+(lldb) target create "toy-4.app"
+Current executable set to 'toy-4.app' (x86_64).
+
+# Listing the breakpoints
+(lldb) b
+No breakpoints currently set.
+
+# Creating a breakpoint
+(lldb) b toy-4.cpp:368
+Breakpoint 1: where = toy-4.app`ParseExpression() + 16 at toy-4.cpp:371, address = 0x0000000100004a20
+
+# Run the application
+(lldb) run
+Process 60041 launched: '/Users/thiagoh/dev/llvm-src/llvm-initial-tests/toy-4.app' (x86_64)
+ready> def foo(x,y) ret x+y+y;
+ready> toy-4.app was compiled with optimization - stepping may behave oddly; variables may not be available.
+Process 60041 stopped
+* thread #1: tid = 0x288f1b, 0x0000000100004a20 toy-4.app`ParseExpression() + 16 at toy-4.cpp:371, queue = 'com.apple.main-thread', stop reason = breakpoint 1.1
+    frame #0: 0x0000000100004a20 toy-4.app`ParseExpression() + 16 at toy-4.cpp:371 [opt]
+   368    std::unique_ptr<ExprAST> LHS;
+   369
+   370    // @EDITED by Thiago
+-> 371    if (CurTok == tok_return) {
+   372
+   373      getNextToken();
+   374
+
+# Go to next Step
+(lldb) n
+Process 60041 stopped
+* thread #1: tid = 0x288f1b, 0x0000000100004a2b toy-4.app`ParseExpression() + 27 at toy-4.cpp:373, queue = 'com.apple.main-thread', stop reason = step over
+    frame #0: 0x0000000100004a2b toy-4.app`ParseExpression() + 27 at toy-4.cpp:373 [opt]
+   370    // @EDITED by Thiago
+   371    if (CurTok == tok_return) {
+   372
+-> 373      getNextToken();
+   374
+   375  #ifdef LLVM_IR_DEBUG_PRINT
+   376      fprintf(stderr, "ParseExpression and it is a Return : %d %s\n", CurTok,
+
+# Go to next Step   
+(lldb) n
+Process 60041 stopped
+* thread #1: tid = 0x288f1b, 0x0000000100004a38 toy-4.app`ParseExpression() + 40 at toy-4.cpp:376, queue = 'com.apple.main-thread', stop reason = step over
+    frame #0: 0x0000000100004a38 toy-4.app`ParseExpression() + 40 at toy-4.cpp:376 [opt]
+   373      getNextToken();
+   374
+   375  #ifdef LLVM_IR_DEBUG_PRINT
+-> 376      fprintf(stderr, "ParseExpression and it is a Return : %d %s\n", CurTok,
+   377              IdentifierStr.c_str());
+   378  #endif
+   379
+
+# Resume the application
+(lldb) c
+Process 60041 resuming
+ParseExpression and it is a Return : -5 x
+Process 60041 stopped
+* thread #1: tid = 0x288f1b, 0x0000000100004a20 toy-4.app`ParseExpression() + 16 at toy-4.cpp:371, queue = 'com.apple.main-thread', stop reason = breakpoint 1.1
+    frame #0: 0x0000000100004a20 toy-4.app`ParseExpression() + 16 at toy-4.cpp:371 [opt]
+   368    std::unique_ptr<ExprAST> LHS;
+   369
+   370    // @EDITED by Thiago
+-> 371    if (CurTok == tok_return) {
+   372
+   373      getNextToken();
+   374
+
+# Resume the application
+(lldb) c
+Process 60041 resuming
+ParseExpression but not a Return : -5 x
+Read function definition:
+define double @foo(double %x, double %y) {
+entry:
+  %addtmp = fadd double %x, %y
+  %addtmp1 = fadd double %y, %addtmp
+  ret double %addtmp1
+}
+
+ready>^C
+ready> Process 60041 stopped
+* thread #1: tid = 0x288f1b, 0x00007fffc30dfe5a libsystem_kernel.dylib`__read_nocancel + 10, stop reason = signal SIGSTOP
+    frame #0: 0x00007fffc30dfe5a libsystem_kernel.dylib`__read_nocancel + 10
+libsystem_kernel.dylib`__read_nocancel:
+->  0x7fffc30dfe5a <+10>: jae    0x7fffc30dfe64            ; <+20>
+    0x7fffc30dfe5c <+12>: movq   %rax, %rdi
+    0x7fffc30dfe5f <+15>: jmp    0x7fffc30d8cdf            ; cerror_nocancel
+    0x7fffc30dfe64 <+20>: retq
+    
+# Quit LLDB
+(lldb) quit
+Quitting LLDB will kill one or more processes. Do you really want to proceed: [Y/n] y
 ```
