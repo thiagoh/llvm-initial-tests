@@ -284,3 +284,61 @@ $ llvm-as < toy-4-sample-output-2.ll | opt -analyze -view-cfg
 ```
 
 <img src="if-else-graph-output-2.png" alt="Generating Graphs with Graphviz"></img>
+
+## How to find out the way LLVM writes IR code
+
+##### 1. First create a code that you want to find out what is the equivalent IR 
+
+Create a code file. For example `loop-test.cpp`
+
+```
+// File loop-test.cpp
+#include <cstdio>
+#include <cstdlib>
+
+/// putchard - putchar that takes a double and returns 0.
+extern "C" double putchard(double X) {
+  fputc((char)X, stderr);
+  return 0;
+}
+
+int main() {
+  // prints from 'a' to 'z'
+  for (float i = 97.0; i < 97.0 + 26; i++) {
+    putchard(i);
+  }
+
+  return 0;
+}
+```
+
+##### 2. Emit the LLVM
+
+Generate the IR code `.ll` file
+
+```
+clang++ -S -emit-llvm loop-test.cpp -o loop-test.ll 
+```
+
+##### 3. Run your test to check if everything's define 
+
+```
+clang++ -g loop-test.cpp -o loop-test.app && ./loop-test.app
+```
+
+## How to convert IR code to assembler code then to executable
+
+##### 1. Supose you have an LLVM IR file `classes-test.ll` 
+
+```
+$ llc -o classes-test.s classes-test.ll
+$ g++ classes-test.s -o classes-test.bin
+```
+
+##### 2. Then execute it
+
+```
+$ ./classes-test.bin
+34
+3.200000
+```

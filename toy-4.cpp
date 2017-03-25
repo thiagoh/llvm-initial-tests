@@ -312,6 +312,10 @@ static std::unique_ptr<ExprAST> ParseIdentifierExpr() {
 static std::unique_ptr<ExprAST> ParsePrimary() {
   switch (CurTok) {
   default:
+    // int bufLength = 1024;
+    // char s[1024];
+    // snprintf(&s, bufLength, "unknown token when expecting an expression: %d", CurTok);
+    // return LogError(s);
     return LogError("unknown token when expecting an expression");
   case tok_identifier:
     return ParseIdentifierExpr();
