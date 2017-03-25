@@ -88,6 +88,12 @@ Evaluated tp 444.000000
 ready> ^C
 ```
 
+### Chapter 5 (JIT)
+
+```
+$ clang++ -g -O3 toy-5.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -I ../llvm/examples/Kaleidoscope/include/ -o toy-5.app && ./toy-5.app
+```
+
 ## Debugging toy-4 with LLDB
 
 If for some reason you need to debug toy-4 you can always use [LLDB](https://lldb.llvm.org/lldb-gdb.html)
