@@ -4,6 +4,7 @@ target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.12.0"
 
 %class.Person = type <{ i32, [4 x i8], double, i8*, i32, [4 x i8] }>
+%class.MyClass = type { i32 }
 
 @.str = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 @.str.1 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
@@ -43,14 +44,12 @@ entry:
   ret double 0.000000e+00
 }
 
-; Function Attrs: noinline norecurse ssp uwtable
-define i32 @main() #2 {
+; Function Attrs: noinline ssp uwtable
+define void @_Z9do_loop_1R6Person(%class.Person* dereferenceable(32) %person) #0 {
 entry:
-  %retval = alloca i32, align 4
-  %person1 = alloca %class.Person, align 8
+  %person.addr = alloca %class.Person*, align 8
   %counter = alloca i32, align 4
-  store i32 0, i32* %retval, align 4
-  call void @_ZN6PersonC1Ei(%class.Person* %person1, i32 34)
+  store %class.Person* %person, %class.Person** %person.addr, align 8
   store i32 0, i32* %counter, align 4
   br label %for.cond
 
@@ -60,23 +59,78 @@ for.cond:                                         ; preds = %for.inc, %entry
   br i1 %cmp, label %for.body, label %for.end
 
 for.body:                                         ; preds = %for.cond
-  %call = call i32 @_ZN6Person6getAgeEv(%class.Person* %person1)
+  %1 = load %class.Person*, %class.Person** %person.addr, align 8
+  %call = call i32 @_ZN6Person6getAgeEv(%class.Person* %1)
   %call1 = call double @c_puti(i32 %call)
   br label %for.inc
 
 for.inc:                                          ; preds = %for.body
-  %1 = load i32, i32* %counter, align 4
-  %inc = add nsw i32 %1, 1
+  %2 = load i32, i32* %counter, align 4
+  %inc = add nsw i32 %2, 1
   store i32 %inc, i32* %counter, align 4
   br label %for.cond
 
 for.end:                                          ; preds = %for.cond
-  %call2 = call double @_ZN6Person17getChildrenAgeAVGEv(%class.Person* %person1)
-  %call3 = call double @c_putd(double %call2)
-  %call4 = call i8* @_ZN6Person7getNameEv(%class.Person* %person1)
-  %call5 = call double @c_puts(i8* %call4)
-  %call6 = call i32 @_ZN6Person4getZEv(%class.Person* %person1)
-  %call7 = call i8* @_ZN6Person7getNameEv(%class.Person* %person1)
+  ret void
+}
+
+; Function Attrs: noinline nounwind ssp uwtable
+define linkonce_odr i32 @_ZN6Person6getAgeEv(%class.Person* %this) #2 align 2 {
+entry:
+  %this.addr = alloca %class.Person*, align 8
+  store %class.Person* %this, %class.Person** %this.addr, align 8
+  %this1 = load %class.Person*, %class.Person** %this.addr, align 8
+  %age = getelementptr inbounds %class.Person, %class.Person* %this1, i32 0, i32 0
+  %0 = load i32, i32* %age, align 8
+  ret i32 %0
+}
+
+; Function Attrs: noinline ssp uwtable
+define void @_Z9do_loop_2R6Person(%class.Person* dereferenceable(32) %person) #0 {
+entry:
+  %person.addr = alloca %class.Person*, align 8
+  %counter = alloca double, align 8
+  store %class.Person* %person, %class.Person** %person.addr, align 8
+  store double 0.000000e+00, double* %counter, align 8
+  br label %for.cond
+
+for.cond:                                         ; preds = %for.inc, %entry
+  %0 = load double, double* %counter, align 8
+  %cmp = fcmp olt double %0, 7.000000e+00
+  br i1 %cmp, label %for.body, label %for.end
+
+for.body:                                         ; preds = %for.cond
+  %1 = load %class.Person*, %class.Person** %person.addr, align 8
+  %call = call i32 @_ZN6Person6getAgeEv(%class.Person* %1)
+  %call1 = call double @c_puti(i32 %call)
+  br label %for.inc
+
+for.inc:                                          ; preds = %for.body
+  %2 = load double, double* %counter, align 8
+  %inc = fadd double %2, 1.000000e+00
+  store double %inc, double* %counter, align 8
+  br label %for.cond
+
+for.end:                                          ; preds = %for.cond
+  ret void
+}
+
+; Function Attrs: noinline norecurse ssp uwtable
+define i32 @main() #3 {
+entry:
+  %retval = alloca i32, align 4
+  %myClassInstance = alloca %class.MyClass, align 4
+  %person1 = alloca %class.Person, align 8
+  store i32 0, i32* %retval, align 4
+  call void @_ZN6PersonC1Ei(%class.Person* %person1, i32 34)
+  call void @_Z9do_loop_1R6Person(%class.Person* dereferenceable(32) %person1)
+  call void @_Z9do_loop_2R6Person(%class.Person* dereferenceable(32) %person1)
+  %call = call double @_ZN6Person17getChildrenAgeAVGEv(%class.Person* %person1)
+  %call1 = call double @c_putd(double %call)
+  %call2 = call i8* @_ZN6Person7getNameEv(%class.Person* %person1)
+  %call3 = call double @c_puts(i8* %call2)
+  %call4 = call i32 @_ZN6Person4getZEv(%class.Person* %person1)
+  %call5 = call i8* @_ZN6Person7getNameEv(%class.Person* %person1)
   ret i32 0
 }
 
@@ -94,18 +148,7 @@ entry:
 }
 
 ; Function Attrs: noinline nounwind ssp uwtable
-define linkonce_odr i32 @_ZN6Person6getAgeEv(%class.Person* %this) #3 align 2 {
-entry:
-  %this.addr = alloca %class.Person*, align 8
-  store %class.Person* %this, %class.Person** %this.addr, align 8
-  %this1 = load %class.Person*, %class.Person** %this.addr, align 8
-  %age = getelementptr inbounds %class.Person, %class.Person* %this1, i32 0, i32 0
-  %0 = load i32, i32* %age, align 8
-  ret i32 %0
-}
-
-; Function Attrs: noinline nounwind ssp uwtable
-define linkonce_odr double @_ZN6Person17getChildrenAgeAVGEv(%class.Person* %this) #3 align 2 {
+define linkonce_odr double @_ZN6Person17getChildrenAgeAVGEv(%class.Person* %this) #2 align 2 {
 entry:
   %this.addr = alloca %class.Person*, align 8
   store %class.Person* %this, %class.Person** %this.addr, align 8
@@ -116,7 +159,7 @@ entry:
 }
 
 ; Function Attrs: noinline nounwind ssp uwtable
-define linkonce_odr i8* @_ZN6Person7getNameEv(%class.Person* %this) #3 align 2 {
+define linkonce_odr i8* @_ZN6Person7getNameEv(%class.Person* %this) #2 align 2 {
 entry:
   %this.addr = alloca %class.Person*, align 8
   store %class.Person* %this, %class.Person** %this.addr, align 8
@@ -127,7 +170,7 @@ entry:
 }
 
 ; Function Attrs: noinline nounwind ssp uwtable
-define linkonce_odr i32 @_ZN6Person4getZEv(%class.Person* %this) #3 align 2 {
+define linkonce_odr i32 @_ZN6Person4getZEv(%class.Person* %this) #2 align 2 {
 entry:
   %this.addr = alloca %class.Person*, align 8
   store %class.Person* %this, %class.Person** %this.addr, align 8
@@ -138,7 +181,7 @@ entry:
 }
 
 ; Function Attrs: noinline nounwind ssp uwtable
-define linkonce_odr void @_ZN6PersonC2Ei(%class.Person* %this, i32 %age) unnamed_addr #3 align 2 {
+define linkonce_odr void @_ZN6PersonC2Ei(%class.Person* %this, i32 %age) unnamed_addr #2 align 2 {
 entry:
   %this.addr = alloca %class.Person*, align 8
   %age.addr = alloca i32, align 4
@@ -157,8 +200,8 @@ entry:
 
 attributes #0 = { noinline ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #2 = { noinline norecurse ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #3 = { noinline nounwind ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #2 = { noinline nounwind ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #3 = { noinline norecurse ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 
 !llvm.module.flags = !{!0}
 !llvm.ident = !{!1}
