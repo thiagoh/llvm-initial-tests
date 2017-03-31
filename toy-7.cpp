@@ -673,8 +673,8 @@ static std::unique_ptr<FunctionAST> ParseDefinition() {
   if (!Proto)
     return nullptr;
 
-  if (auto E = ParseExpression())
-    return llvm::make_unique<FunctionAST>(std::move(Proto), std::move(E));
+  if (auto Body = ParseExpression())
+    return llvm::make_unique<FunctionAST>(std::move(Proto), std::move(Body));
   return nullptr;
 }
 
