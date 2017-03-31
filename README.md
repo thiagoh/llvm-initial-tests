@@ -94,6 +94,70 @@ ready> ^C
 $ clang++ -g -O3 toy-5.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -I ../llvm/examples/Kaleidoscope/include/ -o toy-5.app && ./toy-5.app
 ```
 
+### Chapter 6 (User defined Operators)
+
+```
+$ clang++ -g -O3 toy-6.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -I ../llvm/examples/Kaleidoscope/include/ -o toy-6.app && ./toy-6.app
+
+ready>
+# Logical unary not.
+def unary!(v)
+  if v then
+    0
+  else
+    1;
+
+# Unary negate.
+def unary-(v)
+  0-v;
+
+# Define > with the same precedence as <.
+def binary> 10 (LHS RHS)
+  RHS < LHS;
+
+# Binary logical or, which does not short circuit.
+def binary| 5 (LHS RHS)
+  if LHS then
+    1
+  else if RHS then
+    1
+  else
+    0;
+
+# Binary logical and, which does not short circuit.
+def binary& 6 (LHS RHS)
+  if !LHS then
+    0
+  else
+    !!RHS;
+
+# Define = with slightly lower precedence than relationals.
+def binary = 9 (LHS RHS)
+  !(LHS < RHS | LHS > RHS);
+
+# Define ':' for sequencing: as a low-precedence operator that ignores operands
+# and just returns the RHS.
+def binary : 1 (x y) y;
+
+# define putchard
+extern putchard(char);
+
+ready> def sayMyName() 
+putchard(84): putchard(104): putchard(105): putchard(97):putchard(103):putchard(111):
+putchard(32):
+putchard(65): putchard(110): putchard(100): putchard(114):putchard(97):putchard(100):putchard(101):
+putchard(10)
+;
+
+ready> sayMyName();
+Thiago Andrade
+
+ready> sayMyName():sayMyName():sayMyName();
+Thiago Andrade
+Thiago Andrade
+Thiago Andrade
+```
+
 ## Debugging toy-4 with LLDB
 
 If for some reason you need to debug toy-4 you can always use [LLDB](https://lldb.llvm.org/lldb-gdb.html)
