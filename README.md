@@ -357,7 +357,7 @@ $ llvm-as < toy-4-sample-output-2.ll | opt -analyze -view-cfg
 
 ## How to find out the way LLVM writes IR code
 
-##### 1. First create a code that you want to find out what is the equivalent IR 
+#### 1. First create a code that you want to find out what is the equivalent IR 
 
 Create a code file. For example `loop-test.cpp`
 
@@ -382,15 +382,64 @@ int main() {
 }
 ```
 
-##### 2. Emit the LLVM
+#### 2. Emit the LLVM
 
-Generate the IR code `.ll` file
+##### Generating the IR code `.ll` file
 
 ```
 clang++ -S -emit-llvm loop-test.cpp -o loop-test.ll 
 ```
 
-##### 3. Run your test to check if everything's define 
+##### Generating the OPTIMIZED (mem2reg in this case) IR code `.ll` file
+
+```
+clang++ -S -emit-llvm loop-test.cpp -o loop-test-optimized.ll && llvm-as < loop-test-optimized.ll | opt -mem2reg | llvm-dis -o loop-test-optimized.ll
+```
+
+Or 
+
+```
+// Add mem2reg optimizer directly in your code
+TheFPM->add(createPromoteMemoryToRegisterPass());
+```
+
+##### The difference between the regular and the optimized
+
+- Regular - stack operations (cycles of `alloca -> store -> load`)
+```
+...
+for.cond:                                         ; preds = %for.inc, %entry
+  %0 = load float, float* %i, align 4
+  %conv = fpext float %0 to double
+  %cmp = fcmp olt double %conv, 1.230000e+02
+  br i1 %cmp, label %for.body, label %for.end
+
+for.body:                                         ; preds = %for.cond
+  %1 = load float, float* %i, align 4
+  %conv1 = fpext float %1 to double
+  %call = call double @putchard(double %conv1)
+  br label %for.inc
+...
+```
+
+- Optimized - phi node operations
+
+```
+...
+for.cond:                                         ; preds = %for.inc, %entry
+  %i.0 = phi float [ 9.700000e+01, %entry ], [ %inc, %for.inc ]
+  %conv = fpext float %i.0 to double
+  %cmp = fcmp olt double %conv, 1.230000e+02
+  br i1 %cmp, label %for.body, label %for.end
+
+for.body:                                         ; preds = %for.cond
+  %conv1 = fpext float %i.0 to double
+  %call = call double @putchard(double %conv1)
+  br label %for.inc
+...
+```
+
+#### 3. Run your test to check if everything's define 
 
 ```
 clang++ -g loop-test.cpp -o loop-test.app && ./loop-test.app
@@ -398,14 +447,14 @@ clang++ -g loop-test.cpp -o loop-test.app && ./loop-test.app
 
 ## How to convert IR code to assembler code then to executable
 
-##### 1. Supose you have an LLVM IR file `classes-test.ll` 
+#### 1. Supose you have an LLVM IR file `classes-test.ll` 
 
 ```
 $ llc -o classes-test.s classes-test.ll
 $ g++ classes-test.s -o classes-test.bin
 ```
 
-##### 2. Then execute it
+#### 2. Then execute it
 
 ```
 $ ./classes-test.bin
