@@ -158,6 +158,12 @@ Thiago Andrade
 Thiago Andrade
 ```
 
+### Chapter 7 (User defined variables)
+
+```
+$ clang++ -g -O3 toy-7.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -I ../llvm/examples/Kaleidoscope/include/ -o toy-7.app && ./toy-7.app
+```
+
 ## Debugging toy-4 with LLDB
 
 If for some reason you need to debug toy-4 you can always use [LLDB](https://lldb.llvm.org/lldb-gdb.html)
