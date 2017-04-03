@@ -1,5 +1,7 @@
 /*
  *  The scanner definition for COOL.
+ *  To test this LEXER run the following command:
+ *  $ make lexer && make dotest
  */
 
 /*
