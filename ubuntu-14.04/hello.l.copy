@@ -1,0 +1,38 @@
+
+        int num_lines = 0, num_chars = 0;
+%{
+#include "stdio.h"
+#include "stdlib.h"
+#include <iostream>
+#include <string>
+// {ID}            printf("%s", getid());
+%}
+
+LETTER          [a-zA-Z]
+DIGIT           [0-9]
+DIGITS          DIGIT+
+ID              (LETTER)(LETTER|DIGIT)*
+
+%%
+username        printf("%s", getlogin());
+\n              ++num_lines; ++num_chars;
+.               ++num_chars;
+
+%%
+const char* getid() {
+        std::string s = "var ";
+        s += yytext;
+        s += ";";
+        num_chars += s.length();
+        return s.c_str();
+}
+const char* getlogin() {
+        char* text = "my login";
+        num_chars += strlen(yytext);
+        num_chars += strlen(text);
+        return text;
+}
+main() {
+        yylex();
+        printf( "# of lines = %d, # of chars = %d\n", num_lines, num_chars );
+}

@@ -1,3 +1,8 @@
+# Custom
+ubuntu-14.04/llvm/
+ubuntu-14.04/vagrant-ssh
+ubuntu-14.04/clang+llvm-4.0.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+
 # Prerequisites
 *.d
 
