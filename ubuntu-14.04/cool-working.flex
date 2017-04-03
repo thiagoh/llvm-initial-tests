@@ -1,3 +1,7 @@
+/*
+ * Thanks to: https://github.com/ryantimwilson/Cool-Lexer
+ * and: https://github.com/jmoyers/cool-lexer
+*/
 %{
 #include <cool-parse.h>
 #include <stringtab.h>
