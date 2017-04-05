@@ -135,9 +135,10 @@ BREAK           break
 %%
 
 {END_COMMENT} {
-    cool_yylval.error_msg = "Unmatched *)";
-    return ERROR;
+  cool_yylval.error_msg = "Unmatched *)";
+  return ERROR;
 }
+
 {START_COMMENT} {
   debug("BEGIN COMMENT");
   BEGIN(COMMENT); 
