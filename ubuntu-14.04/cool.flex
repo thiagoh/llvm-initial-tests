@@ -1,6 +1,8 @@
 /*
  *  The scanner definition for COOL.
  *
+ * Thanks to: https://raw.githubusercontent.com/ryantimwilson/Cool-Lexer/master/cool.flex
+ *
  *  IMPORTANT!
  *  To test this LEXER run the following command:
  *  $ watchfiles -qq 'make lexer && make dotest' cool.flex test.cl
@@ -10,15 +12,9 @@
 /*
  *  Stuff enclosed in %{ %} in the first section is copied verbatim to the
  *  output, so headers and global definitions are placed here to be visible
- * to the code in the file.  Dont remove anything that was here initially
+ * to the code in the file.  Don't remove anything that was here initially
  */
 %{
-
-#include "stdio.h"
-#include "stdlib.h"
-#include <iostream>
-#include <string>
-  
 #include <cool-parse.h>
 #include <stringtab.h>
 #include <utilities.h>
@@ -29,9 +25,7 @@
 
 /* Max size of string constants */
 #define MAX_STR_CONST 1025
-#define YY_NO_UNPUT   /* keep g++ happy */ 
-
-using namespace std;
+#define YY_NO_UNPUT   /* keep g++ happy */
 
 extern FILE *fin; /* we read from this file */
 
@@ -46,25 +40,42 @@ extern FILE *fin; /* we read from this file */
 
 char string_buf[MAX_STR_CONST]; /* to assemble string constants */
 char *string_buf_ptr;
-char OPEN_BRACKET_CHAR = '{';
-char CLOSE_BRACKET_CHAR = '}';
 
 extern int curr_lineno;
 extern int verbose_flag;
 
 extern YYSTYPE cool_yylval;
 
-char str_buf[MAX_STR_CONST]; /* to assemble string constants */
-char *str_buf_ptr;
+unsigned int comment = 0;
+unsigned int string_buf_left;
+bool string_error;
 
-bool debugEnabled = 0; 
-void debug(const char*);
-void print_strlen();
-void print_str();
-void print_input();
-bool max_strlen_check();
-bool max_strlen_check(int);
-int max_strlen_err();
+int str_write(char *str, unsigned int len) {
+  if (len < string_buf_left) {
+    strncpy(string_buf_ptr, str, len);
+    string_buf_ptr += len;
+    string_buf_left -= len;
+    return 0;
+  } else {
+    string_error = true;
+    yylval.error_msg = "String constant too long";
+    return -1;
+  }
+}
+
+int null_character_err() {
+  yylval.error_msg = "String contains null character";
+  string_error = true;
+  return -1;
+}
+
+char * backslash_common() {
+  char *c = &yytext[1];
+  if (*c == '\n') {
+    curr_lineno++;
+  }
+  return c;
+}
 
 /*
  *  Add Your own definitions here
@@ -76,258 +87,233 @@ int max_strlen_err();
  * Define names for regular expressions here.
  */
 
-%x STRING
-%x COMMENT
-%s CLASS_DEF
-%s OBJECT_DEF
-%s METHOD_PARAMETERS
-%s METHOD_PARAM_DEF
-%s PARAMS_DEFINED
-
+CLASS           [cC][lL][aA][sS][sS]
 DARROW          =>
+DIGIT           [0-9]
+ELSE            [eE][lL][sS][eE]
+FALSE           f[aA][lL][sS][eE]
+FI              [fF][iI]
+IF              [iI][fF]
+IN              [iI][nN]
+INHERITS        [iI][nN][hH][eE][rR][iI][tT][sS]
+ISVOID          [iI][sS][vV][oO][iI][dD]
+LET             [lL][eE][tT]
+LOOP            [lL][oO][oO][pP]
+POOL            [pP][oO][oO][lL]
+THEN            [tT][hH][eE][nN]
+WHILE           [wW][hH][iI][lL][eE]
+CASE            [cC][aA][sS][eE]
+ESAC            [eE][sS][aA][cC]
+NEW             [nN][eE][wW]
+OF              [oO][fF]
+NOT             [nN][oO][tT]
+TRUE            t[rR][uU][eE]
+OBJECTID        [a-z][_a-zA-Z0-9]*
+TYPEID          [A-Z][_a-zA-Z0-9]*
+NEWLINE         [\n]
+NOTNEWLINE      [^\n]
+NOTCOMMENT      [^\n*(\\]
+NOTSTRING       [^\n\0\\\"]
+WHITESPACE      [ \t\r\f\v]+
 LE              <=
 ASSIGN          <-
-SEMICOL         ;
-CLASS           class
-NEWLINE         (\r\n|\n)+
-NOTSTRING       [^\n\0\\\"]
-DASHCOMMENT     --.*{NEWLINE}
-TRUE_BOOL       true
-FALSE_BOOL      false
-WS              [ \t]*
-LETTER          [a-zA-Z]
-IDCHAR          ({LETTER}|[_])
-DIGIT           [0-9]
-DIGITS          {DIGIT}+
+NULLCH          [\0]
+BACKSLASH       [\\]
+STAR            [*]
+NOTSTAR         [^*]
+LEFTPAREN       [(]
+NOTLEFTPAREN    [^(]
+RIGHTPAREN      [)]
+NOTRIGHTPAREN   [^)]
+
+LINE_COMMENT    "--"
 START_COMMENT   "(*"
 END_COMMENT     "*)"
-OPEN_BRACKET    "{"
-CLOSE_BRACKET   "}"
-OPEN_PAREN      "("
-CLOSE_PAREN      ")"
-OPT_FRAC         (\.{DIGIT}+)?
-INTEGER          {DIGIT}+
-DECIMAL          {DIGIT}+{OPT_FRAC}
-ID              {IDCHAR}({IDCHAR}|{DIGIT})*
-OBJECTID        {ID}
-TYPEID          {ID}
-SELF            self
-INHERITS        (?i:inherits)
-LET             (?i:let)
-LOOP            (?i:loop)
-POOL            (?i:pool)
-THEN            (?i:then)
-WHILE           (?i:while)
-CASE            (?i:case)
-NEW             (?i:new)
-ISVOID          (?i:isvoid)
-OF              (?i:of)
-NOT             (?i:not)
-IF              if
-FI              fi
-ELSE            else
-FOR             for
-ELSIF           elsif
-DONE            done
-DO              do
-BREAK           break
+
+QUOTES          \"
+
+%x COMMENT
+%x STRING
 
 %%
 
-{END_COMMENT} {
-  cool_yylval.error_msg = "Unmatched *)";
-  return ERROR;
+ /*
+  *  Nested comments
+  */
+
+
+ /*
+  *  The multiple-character operators.
+  */
+   /* Priorities:
+    *  New line
+    *  Comments
+    *  String
+    *  Whitespace
+    *  Keywords
+    *  Identifiers
+    *  Integers
+    *  Error
+    */
+<INITIAL,COMMENT>{NEWLINE} {
+    curr_lineno++;
 }
 
 {START_COMMENT} {
-  debug("BEGIN COMMENT");
-  BEGIN(COMMENT); 
+  comment++;
+  BEGIN(COMMENT);
 }
-{DASHCOMMENT} {
-  debug("LINE COMMENT");
-  curr_lineno++;
+
+<COMMENT><<EOF>> {
+  yylval.error_msg = "EOF in comment";
+  BEGIN(INITIAL);
+  return (ERROR);
 }
-\" {
-    BEGIN(STRING);
-    str_buf_ptr = str_buf;
+
+<COMMENT>{STAR}/{NOTRIGHTPAREN}    ;
+<COMMENT>{LEFTPAREN}/{NOTSTAR}     ;
+<COMMENT>{NOTCOMMENT}*             ;
+
+<COMMENT>{BACKSLASH}(.|{NEWLINE}) {
+  backslash_common();
+};
+<COMMENT>{BACKSLASH}               ;
+
+<COMMENT>{START_COMMENT} {
+  comment++;
 }
-<STRING>\" {
+
+<COMMENT>{END_COMMENT} {
+  comment--;
+  if (comment == 0) {
     BEGIN(INITIAL);
-    if (max_strlen_check()) return max_strlen_err();
-    int len = str_buf_ptr - str_buf;
-    *str_buf_ptr = '\0';
-    str_buf_ptr = 0;
-    cool_yylval.symbol = stringtable.add_string(str_buf);
-    return STR_CONST;
+  }
 }
+
+<INITIAL>{END_COMMENT} {
+  yylval.error_msg = "Unmatched *)";
+  return (ERROR);
+}
+
+<INITIAL>{LINE_COMMENT}{NOTNEWLINE}*  ;
+
+<INITIAL>{QUOTES} {
+  BEGIN(STRING);
+  string_buf_ptr = string_buf;
+  string_buf_left = MAX_STR_CONST;
+  string_error = false;
+}
+
 <STRING><<EOF>> {
-    cool_yylval.error_msg = "EOF in string constant";
-    BEGIN(INITIAL);
-    return ERROR;
-}
-<STRING>\\\n {
-  *str_buf_ptr++ = '\n';
-  curr_lineno++;
-}
-<STRING>\n {
-    curr_lineno++;
-    BEGIN(INITIAL);
-    cool_yylval.error_msg = "Unterminated string constant";
-    return ERROR;
-}
-<STRING>\0 {
-    cool_yylval.error_msg = "String contains null character";
-    return ERROR;
-}
-<STRING>\\[^ntbf] {
-    if (max_strlen_check()) return max_strlen_check();
-    *str_buf_ptr++ = yytext[1];
-}
-<STRING>\\[n] {
-    if (max_strlen_check()) return max_strlen_check();
-    *str_buf_ptr++ = '\n';
-}
-<STRING>\\[t] {
-    if (max_strlen_check()) return max_strlen_check();
-    *str_buf_ptr++ = '\t';
-}
-<STRING>\\[b] {
-    if (max_strlen_check()) return max_strlen_check();
-    *str_buf_ptr++ = '\b';
-}
-<STRING>\\[f] {
-    if (max_strlen_check()) return max_strlen_check();
-    *str_buf_ptr++ = '\f';
-}
-<STRING>. {
-    if (max_strlen_check()) return max_strlen_err();
-    *str_buf_ptr++ = *yytext;
-}
-
-<COMMENT>{NEWLINE} { curr_lineno++; }
-<COMMENT>. { }
-<COMMENT>{END_COMMENT} { 
-  debug("END COMMENT");
-  BEGIN(INITIAL); 
-}
-{TRUE_BOOL} { 
-  cool_yylval.boolean = 1;
-  return BOOL_CONST;
-}
-{FALSE_BOOL} { 
-  cool_yylval.boolean = 0;
-  return BOOL_CONST; 
-}
-{INTEGER} { 
-  cool_yylval.symbol = inttable.add_string(yytext);
-  return INT_CONST;
-}
-{DARROW}		  { return (DARROW); }
-{LE}		      { return (LE); }
-<CLASS_DEF>{OPEN_BRACKET} {
-  debug("END CLASS_DEF");
-  BEGIN INITIAL;
-  return OPEN_BRACKET_CHAR;
-}
-<METHOD_PARAMETERS>{OBJECTID} {
-  debug("BEGIN METHOD_PARAM_DEF");
-  BEGIN METHOD_PARAM_DEF;
-  cool_yylval.symbol = idtable.add_string(yytext);
-  return OBJECTID;
-}
-<METHOD_PARAM_DEF>(:) {
-  return ':';
-}
-<METHOD_PARAM_DEF>{TYPEID} {
-  cool_yylval.symbol = idtable.add_string(yytext);
-  return TYPEID;
-}
-<METHOD_PARAM_DEF>, {
-  BEGIN METHOD_PARAMETERS;
-  return ',';
-}
-<METHOD_PARAM_DEF>{CLOSE_PAREN} {
-  debug("BEGIN PARAMS_DEFINED");
-  BEGIN PARAMS_DEFINED;
-  return ')';
-}
-<PARAMS_DEFINED>(:) {
-  return ':';
-}
-<PARAMS_DEFINED>{TYPEID} {
-  cool_yylval.symbol = idtable.add_string(yytext);
-  return TYPEID;
-}
-<PARAMS_DEFINED>{OPEN_BRACKET} {
-  debug("BEGIN INITIAL");
-  BEGIN INITIAL;
-  return OPEN_BRACKET_CHAR;
-}
-<OBJECT_DEF,CLASS_DEF>{TYPEID} {
-  cool_yylval.symbol = idtable.add_string(yytext);
-  return TYPEID;
-}
-<OBJECT_DEF>{OPEN_PAREN} {
-  debug("BEGIN METHOD_PARAMETERS");
-  BEGIN METHOD_PARAMETERS;
-  return '(';
-}
-<OBJECT_DEF>(;|{OPEN_BRACKET}) {
-  debug("END OBJECT_DEF");
-  BEGIN INITIAL;
-  return (char) yytext[0];
-}
-
-{IF}          { return IF; }
-{FI}          { return FI; }
-{ELSE}        { return ELSE; }
-{LOOP}      { return LOOP; }    
-{POOL}      { return POOL; }
-{THEN}      { return THEN; }
-{WHILE}     { return WHILE; }
-{CASE}      { return CASE; }
-{NEW}       { return NEW; }
-{OF}        { return OF; }
-{ASSIGN}    { return ASSIGN; }
-{INHERITS}  { return INHERITS; }    
-{LET}       { return LET; } 
-{NOT}       { return NOT; }
-
-{CLOSE_BRACKET}        { return '}'; }
-{OPEN_BRACKET}         { return '{'; }
-"<"         { return '<'; }
-"@"         { return '@'; }
-"~"         { return '~'; }
-"="         { return '='; }
-"."         { return '.'; }
-"-"         { return '-'; }
-","         { return ','; }
-"+"         { return '+'; }
-"*"         { return '*'; }
-"/"         { return '/'; }
-"("         { return '('; }
-")"         { return ')'; }
-":"         { return ':'; }
-";"         { return ';'; }
-\n          { curr_lineno++; }
-{WS}        {}
-
-<INITIAL>{CLASS} {
-  debug("BEGIN CLASS");
-  BEGIN(CLASS_DEF);
-  return CLASS;
-}
-<INITIAL>{OBJECTID} { 
-  debug("BEGIN OBJECT_DEF");
-  BEGIN OBJECT_DEF;
-  cool_yylval.symbol = idtable.add_string(yytext);
-  return OBJECTID;
-}
-
-. {
-  cool_yylval.error_msg = strdup(yytext);
+  yylval.error_msg = "EOF in string constant";
+  BEGIN(INITIAL);
   return ERROR;
 }
+
+<STRING>{NOTSTRING}* {
+  int rc = str_write(yytext, strlen(yytext));
+  if (rc != 0) {
+    return (ERROR);
+  }
+}
+<STRING>{NULLCH} {
+  null_character_err();
+  return (ERROR);
+}
+
+<STRING>{NEWLINE} {
+  BEGIN(INITIAL);
+  curr_lineno++;
+  if (!string_error) {
+    yylval.error_msg = "Unterminated string constant";
+    return (ERROR);
+  }
+}
+<STRING>{BACKSLASH}(.|{NEWLINE}) {
+  char *c = backslash_common();
+  int rc;
+
+  switch (*c) {
+    case 'n':
+      rc = str_write("\n", 1);
+      break;
+    case 'b':
+      rc = str_write("\b", 1);
+      break;
+    case 't':
+      rc = str_write("\t", 1);
+      break;
+    case 'f':
+      rc = str_write("\f", 1);
+      break;
+    case '\0':
+      rc = null_character_err();
+      break;
+    default:
+      rc = str_write(c, 1);
+  }
+  if (rc != 0) {
+    return (ERROR);
+  }
+}
+<STRING>{BACKSLASH}             ;
+
+<STRING>{QUOTES} {
+  BEGIN(INITIAL);
+  if (!string_error) {
+    yylval.symbol = stringtable.add_string(string_buf, string_buf_ptr - string_buf);
+    return (STR_CONST);
+  }
+}
+
+{WHITESPACE}                     ;
+
+<INITIAL>{TRUE}                  { yylval.boolean = true; return (BOOL_CONST); }
+<INITIAL>{FALSE}                 { yylval.boolean = false; return (BOOL_CONST); }
+
+<INITIAL>{CLASS}                 { return (CLASS); }
+<INITIAL>{ELSE}                  { return (ELSE); }
+<INITIAL>{FI}                    { return (FI); }
+<INITIAL>{IF}                    { return (IF); }
+<INITIAL>{IN}                    { return (IN); }
+<INITIAL>{INHERITS}              { return (INHERITS); }
+<INITIAL>{ISVOID}                { return (ISVOID); }
+<INITIAL>{LET}                   { return (LET); }
+<INITIAL>{LOOP}                  { return (LOOP); }
+<INITIAL>{POOL}                  { return (POOL); }
+<INITIAL>{THEN}                  { return (THEN); }
+<INITIAL>{WHILE}                 { return (WHILE); }
+<INITIAL>{CASE}                  { return (CASE); }
+<INITIAL>{ESAC}                  { return (ESAC); }
+<INITIAL>{NEW}                   { return (NEW); }
+<INITIAL>{OF}                    { return (OF); }
+<INITIAL>{NOT}                   { return (NOT); }
+<INITIAL>{DARROW}		 { return (DARROW); }
+<INITIAL>{ASSIGN}                { return (ASSIGN); }
+<INITIAL>{LE}                    { return (LE); }
+
+<INITIAL>{TYPEID}                { yylval.symbol = stringtable.add_string(yytext); return (TYPEID); }
+<INITIAL>{OBJECTID}              { yylval.symbol = stringtable.add_string(yytext); return (OBJECTID); }
+<INITIAL>{DIGIT}+                { yylval.symbol = stringtable.add_string(yytext); return (INT_CONST); }
+
+<INITIAL>";"                     { return int(';'); }
+<INITIAL>","                     { return int(','); }
+<INITIAL>":"                     { return int(':'); }
+<INITIAL>"{"                     { return int('{'); }
+<INITIAL>"}"                     { return int('}'); }
+<INITIAL>"+"                     { return int('+'); }
+<INITIAL>"-"                     { return int('-'); }
+<INITIAL>"*"                     { return int('*'); }
+<INITIAL>"/"                     { return int('/'); }
+<INITIAL>"<"                     { return int('<'); }
+<INITIAL>"="                     { return int('='); }
+<INITIAL>"~"                     { return int('~'); }
+<INITIAL>"."                     { return int('.'); }
+<INITIAL>"@"                     { return int('@'); }
+<INITIAL>"("                     { return int('('); }
+<INITIAL>")"                     { return int(')'); }
+
+<INITIAL>.                       { yylval.error_msg = yytext; return (ERROR); }
 
  /*
   * Keywords are case-insensitive except for the values true and false,
@@ -337,40 +323,10 @@ BREAK           break
 
  /*
   *  String constants (C syntax)
-  *  Escape sequence \c is accepted for all characters c. Except for 
+  *  Escape sequence \c is accepted for all characters c. Except for
   *  \n \t \b \f, the result is c.
   *
   */
+
+
 %%
-
-void debug(const char* text) {
-  if (debugEnabled) {
-    printf("[%s]\n", text);
-  }
-}
-
-void print_strlen () { 
-    printf("String length:%d\n", str_buf_ptr - str_buf); 
-}
-
-void print_str () {
-    printf("String:'%s'\n", str_buf);
-}
-
-void print_input () {
-    printf("Scan:'%s'\n", yytext);
-}
-
-bool max_strlen_check () { 
-    return (str_buf_ptr - str_buf) + 1 > MAX_STR_CONST; 
-}
-
-bool max_strlen_check (int size) {
-    return (str_buf_ptr - str_buf) + size > MAX_STR_CONST;
-}
-
-int max_strlen_err() { 
-    BEGIN(INITIAL);
-    cool_yylval.error_msg = "String constant too long";
-    return ERROR;
-}
