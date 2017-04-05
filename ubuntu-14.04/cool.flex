@@ -164,7 +164,10 @@ BREAK           break
     BEGIN(INITIAL);
     return ERROR;
 }
-<STRING>\\\n { curr_lineno++; }
+<STRING>\\\n {
+  *str_buf_ptr++ = '\n';
+  curr_lineno++;
+}
 <STRING>\n {
     curr_lineno++;
     BEGIN(INITIAL);
