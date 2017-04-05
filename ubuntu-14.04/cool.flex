@@ -26,7 +26,7 @@
 
 /* Max size of string constants */
 #define MAX_STR_CONST 1025
-#define YY_NO_UNPUT   /* keep g++ happy */
+#define YY_NO_UNPUT   /* keep g++ happy */ 
 
 using namespace std;
 
@@ -49,6 +49,10 @@ extern int verbose_flag;
 
 extern YYSTYPE cool_yylval;
 
+bool debugEnabled = false; 
+
+void debug(const char*);
+
 /*
  *  Add Your own definitions here
  */
@@ -59,27 +63,26 @@ extern YYSTYPE cool_yylval;
  * Define names for regular expressions here.
  */
 
-%START COMMENT
-%START OBJECT_DEF
+%x STRING
+%x COMMENT
+%s OBJECT_DEF
 
 DARROW          =>
 ASSIGN          <-
 SEMICOL         ;
 CLASS           class
-LINE_BREAK      \n
+NEWLINE         (\r\n|\n)+
 TRUE_BOOL       true
 FALSE_BOOL      false
 
-WS                  [ \t]+
-
-START_COMMENT       {WS}*[(][*]
-START_LINE_COMMENT  .*[*][)]
-END_COMMENT         .*[*][)]
-
+WS              [ \t]*
 LETTER          [a-zA-Z]
 IDCHAR          ({LETTER}|[_])
 DIGIT           [0-9]
 DIGITS          {DIGIT}+
+
+START_COMMENT   "(*"
+END_COMMENT     "*)"
 
 OPT_FRAC         (\.{DIGIT}+)?
 INTEGER          {DIGIT}+
@@ -108,52 +111,39 @@ BREAK           break
   *  Nested comments
   */
 
- /*
-  *  The multiple-character operators.
-  */
-<INITIAL>{START_COMMENT}        { BEGIN COMMENT; }
-<COMMENT>{END_COMMENT}          { BEGIN 0;}
-<COMMENT>.*                     {
-                                }
-
-<INITIAL>{OBJECTID}    { 
-                        BEGIN OBJECT_DEF;
-                        cool_yylval.symbol = idtable.add_string(yytext);
-                        return OBJECTID;
-                      }
-<OBJECT_DEF>{TYPEID}  {
-                        cool_yylval.symbol = idtable.add_string(yytext);
-                        return TYPEID;
-                      }
-<OBJECT_DEF>{ASSIGN}  {
-                        return ASSIGN;
-                      }
-<OBJECT_DEF>;         {
-                        BEGIN INITIAL;
-                        return ';';
-                      }
+{END_COMMENT} {
+    cool_yylval.error_msg = "Unmatched *)";
+    return ERROR;
+}
+{START_COMMENT} {
+  debug("BEGIN COMMENT");
+  BEGIN(COMMENT); 
+}
+<COMMENT>{NEWLINE} { curr_lineno++; }
+<COMMENT>\n { curr_lineno++; }
+<COMMENT>. { }
+<COMMENT>{END_COMMENT} { 
+  BEGIN(INITIAL); 
+}
 
 {IF}          { return IF; }
 {FI}          { return FI; }
 {ELSE}        { return ELSE; }
 {WHILE}       { return WHILE; }
-
-{TRUE_BOOL}   { 
-                cool_yylval.boolean = 1;
-                return BOOL_CONST; }
-{FALSE_BOOL}  { 
-                cool_yylval.boolean = 0;
-                return BOOL_CONST; }
-
-{INTEGER}     { 
-                    cool_yylval.symbol = inttable.add_string(yytext);
-                    return INT_CONST;
-                  }
-
+{TRUE_BOOL} { 
+  cool_yylval.boolean = 1;
+  return BOOL_CONST;
+}
+{FALSE_BOOL} { 
+  cool_yylval.boolean = 0;
+  return BOOL_CONST; 
+}
+{INTEGER} { 
+  cool_yylval.symbol = inttable.add_string(yytext);
+  return INT_CONST;
+}
 {DARROW}		  { return (DARROW); }
-
 {CLASS}       { return CLASS; }
-
 "=>"        { return DARROW; }
 "=<"        { return LE; }
 {ASSIGN}    { return ASSIGN; }
@@ -174,16 +164,31 @@ BREAK           break
 ":"         { return ':'; }
 ";"         { return ';'; }
 
-<INITIAL>{START_LINE_COMMENT}   { BEGIN COMMENT; }
+{OBJECTID} { 
+  debug("begin OBJECT_DEF");
+  BEGIN OBJECT_DEF;
+  cool_yylval.symbol = idtable.add_string(yytext);
+  return OBJECTID;
+}
+<OBJECT_DEF>{TYPEID} {
+  cool_yylval.symbol = idtable.add_string(yytext);
+  return TYPEID;
+}
+<OBJECT_DEF>{ASSIGN} {
+  return ASSIGN;
+}
+<OBJECT_DEF>; {
+  debug("END OBJECT_DEF");
+  BEGIN INITIAL;
+  return ';';
+}
 
-
-
-
-
-
-
-
-.             {}
+\n          { curr_lineno++; }
+{WS}        {}
+. {
+  cool_yylval.error_msg = strdup(yytext);
+  return ERROR;
+}
 
  /*
   * Keywords are case-insensitive except for the values true and false,
@@ -197,6 +202,11 @@ BREAK           break
   *  \n \t \b \f, the result is c.
   *
   */
-
-
 %%
+
+void debug(const char* text) {
+
+  if (debugEnabled) {
+    printf("[%s]\n", text);
+  }
+}
