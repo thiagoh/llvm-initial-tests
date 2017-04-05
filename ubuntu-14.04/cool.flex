@@ -90,6 +90,8 @@ ASSIGN          <-
 SEMICOL         ;
 CLASS           class
 NEWLINE         (\r\n|\n)+
+NOTSTRING       [^\n\0\\\"]
+DASHCOMMENT     --.*{NEWLINE}
 TRUE_BOOL       true
 FALSE_BOOL      false
 WS              [ \t]*
@@ -140,7 +142,10 @@ BREAK           break
   debug("BEGIN COMMENT");
   BEGIN(COMMENT); 
 }
-
+{DASHCOMMENT} {
+  debug("LINE COMMENT");
+  curr_lineno++;
+}
 \" {
     BEGIN(STRING);
     str_buf_ptr = str_buf;
@@ -148,12 +153,15 @@ BREAK           break
 <STRING>\" {
     BEGIN(INITIAL);
     if (max_strlen_check()) return max_strlen_err();
+    int len = str_buf_ptr - str_buf;
+    *str_buf_ptr = '\0';
     str_buf_ptr = 0;
     cool_yylval.symbol = stringtable.add_string(str_buf);
     return STR_CONST;
 }
 <STRING><<EOF>> {
     cool_yylval.error_msg = "EOF in string constant";
+    BEGIN(INITIAL);
     return ERROR;
 }
 <STRING>\\\n { curr_lineno++; }

@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
     //
     // Scan and print all tokens.
     //
-    cout << "#name \"" << argv[optind] << "\"" << endl;
+    // cout << "#name \"" << argv[optind] << "\"" << endl;
 
     while ((token = cool_yylex()) != 0) {
       dump_cool_token(cout, curr_lineno, token, cool_yylval);
