@@ -73,88 +73,83 @@
 /* Copy the first part of user declarations.  */
 #line 6 "cool.y" /* yacc.c:339  */
 
-  #include <iostream>
-  #include "cool-tree.h"
-  #include "stringtab.h"
-  #include "utilities.h"
-  
-  extern char *curr_filename;
-  
-  
-  /* Locations */
-  #define YYLTYPE int              /* the type of locations */
-  #define cool_yylloc curr_lineno  /* use the curr_lineno from the lexer
-  for the location of tokens */
-    
-    extern int node_lineno;          /* set before constructing a tree node
-    to whatever you want the line number
-    for the tree node to be */
-      
-      
-      #define YYLLOC_DEFAULT(Current, Rhs, N)         \
-      Current = Rhs[1];                             \
-      node_lineno = Current;
-    
-    
-    #define SET_NODELOC(Current)  \
-    node_lineno = Current;
-    
-    /* IMPORTANT NOTE ON LINE NUMBERS
-    *********************************
-    * The above definitions and macros cause every terminal in your grammar to 
-    * have the line number supplied by the lexer. The only task you have to
-    * implement for line numbers to work correctly, is to use SET_NODELOC()
-    * before constructing any constructs from non-terminals in your grammar.
-    * Example: Consider you are matching on the following very restrictive 
-    * (fictional) construct that matches a plus between two integer constants. 
-    * (SUCH A RULE SHOULD NOT BE  PART OF YOUR PARSER):
-    
-    plus_consts	: INT_CONST '+' INT_CONST 
-    
-    * where INT_CONST is a terminal for an integer constant. Now, a correct
-    * action for this rule that attaches the correct line number to plus_const
-    * would look like the following:
-    
-    plus_consts	: INT_CONST '+' INT_CONST 
-    {
-      // Set the line number of the current non-terminal:
-      // ***********************************************
-      // You can access the line numbers of the i'th item with @i, just
-      // like you acess the value of the i'th exporession with $i.
-      //
-      // Here, we choose the line number of the last INT_CONST (@3) as the
-      // line number of the resulting expression (@$). You are free to pick
-      // any reasonable line as the line number of non-terminals. If you 
-      // omit the statement @$=..., bison has default rules for deciding which 
-      // line number to use. Check the manual for details if you are interested.
-      @$ = @3;
-      
-      
-      // Observe that we call SET_NODELOC(@3); this will set the global variable
-      // node_lineno to @3. Since the constructor call "plus" uses the value of 
-      // this global, the plus node will now have the correct line number.
-      SET_NODELOC(@3);
-      
-      // construct the result node:
-      $$ = plus(int_const($1), int_const($3));
-    }
-    
-    */
-    
-    
-    
-    void yyerror(char *s);        /*  defined below; called for each parse error */
-    extern int yylex();           /*  the entry point to the lexer  */
-    
-    /************************************************************************/
-    /*                DONT CHANGE ANYTHING IN THIS SECTION                  */
-    
-    Program ast_root;	      /* the result of the parse  */
-    Classes parse_results;        /* for use in semantic analysis */
-    int omerrs = 0;               /* number of errors in lexing and parsing */
-    
+#include <iostream>
+#include "cool-tree.h"
+#include "stringtab.h"
+#include "utilities.h"
 
-#line 158 "cool.tab.c" /* yacc.c:339  */
+extern char *curr_filename;
+
+/* Locations */
+#define YYLTYPE int              /* the type of locations */
+#define cool_yylloc curr_lineno  /* use the curr_lineno from the lexer
+for the location of tokens */
+
+extern int node_lineno;          /* set before constructing a tree node
+to whatever you want the line number
+for the tree node to be */
+  
+#define YYLLOC_DEFAULT(Current, Rhs, N)         \
+  Current = Rhs[1];                             \
+  node_lineno = Current;
+
+
+#define SET_NODELOC(Current)  \
+  node_lineno = Current;
+
+/* IMPORTANT NOTE ON LINE NUMBERS
+*********************************
+* The above definitions and macros cause every terminal in your grammar to 
+* have the line number supplied by the lexer. The only task you have to
+* implement for line numbers to work correctly, is to use SET_NODELOC()
+* before constructing any constructs from non-terminals in your grammar.
+* Example: Consider you are matching on the following very restrictive 
+* (fictional) construct that matches a plus between two integer constants. 
+* (SUCH A RULE SHOULD NOT BE  PART OF YOUR PARSER):
+
+plus_consts	: INT_CONST '+' INT_CONST 
+
+* where INT_CONST is a terminal for an integer constant. Now, a correct
+* action for this rule that attaches the correct line number to plus_const
+* would look like the following:
+
+plus_consts	: INT_CONST '+' INT_CONST 
+{
+  // Set the line number of the current non-terminal:
+  // ***********************************************
+  // You can access the line numbers of the i'th item with @i, just
+  // like you acess the value of the i'th exporession with $i.
+  //
+  // Here, we choose the line number of the last INT_CONST (@3) as the
+  // line number of the resulting expression (@$). You are free to pick
+  // any reasonable line as the line number of non-terminals. If you 
+  // omit the statement @$=..., bison has default rules for deciding which 
+  // line number to use. Check the manual for details if you are interested.
+  @$ = @3;
+  
+  
+  // Observe that we call SET_NODELOC(@3); this will set the global variable
+  // node_lineno to @3. Since the constructor call "plus" uses the value of 
+  // this global, the plus node will now have the correct line number.
+  SET_NODELOC(@3);
+  
+  // construct the result node:
+  $$ = plus(int_const($1), int_const($3));
+}
+
+*/
+
+void yyerror(char *s);        /*  defined below; called for each parse error */
+extern int yylex();           /*  the entry point to the lexer  */
+
+/************************************************************************/
+/*                DONT CHANGE ANYTHING IN THIS SECTION                  */
+
+Program ast_root;	      /* the result of the parse  */
+Classes parse_results;        /* for use in semantic analysis */
+int omerrs = 0;               /* number of errors in lexing and parsing */
+
+#line 153 "cool.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -250,25 +245,24 @@ extern int cool_yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 89 "cool.y" /* yacc.c:355  */
+#line 85 "cool.y" /* yacc.c:355  */
 
-      Boolean boolean;
-      Symbol symbol;
-      Program program;
-      Class_ class_;
-      Classes classes;
-      Feature feature;
-      Features features;
-      Formal formal;
-      Formals formals;
-      Case case_;
-      Cases cases;
-      Expression expression;
-      Expressions expressions;
-      char *error_msg;
-    
+  Boolean boolean;
+  Symbol symbol;
+  Program program;
+  Class_ class_;
+  Classes classes;
+  Feature feature;
+  Features features;
+  Formal formal;
+  Formals formals;
+  Case case_;
+  Cases cases;
+  Expression expression;
+  Expressions expressions;
+  char *error_msg;
 
-#line 272 "cool.tab.c" /* yacc.c:355  */
+#line 266 "cool.tab.c" /* yacc.c:355  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -297,7 +291,7 @@ int cool_yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 301 "cool.tab.c" /* yacc.c:358  */
+#line 295 "cool.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -599,7 +593,7 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   147,   147,   151,   154,   160,   163,   169
+       0,   149,   149,   153,   159,   169,   175,   183
 };
 #endif
 
@@ -1471,46 +1465,57 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 147 "cool.y" /* yacc.c:1646  */
+#line 149 "cool.y" /* yacc.c:1646  */
     { (yyloc) = (yylsp[0]); ast_root = program((yyvsp[0].classes)); }
-#line 1477 "cool.tab.c" /* yacc.c:1646  */
+#line 1471 "cool.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 152 "cool.y" /* yacc.c:1646  */
-    { (yyval.classes) = single_Classes((yyvsp[0].class_));
-    parse_results = (yyval.classes); }
-#line 1484 "cool.tab.c" /* yacc.c:1646  */
+#line 154 "cool.y" /* yacc.c:1646  */
+    { 
+      // printf("%s", $1);
+      (yyval.classes) = single_Classes((yyvsp[0].class_));
+      parse_results = (yyval.classes); 
+    }
+#line 1481 "cool.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 155 "cool.y" /* yacc.c:1646  */
-    { (yyval.classes) = append_Classes((yyvsp[-1].classes),single_Classes((yyvsp[0].class_))); 
-    parse_results = (yyval.classes); }
+#line 160 "cool.y" /* yacc.c:1646  */
+    {
+      // printf("%s", $1);
+      (yyval.classes) = append_Classes((yyvsp[-1].classes), single_Classes((yyvsp[0].class_)));
+      parse_results = (yyval.classes);
+    }
 #line 1491 "cool.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 161 "cool.y" /* yacc.c:1646  */
-    { (yyval.class_) = class_((yyvsp[-4].symbol),idtable.add_string("Object"),(yyvsp[-2].features),
-    stringtable.add_string(curr_filename)); }
-#line 1498 "cool.tab.c" /* yacc.c:1646  */
+#line 170 "cool.y" /* yacc.c:1646  */
+    { 
+      printf("%s", (yyvsp[-4].symbol));
+      printf("%s", (yyvsp[-2].features));
+      (yyval.class_) = class_((yyvsp[-4].symbol), idtable.add_string("Object"), (yyvsp[-2].features), stringtable.add_string(curr_filename)); 
+    }
+#line 1501 "cool.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 164 "cool.y" /* yacc.c:1646  */
-    { (yyval.class_) = class_((yyvsp[-6].symbol),(yyvsp[-4].symbol),(yyvsp[-2].features),stringtable.add_string(curr_filename)); }
-#line 1504 "cool.tab.c" /* yacc.c:1646  */
+#line 176 "cool.y" /* yacc.c:1646  */
+    {
+      (yyval.class_) = class_((yyvsp[-6].symbol),(yyvsp[-4].symbol),(yyvsp[-2].features),stringtable.add_string(curr_filename)); 
+    }
+#line 1509 "cool.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 169 "cool.y" /* yacc.c:1646  */
+#line 183 "cool.y" /* yacc.c:1646  */
     {  (yyval.features) = nil_Features(); }
-#line 1510 "cool.tab.c" /* yacc.c:1646  */
+#line 1515 "cool.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1514 "cool.tab.c" /* yacc.c:1646  */
+#line 1519 "cool.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1745,21 +1750,21 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 173 "cool.y" /* yacc.c:1906  */
+#line 187 "cool.y" /* yacc.c:1906  */
 
-    
-    /* This function is called automatically when Bison detects a parse error. */
-    void yyerror(char *s)
-    {
-      extern int curr_lineno;
-      
-      cerr << "\"" << curr_filename << "\", line " << curr_lineno << ": " \
-      << s << " at or near ";
-      print_cool_token(yychar);
-      cerr << endl;
-      omerrs++;
-      
-      if(omerrs>50) {fprintf(stdout, "More than 50 errors\n"); exit(1);}
-    }
-    
-    
+
+/* This function is called automatically when Bison detects a parse error. */
+void yyerror(char *s) {
+  extern int curr_lineno;
+  
+  cerr << "\"" << curr_filename << "\", line " << curr_lineno << ": " << s << " at or near ";
+  print_cool_token(yychar);
+  cerr << endl;
+  omerrs++;
+  
+  if (omerrs>50) {
+    fprintf(stdout, "More than 50 errors\n"); 
+    exit(1);
+  }
+}
+

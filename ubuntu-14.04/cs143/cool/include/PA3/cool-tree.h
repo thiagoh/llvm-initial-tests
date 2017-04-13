@@ -170,7 +170,6 @@ public:
 #endif
 };
 
-
 // define constructor - method
 class method_class : public Feature_class {
 protected:

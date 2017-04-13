@@ -1,0 +1,19 @@
+{
+    "files.associations": {
+        "*.flex": "lex",
+        "bitset": "cpp",
+        "set": "cpp",
+        "*.gen": "cpp",
+        "__functional_03": "cpp",
+        "__string": "cpp",
+        "deque": "cpp",
+        "filesystem": "cpp",
+        "forward_list": "cpp",
+        "functional": "cpp",
+        "list": "cpp",
+        "regex": "cpp",
+        "string": "cpp",
+        "system_error": "cpp",
+        "vector": "cpp"
+    }
+}
