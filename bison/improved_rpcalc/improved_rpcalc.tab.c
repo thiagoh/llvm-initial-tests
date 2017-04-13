@@ -62,7 +62,7 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 3 "test.y" /* yacc.c:339  */
+#line 3 "improved_rpcalc.y" /* yacc.c:339  */
 
   #include <ctype.h>
   #include <stdio.h>
@@ -94,7 +94,7 @@
   YYSTYPE** args;
   void** void_args;
 
-#line 98 "test.tab.c" /* yacc.c:339  */
+#line 98 "improved_rpcalc.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -142,7 +142,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 146 "test.tab.c" /* yacc.c:358  */
+#line 146 "improved_rpcalc.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -1219,21 +1219,21 @@ yyreduce:
   switch (yyn)
     {
         case 5:
-#line 54 "test.y" /* yacc.c:1661  */
+#line 54 "improved_rpcalc.y" /* yacc.c:1661  */
     {
     printf ("result -> %.10g\n\n", (yyvsp[-1].doubled)); 
   }
-#line 1227 "test.tab.c" /* yacc.c:1661  */
+#line 1227 "improved_rpcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 6:
-#line 59 "test.y" /* yacc.c:1661  */
+#line 59 "improved_rpcalc.y" /* yacc.c:1661  */
     { (yyval.doubled) = (yyvsp[0].doubled);           }
-#line 1233 "test.tab.c" /* yacc.c:1661  */
+#line 1233 "improved_rpcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 7:
-#line 60 "test.y" /* yacc.c:1661  */
+#line 60 "improved_rpcalc.y" /* yacc.c:1661  */
     {
     (yyval.doubled) = (yyvsp[-2].doubled) + (yyvsp[-1].doubled);
     void_args[0] = &(yyvsp[-2].doubled);
@@ -1241,11 +1241,11 @@ yyreduce:
     compose(yylval, 3, fill_args((yyvsp[0].chard), void_args));
     printf("%s -> %.10g\n", yylval.stringd, (yyval.doubled));
   }
-#line 1245 "test.tab.c" /* yacc.c:1661  */
+#line 1245 "improved_rpcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 8:
-#line 67 "test.y" /* yacc.c:1661  */
+#line 67 "improved_rpcalc.y" /* yacc.c:1661  */
     {
     (yyval.doubled) = (yyvsp[-2].doubled) - (yyvsp[-1].doubled);
     void_args[0] = &(yyvsp[-2].doubled);
@@ -1253,11 +1253,11 @@ yyreduce:
     compose(yylval, 3, fill_args((yyvsp[0].chard), void_args));      
     printf("%s -> %.10g\n", yylval.stringd, (yyval.doubled));
   }
-#line 1257 "test.tab.c" /* yacc.c:1661  */
+#line 1257 "improved_rpcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 9:
-#line 74 "test.y" /* yacc.c:1661  */
+#line 74 "improved_rpcalc.y" /* yacc.c:1661  */
     {
     (yyval.doubled) = (yyvsp[-2].doubled) * (yyvsp[-1].doubled);
     void_args[0] = &(yyvsp[-2].doubled);
@@ -1265,11 +1265,11 @@ yyreduce:
     compose(yylval, 3, fill_args((yyvsp[0].chard), void_args));
     printf("%s -> %.10g\n", yylval.stringd, (yyval.doubled));
   }
-#line 1269 "test.tab.c" /* yacc.c:1661  */
+#line 1269 "improved_rpcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 10:
-#line 81 "test.y" /* yacc.c:1661  */
+#line 81 "improved_rpcalc.y" /* yacc.c:1661  */
     {
     (yyval.doubled) = (yyvsp[-2].doubled) / (yyvsp[-1].doubled);
     void_args[0] = &(yyvsp[-2].doubled);
@@ -1277,11 +1277,11 @@ yyreduce:
     compose(yylval, 3, fill_args((yyvsp[0].chard), void_args));
     printf("%s -> %.10g\n", yylval.stringd, (yyval.doubled));
   }
-#line 1281 "test.tab.c" /* yacc.c:1661  */
+#line 1281 "improved_rpcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 11:
-#line 88 "test.y" /* yacc.c:1661  */
+#line 88 "improved_rpcalc.y" /* yacc.c:1661  */
     {
     (yyval.doubled) = pow ((yyvsp[-2].doubled), (yyvsp[-1].doubled));
     void_args[0] = &(yyvsp[-2].doubled);
@@ -1289,17 +1289,17 @@ yyreduce:
     compose(yylval, 3, fill_args((yyvsp[0].chard), void_args));
     printf("%s -> %.10g\n", yylval.stringd, (yyval.doubled));
   }
-#line 1293 "test.tab.c" /* yacc.c:1661  */
+#line 1293 "improved_rpcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 12:
-#line 95 "test.y" /* yacc.c:1661  */
+#line 95 "improved_rpcalc.y" /* yacc.c:1661  */
     { (yyval.doubled) = -(yyvsp[-1].doubled);          }
-#line 1299 "test.tab.c" /* yacc.c:1661  */
+#line 1299 "improved_rpcalc.tab.c" /* yacc.c:1661  */
     break;
 
 
-#line 1303 "test.tab.c" /* yacc.c:1661  */
+#line 1303 "improved_rpcalc.tab.c" /* yacc.c:1661  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1527,7 +1527,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 97 "test.y" /* yacc.c:1906  */
+#line 97 "improved_rpcalc.y" /* yacc.c:1906  */
 
 
 YYSTYPE** fill_args(char op, void** void_args) {
