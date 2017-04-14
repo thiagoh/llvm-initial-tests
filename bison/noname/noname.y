@@ -17,7 +17,7 @@
       int last_column;
     } YYLTYPE;
   
-  YYLTYPE yylloc;
+  // YYLTYPE yylloc;
 
   /* Function type.  */
   // typedef double (*func_t) (double);
@@ -27,8 +27,8 @@
     char *name;  /* name of symbol */
     int type;    /* type of symbol: either VAR or FNCT */
     union {
-      double vard;      /* value of a VAR */
-      int vari;         /* value of a VAR */
+      double doublev;      /* value of a VAR */
+      int intv;         /* value of a VAR */
       // func_t fnctptr;  /* value of a FNCT */
     } value;
     struct symrec *next;  /* link field */
@@ -58,7 +58,7 @@
   
 %}
 /* Bison declarations.  */
-
+%define parse.error verbose
 %token LET STMT_SEP
 %token <idv> ID              "identifier"
 %token <doublev> NUM         "number"
@@ -70,6 +70,7 @@
 %type  <symrecv> assignment  "assignment"
 %type  <symrecv> declaration "declaration"
 %type  <symrecv> exp         "expression"
+%type  <symrecv> stmt        "statement"
 
 %left '-' '+'
 %left '*' '/'
@@ -80,27 +81,34 @@
 
 prog:
   %empty
-  | prog STMT_SEP stmt 
+  | prog stmt 
+  | prog STMT_SEP
 ;
 
 stmt:
-  exp         
-  | assignment  
-  | declaration
-  | error '\n'  { yyerrok; }
+  exp STMT_SEP               { printf("\n[stmt]"); }
+  | declaration STMT_SEP     { printf("\n[stmt]"); }
+  | assignment STMT_SEP      { printf("\n[stmt]"); }
+  | error STMT_SEP           { printf("%d:%d", @1.first_column, @1.last_column); }
 ;
 
 assignment:
-    LET ID '=' exp STMT_SEP { $$ = $4; printf("assignment"); }
+  LET ID '=' exp             { $$ = $4; printf("\n[assignment]"); }
 ;
 
 declaration:
-  LET ID STMT_SEP { $$->name = $2; printf("assignment"); }
+  LET ID                     { printf("\n[declaration]"); }
 ;
 
 exp:
-  NUM                     { $$->name = (char*) "__annon"; $$->value.vard = $1; }
-  // | exp '+' exp        { $$ = $1 + $3; }
+  NUM {
+    $$ = (symrec *) malloc (sizeof (symrec));
+    $$->name = (char*) "__annon";
+    $$->value.doublev = $1;
+    printf("\nexp %lf", $1);
+  }
+  // | error                 { printf("ERROR3"); }
+  // | exp '+' exp        { $$ = $1 intv $3; }
   // | exp '-' exp        { $$ = $1 - $3; }
   // | exp '*' exp        { $$ = $1 * $3; }
   // | exp '/' exp {
@@ -131,33 +139,64 @@ exp:
 int yylex (void) {
   int c;
   /* Skip white space.  */
-  while ((c = getchar ()) == ' ' || c == '\t')
+  while ((c = getchar()) == ' ' || c == '\t')
     ++yylloc.last_column;
+  printf("\nchar -> %c", c); 
   /* Step.  */
   yylloc.first_line = yylloc.last_line;
   yylloc.first_column = yylloc.last_column;
   /* Process numbers.  */
-  if (isdigit (c)) {
-    yylval = c - '0';
-    ++yylloc.last_column;
-    while (isdigit (c = getchar ())) {
+
+  if (c == '.' || isdigit(c)) {
+    // ungetc(c, stdin);
+    char* doubleBuf = new char[64];
+    char* doubleBufBegin = doubleBuf;
+    int dix = 0;
+    do {
       ++yylloc.last_column;
-      yylval = yylval * 10 + c - '0';
-    }
-    ungetc(c, stdin);
+      *doubleBuf = c;
+      doubleBuf++;
+      dix++;
+      c = getchar();
+    } while(c == '.' || isdigit(c));
+    *doubleBuf = '\0';
+    double val = strtod(doubleBufBegin, 0);
+    yylval.doublev = val;
+    // sscanf(doubleBuf, "%lf", &val);
+    // printf("\nhere %s %lf \nhere %s %lf", &doubleBuf[0], val, &doubleBuf[0], val);
     return NUM;
   }
+  
   /* Return end-of-input.  */
   if (c == EOF)
     return 0;
-
+  if (c == 'l') {
+    ++yylloc.last_line;
+    printf("\nLET");
+    return LET;
+  }
+  if (isalpha(c)) {
+    char* s = new char[1];
+    *s = c;
+    yylval.idv = s;
+    ++yylloc.last_line;
+    return ID;
+  }
+  if (c == ';') {
+    ++yylloc.last_line;
+    printf("\nSTMT_SEP");
+    return STMT_SEP;
+  }
   /* Return a single char, and update location.  */
   if (c == '\n') {
+    printf("\nSTMT_SEP");
     ++line_number;
       ++yylloc.last_line;
       yylloc.last_column = 0;
+      return STMT_SEP;
   } else
     ++yylloc.last_column;
+  
   return c;
 }
 
@@ -171,35 +210,34 @@ int main (void) {
 
 symrec * putsym (char const *sym_name, int sym_type) {
 
-  symrec *ptr = (symrec *) malloc (sizeof (symrec));
-  ptr->name = (char *) malloc (strlen (sym_name) + 1);
-  strcpy (ptr->name,sym_name);
-  ptr->type = sym_type;
-  ptr->value.var = 0; /* Set value to 0 even if fctn.  */
-  ptr->next = (struct symrec *)sym_table;
-  sym_table = ptr;
-
-  return ptr;
+  // symrec *ptr = (symrec *) malloc (sizeof (symrec));
+  // ptr->name = (char *) malloc (strlen (sym_name) + 1);
+  // strcpy (ptr->name,sym_name);
+  // ptr->type = sym_type;
+  // ptr->value.doublev = 0; /* Set value to 0 even if fctn.  */
+  // ptr->next = (struct symrec *)sym_table;
+  // sym_table = ptr;
+  // return ptr;
+  return 0;
 }
 
 symrec * getsym (char const *sym_name) {
 
-  symrec *ptr;
+  // symrec *ptr;
 
-  for (ptr = sym_table; ptr != (symrec *) 0; ptr = (symrec *)ptr->next)
-    if (strcmp (ptr->name, sym_name) == 0)
-      return ptr;
+  // for (ptr = sym_table; ptr != (symrec *) 0; ptr = (symrec *)ptr->next)
+  //   if (strcmp (ptr->name, sym_name) == 0)
+  //     return ptr;
   return 0;
 }
 
 /* Called by yyparse on error.  */
-void yyerror (char const *s) {
-  fprintf (stderr, "%s\n", s);
+void yyerror(char const *s) {
+  fprintf (stderr, "ERROR: %s\n", s);
 }
 
 void division_by_zero(YYLTYPE yylloc) {
   fprintf (stderr, "SEVERE ERROR %d:%d - %d:%d. Division by zero",
                    yylloc.first_line, yylloc.first_column,
                    yylloc.last_line, yylloc.last_column);
-  yyerror("");
 }

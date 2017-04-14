@@ -87,8 +87,7 @@ int yylex (void) {
   yylloc.first_line = yylloc.last_line;
   yylloc.first_column = yylloc.last_column;
   /* Process numbers.  */
-  if (isdigit (c))
-    {
+  if (isdigit (c)) {
       yylval = c - '0';
       ++yylloc.last_column;
       while (isdigit (c = getchar ()))

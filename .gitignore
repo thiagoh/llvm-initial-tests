@@ -1,5 +1,7 @@
 # Custom
 bodhi/
+bison/**/*.output
+bison/**/*.tab.h
 ubuntu-14.04/llvm/
 ubuntu-14.04/lexer
 ubuntu-14.04/grading/
