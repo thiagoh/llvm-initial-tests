@@ -2,6 +2,7 @@
 bodhi/
 bison/**/*.output
 bison/**/*.tab.h
+bison/**/*.tab.c
 ubuntu-14.04/llvm/
 ubuntu-14.04/lexer
 ubuntu-14.04/grading/
