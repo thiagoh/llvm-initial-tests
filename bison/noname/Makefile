@@ -1,25 +1,30 @@
 
 CLASSDIR=.
-LIB= -lfl
+# LIB= -lfl
+LIB= -ll
+LDFLAGS:  -L/usr/local/opt/flex/lib
 
 SRC= noname.flex
 # SRC= noname.flex noname.nn README 
 #CSRC= lextest.cc utilities.cc stringtab.cc handle_flags.cc
-CSRC= 
+CSRC=
 # TSRC= mycoolc
 TSRC= 
 HSRC= 
 CGEN= noname-lex.cc
 HGEN=
-LIBS= parser semant cgen
+# LIBS= parser semant cgen
+LIBS=
 CFIL= ${CSRC} ${CGEN}
 LSRC= Makefile
 OBJS= ${CFIL:.cc=.o}
 OUTPUT= test.output
 
-CPPINCLUDE= -I. -I${CLASSDIR}/include -I${CLASSDIR}/src
+# CPPFLAGS: -I/usr/local/opt/flex/include
+CPPINCLUDE= -I. -I${CLASSDIR}/include -I${CLASSDIR}/src -I/usr/local/opt/flex/include
 
-FFLAGS= -d -ononame-lex.cc
+FFLAGS= -ononame-lex.cc
+# FFLAGS= -d -ononame-lex.cc ${LDFLAGS}
 
 CC=g++
 CFLAGS= -g -Wall -Wno-unused -Wno-write-strings ${CPPINCLUDE}
@@ -35,7 +40,7 @@ ${OUTPUT}:lexer noname.nn
 	-./lexer noname.nn >test.output 2>&1 
 
 lexer: ${OBJS}
-	${CC} ${CFLAGS} ${OBJS} ${LIB} -o lexer
+	${CC} ${CFLAGS} ${OBJS} ${LIB} ${LDFLAGS} -o lexer
 
 .cc.o:
 	${CC} ${CFLAGS} -c $<

@@ -10,6 +10,7 @@
 #include <math.h>
 #include <math.h>
 #include <map>
+#include "noname-tree.h"
 
 #define YYLTYPE YYLTYPE
 typedef struct YYLTYPE {
@@ -23,27 +24,6 @@ typedef struct YYLTYPE {
 
 /* Function type.  */
 // typedef double (*func_t) (double);
-
-/* Data type for links in the chain of symbols.  */
-struct symrec {
-  char *name;  /* name of symbol */
-  int type;    /* type of symbol: either VAR or FNCT */
-  union {
-    double doublev;      /* value of a VAR */
-    int intv;         /* value of a VAR */
-    // func_t fnctptr;  /* value of a FNCT */
-  } value;
-  struct symrec *next;  /* link field */
-};
-typedef struct symrec symrec;
-
-typedef struct YYSTYPE {
-    char* idv;
-    char charv;
-    double doublev;
-    int intv;
-    symrec* symrecv;
-} YYSTYPE;
 
 // YYLTYPE yylloc;
 
@@ -66,8 +46,53 @@ void division_by_zero(YYLTYPE yylloc);
 ///////////* Bison declarations.  *///////////////
 //////////////////////////////////////////////////
 
+%union {
+    char* idv;
+    char charv;
+    double doublev;
+    int intv;
+    symrec* symrecv;
+    char* error_msg;
+};
+
 %define parse.error verbose
-%token LET STMT_SEP
+%token LINE_BREAK            "line_break"             
+%token STMT_SEP              "stmt_sep"           
+%token LETTER                "letter"         
+%token DIGIT                 "digit"         
+%token DIGITS                "digits"         
+%token DARROW                "darrow"         
+%token ELSE                  "else"       
+%token FALSE                 "false"         
+%token IF                    "if"     
+%token IN                    "in"     
+%token LET                   "let"       
+%token LOOP                  "loop"       
+%token THEN                  "then"       
+%token WHILE                 "while"         
+%token BREAK                 "break"         
+%token CASE                  "case"       
+%token NEW                   "new"       
+%token NOT                   "not"       
+%token TRUE                  "true"       
+%token NEWLINE               "newline"           
+%token NOTNEWLINE            "notnewline"             
+%token WHITESPACE            "whitespace"             
+%token LE                    "le"     
+%token ASSIGN                "assign"         
+%token NULLCH                "nullch"         
+%token BACKSLASH             "backslash"             
+%token STAR                  "star"       
+%token NOTSTAR               "notstar"           
+%token LEFTPAREN             "leftparen"             
+%token NOTLEFTPAREN          "notleftparen"               
+%token RIGHTPAREN            "rightparen"             
+%token NOTRIGHTPAREN         "notrightparen"                 
+%token LINE_COMMENT          "line_comment"               
+%token START_COMMENT         "start_comment"                 
+%token END_COMMENT           "end_comment"               
+%token QUOTES                "quotes"         
+
 %token <idv> ID              "identifier"
 %token <doublev> NUM         "number"
 %token <charv> '+'           "operator +"
