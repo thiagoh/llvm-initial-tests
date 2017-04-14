@@ -1,63 +1,71 @@
 /* Infix notation calculator.  */
 %{
 
-  #include <stdlib.h> /* malloc. */
-  #include <string.h> /* strlen. */
-  #include <ctype.h>
-  #include <stdio.h>
-  #include <math.h>
-  #include <math.h>
-  #include <stdio.h>
+#include <stdio.h>
+#include <stdlib.h> /* malloc. */
+#include <string.h> /* strlen. */
+#include <string> 
+#include <ctype.h>
+#include <stdio.h>
+#include <math.h>
+#include <math.h>
+#include <map>
 
-  #define YYLTYPE YYLTYPE
-  typedef struct YYLTYPE {
-      int first_line;
-      int first_column;
-      int last_line;
-      int last_column;
-    } YYLTYPE;
-  
-  // YYLTYPE yylloc;
+#define YYLTYPE YYLTYPE
+typedef struct YYLTYPE {
+    int first_line;
+    int first_column;
+    int last_line;
+    int last_column;
+  } YYLTYPE;
 
-  /* Function type.  */
-  // typedef double (*func_t) (double);
+// YYLTYPE yylloc;
 
-  /* Data type for links in the chain of symbols.  */
-  struct symrec {
-    char *name;  /* name of symbol */
-    int type;    /* type of symbol: either VAR or FNCT */
-    union {
-      double doublev;      /* value of a VAR */
-      int intv;         /* value of a VAR */
-      // func_t fnctptr;  /* value of a FNCT */
-    } value;
-    struct symrec *next;  /* link field */
-  };
-  typedef struct symrec symrec;
-  
-  typedef struct YYSTYPE {
-      char* idv;
-      char charv;
-      double doublev;
-      int intv;
-      symrec* symrecv;
-  } YYSTYPE;
+/* Function type.  */
+// typedef double (*func_t) (double);
 
-  // YYLTYPE yylloc;
-  
-  int line_number;
-  char buf[1024 * 8];
-  int yylex (void);
-  void yyerror (char const *);
-  
-  symrec * putsym (char const *sym_name, int sym_type);
-  symrec * getsym (char const *sym_name);
+/* Data type for links in the chain of symbols.  */
+struct symrec {
+  char *name;  /* name of symbol */
+  int type;    /* type of symbol: either VAR or FNCT */
+  union {
+    double doublev;      /* value of a VAR */
+    int intv;         /* value of a VAR */
+    // func_t fnctptr;  /* value of a FNCT */
+  } value;
+  struct symrec *next;  /* link field */
+};
+typedef struct symrec symrec;
 
-  // void division_by_zero();
-  void division_by_zero(YYLTYPE yylloc);
-  
+typedef struct YYSTYPE {
+    char* idv;
+    char charv;
+    double doublev;
+    int intv;
+    symrec* symrecv;
+} YYSTYPE;
+
+// YYLTYPE yylloc;
+
+int line_number;
+char buf[1024 * 8];
+std::map<std::string, symrec*> symbol_table;
+std::map<std::string, symrec*>::iterator symbol_table_it;
+int yylex (void);
+void yyerror (char const *);
+
+symrec * putsym (char const *sym_name, int sym_type);
+symrec * getsym (char const *sym_name);
+
+// void division_by_zero();
+void division_by_zero(YYLTYPE yylloc);
+
 %}
-/* Bison declarations.  */
+
+//////////////////////////////////////////////////
+///////////* Bison declarations.  *///////////////
+//////////////////////////////////////////////////
+
 %define parse.error verbose
 %token LET STMT_SEP
 %token <idv> ID              "identifier"
@@ -77,7 +85,11 @@
 %right '^'        /* exponentiation */
 %precedence NEG   /* negation--unary minus */
 
-%% /* The grammar follows.  */
+%% 
+
+//////////////////////////////////////////////////
+///////////* The grammar follows. *///////////////
+//////////////////////////////////////////////////
 
 prog:
   %empty
@@ -86,50 +98,170 @@ prog:
 ;
 
 stmt:
-  exp STMT_SEP               { printf("\n[stmt]"); }
-  | declaration STMT_SEP     { printf("\n[stmt]"); }
-  | assignment STMT_SEP      { printf("\n[stmt]"); }
+  exp STMT_SEP               { printf("\n[stmt] %lf\n", $1->value.doublev); }
+  | declaration STMT_SEP     { printf("\n[stmt] %lf\n", $1->value.doublev); }
+  | assignment STMT_SEP      { printf("\n[stmt] %lf\n", $1->value.doublev); }
   | error STMT_SEP           { printf("%d:%d", @1.first_column, @1.last_column); }
 ;
 
 assignment:
-  LET ID '=' exp             { $$ = $4; printf("\n[assignment]"); }
+  ID '=' exp {
+
+    $$ = (symrec *) malloc (sizeof (symrec));
+    symbol_table_it = symbol_table.find($1);
+
+    if (symbol_table_it == symbol_table.end()) {
+
+      char buf[1024];
+      sprintf(buf, "No such ID %s found", $1);
+      yyerror(buf);
+
+    } else {
+      
+      $$->name = $1;
+      $$->value.doublev = $3->value.doublev;
+      symbol_table[$1] = $$;
+      // printf("\nID %s -> %lf", $1, $$->value.doublev);
+      printf("\n[assignment]");
+    }
+  }
+  | LET ID '=' exp {
+
+    $$ = (symrec *) malloc (sizeof (symrec));
+    symbol_table_it = symbol_table.find($2);
+
+    if (symbol_table_it != symbol_table.end()) {
+
+      char buf[1024];
+      sprintf(buf, "Cannot redefine ID %s", $2);
+      yyerror(buf);
+
+    } else {
+      
+      $$->name = $2;
+      $$->value.doublev = $4->value.doublev;
+      symbol_table[$2] = $$;
+      // printf("\nID %s -> %lf", $1, $$->value.doublev);
+      printf("\n[assignment]");
+    }
+  }
 ;
 
 declaration:
-  LET ID                     { printf("\n[declaration]"); }
+  LET ID {
+
+    $$ = (symrec *) malloc (sizeof (symrec));
+    symbol_table_it = symbol_table.find($2);
+
+    if (symbol_table_it != symbol_table.end()) {
+
+      char buf[1024];
+      sprintf(buf, "Cannot redefine ID %s", $2);
+      yyerror(buf);
+
+    } else {
+      
+      $$->name = $2;
+      symbol_table[$2] = $$;
+      // $$->value.doublev = symbol_table_it->second->value.doublev;
+      // printf("\nID %s -> %lf", $1, $$->value.doublev);
+      printf("\n[declaration]");
+    }
+  }
 ;
 
 exp:
-  NUM {
+  ID {
+     
+    $$ = (symrec *) malloc (sizeof (symrec));
+    symbol_table_it = symbol_table.find($1);
+
+    if (symbol_table_it == symbol_table.end()) {
+
+      char buf[1024];
+      sprintf(buf, "No such ID %s found", $1);
+      yyerror(buf);
+
+    } else {
+      
+      $$->name = $1;
+      $$->value.doublev = symbol_table_it->second->value.doublev;
+      printf("\nID %s -> %lf", $1, $$->value.doublev);
+    }
+  }
+  | NUM {
     $$ = (symrec *) malloc (sizeof (symrec));
     $$->name = (char*) "__annon";
     $$->value.doublev = $1;
     printf("\nexp %lf", $1);
   }
+  | exp '+' exp        {
+      // $$ = $1 + $3;
+      $$ = (symrec *) malloc (sizeof (symrec));
+      $$->name = (char*) "__annon";
+      $$->value.doublev = $1->value.doublev + $3->value.doublev;
+      printf("\nexp + exp %lf %lf", $1->value.doublev, $3->value.doublev);
+    }
+  | exp '-' exp        {
+      // $$ = $1 - $3;
+      $$ = (symrec *) malloc (sizeof (symrec));
+      $$->name = (char*) "__annon";
+      $$->value.doublev = $1->value.doublev - $3->value.doublev;
+      printf("\nexp - exp %lf %lf", $1->value.doublev, $3->value.doublev);
+    }
+  | exp '*' exp        {
+      // $$ = $1 * $3;
+      $$ = (symrec *) malloc (sizeof (symrec));
+      $$->name = (char*) "__annon";
+      $$->value.doublev = $1->value.doublev * $3->value.doublev;
+      printf("\nexp * exp %lf %lf", $1->value.doublev, $3->value.doublev);
+    }
+  | exp '/' exp {
+      $$ = (symrec *) malloc (sizeof (symrec));
+      $$->name = (char*) "__annon";
+    
+      if ($3->value.doublev) {
+        // $$ = $1 / $3;
+        $$->value.doublev = $1->value.doublev / $3->value.doublev;
+      } else {
+        // $$ = $1;
+        $$->value.doublev = $1->value.doublev;
+        division_by_zero(@3);
+      }
+      printf("\nexp / exp %lf %lf", $1->value.doublev, $3->value.doublev);
+    }
+  | '-' exp  %prec NEG {
+      /**
+        * The %prec simply instructs Bison that the rule ‘| '-' exp’ 
+        * has the same precedence as NEG—in this case the next-to-highest
+        */
+      // $$ = -($2->value.doublev);
+      $$ = (symrec *) malloc (sizeof (symrec));
+      $$->name = (char*) "__annon";
+      $$->value.doublev = -$2->value.doublev;
+      printf("\nexp ^ exp %lf", $2->value.doublev);
+    }
+  | exp '^' exp        {
+      //$$ = pow($1->value.doublev, $3->value.doublev);
+      $$ = (symrec *) malloc (sizeof (symrec));
+      $$->name = (char*) "__annon";
+      $$->value.doublev = pow($1->value.doublev, $3->value.doublev);
+      printf("\nexp ^ exp %lf %lf", $1->value.doublev, $3->value.doublev);
+    }
+  | '(' exp ')'        {
+      // $$ = $2->value.doublev;
+      $$ = (symrec *) malloc (sizeof (symrec));
+      $$->name = (char*) "__annon";
+      $$->value.doublev = $2->value.doublev;
+      printf("\n(exp) %lf", $2->value.doublev);
+    }
   // | error                 { printf("ERROR3"); }
-  // | exp '+' exp        { $$ = $1 intv $3; }
-  // | exp '-' exp        { $$ = $1 - $3; }
-  // | exp '*' exp        { $$ = $1 * $3; }
-  // | exp '/' exp {
-  //     if ($3) {
-  //       $$ = $1 / $3;
-  //     } else {
-  //       $$ = 1;
-  //       division_by_zero(@3);
-  //     }
-  //   }
-  // | '-' exp  %prec NEG {
-  //     /**
-  //       * The %prec simply instructs Bison that the rule ‘| '-' exp’ 
-  //       * has the same precedence as NEG—in this case the next-to-highest
-  //       */
-  //     $$ = -$2;          
-  //   }
-  // | exp '^' exp        { $$ = pow ($1, $3); }
-  // | '(' exp ')'        { $$ = $2; }
   ;
 %%
+
+//////////////////////////////////////////////////
+///////////* Code definitions. *//////////////////
+//////////////////////////////////////////////////
 
 /* The lexical analyzer returns a double floating point
    number on the stack and the token NUM, or the numeric code
@@ -141,7 +273,7 @@ int yylex (void) {
   /* Skip white space.  */
   while ((c = getchar()) == ' ' || c == '\t')
     ++yylloc.last_column;
-  printf("\nchar -> %c", c); 
+  printf("char -> %c\n", c); 
   /* Step.  */
   yylloc.first_line = yylloc.last_line;
   yylloc.first_column = yylloc.last_column;
@@ -172,7 +304,7 @@ int yylex (void) {
     return 0;
   if (c == 'l') {
     ++yylloc.last_line;
-    printf("\nLET");
+    printf("LET\n");
     return LET;
   }
   if (isalpha(c)) {
@@ -184,16 +316,16 @@ int yylex (void) {
   }
   if (c == ';') {
     ++yylloc.last_line;
-    printf("\nSTMT_SEP");
+    printf("STMT_SEP\n");
     return STMT_SEP;
   }
   /* Return a single char, and update location.  */
   if (c == '\n') {
-    printf("\nSTMT_SEP");
+    printf("STMT_SEP\n");
     ++line_number;
-      ++yylloc.last_line;
-      yylloc.last_column = 0;
-      return STMT_SEP;
+    ++yylloc.last_line;
+    yylloc.last_column = 0;
+    return STMT_SEP;
   } else
     ++yylloc.last_column;
   
