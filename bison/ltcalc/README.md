@@ -1,7 +1,7 @@
-# Infix_calc
+# Ltcalc
 
 ```
-$ bison infix_calc.y && g++ -lm infix_calc.tab.c -o infix_calc && ./infix_calc
+$ bison ltcalc.y && g++ -lm ltcalc.tab.c -o ltcalc && ./ltcalc
 2 + 4 + 5 * 2
 line 2: 16
 9*8*7*6*5*4*3*2 

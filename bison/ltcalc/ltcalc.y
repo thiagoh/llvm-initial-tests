@@ -1,13 +1,13 @@
 /* Infix notation calculator.  */
 %{
+
   #include <ctype.h>
   #include <stdio.h>
   #include <math.h>
   #include <math.h>
   #include <stdio.h>
-  
-  #define YYLTYPE YYLTYPE
 
+  #define YYLTYPE YYLTYPE
   typedef struct YYLTYPE {
       int first_line;
       int first_column;
@@ -20,7 +20,8 @@
   int line_number;
   int yylex (void);
   void yyerror (char const *);
-  void division_by_zero(YYLTYPE &yylloc);
+  // void division_by_zero();
+  void division_by_zero(YYLTYPE yylloc);
   
 %}
 /* Bison declarations.  */
@@ -54,6 +55,7 @@ exp:
       $$ = $1 / $3;
     } else {
       $$ = 1;
+      // printf("%s", @3);
       division_by_zero(@3);
     }
   }
@@ -74,6 +76,7 @@ exp:
    number on the stack and the token NUM, or the numeric code
    of the character read if not a number.  It skips all blanks
    and tabs, and returns 0 for end-of-input.  */
+
 
 int yylex (void) {
   int c;
@@ -103,8 +106,8 @@ int yylex (void) {
   /* Return a single char, and update location.  */
   if (c == '\n') {
     ++line_number;
-    ++yylloc.last_line;
-    yylloc.last_column = 0;
+      ++yylloc.last_line;
+      yylloc.last_column = 0;
   } else
     ++yylloc.last_column;
   return c;
@@ -123,7 +126,7 @@ void yyerror (char const *s) {
   fprintf (stderr, "%s\n", s);
 }
 
-void division_by_zero(YYLTYPE &yylloc) {
+void division_by_zero(YYLTYPE yylloc) {
   fprintf (stderr, "SEVERE ERROR %d:%d - %d:%d. Division by zero",
                    yylloc.first_line, yylloc.first_column,
                    yylloc.last_line, yylloc.last_column);

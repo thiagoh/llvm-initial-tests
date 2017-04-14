@@ -62,16 +62,16 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 2 "infix_calc.y" /* yacc.c:339  */
+#line 2 "ltcalc.y" /* yacc.c:339  */
+
 
   #include <ctype.h>
   #include <stdio.h>
   #include <math.h>
   #include <math.h>
   #include <stdio.h>
-  
-  #define YYLTYPE YYLTYPE
 
+  #define YYLTYPE YYLTYPE
   typedef struct YYLTYPE {
       int first_line;
       int first_column;
@@ -84,10 +84,11 @@
   int line_number;
   int yylex (void);
   void yyerror (char const *);
-  void division_by_zero(YYLTYPE &yylloc);
+  // void division_by_zero();
+  void division_by_zero(YYLTYPE yylloc);
   
 
-#line 91 "infix_calc.tab.c" /* yacc.c:339  */
+#line 92 "ltcalc.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -154,7 +155,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 158 "infix_calc.tab.c" /* yacc.c:358  */
+#line 159 "ltcalc.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -453,8 +454,8 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    38,    38,    39,    42,    43,    44,    48,    49,    50,
-      51,    52,    61,    68,    69
+       0,    39,    39,    40,    43,    44,    45,    49,    50,    51,
+      52,    53,    63,    70,    71
 };
 #endif
 
@@ -1328,56 +1329,57 @@ yyreduce:
   switch (yyn)
     {
         case 5:
-#line 43 "infix_calc.y" /* yacc.c:1661  */
+#line 44 "ltcalc.y" /* yacc.c:1661  */
     { printf ("line %d: %.10g\n", line_number, (yyvsp[-1])); }
-#line 1334 "infix_calc.tab.c" /* yacc.c:1661  */
+#line 1335 "ltcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 6:
-#line 44 "infix_calc.y" /* yacc.c:1661  */
+#line 45 "ltcalc.y" /* yacc.c:1661  */
     { yyerrok; }
-#line 1340 "infix_calc.tab.c" /* yacc.c:1661  */
+#line 1341 "ltcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 7:
-#line 48 "infix_calc.y" /* yacc.c:1661  */
+#line 49 "ltcalc.y" /* yacc.c:1661  */
     { (yyval) = (yyvsp[0]); }
-#line 1346 "infix_calc.tab.c" /* yacc.c:1661  */
+#line 1347 "ltcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 8:
-#line 49 "infix_calc.y" /* yacc.c:1661  */
+#line 50 "ltcalc.y" /* yacc.c:1661  */
     { (yyval) = (yyvsp[-2]) + (yyvsp[0]); }
-#line 1352 "infix_calc.tab.c" /* yacc.c:1661  */
+#line 1353 "ltcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 9:
-#line 50 "infix_calc.y" /* yacc.c:1661  */
+#line 51 "ltcalc.y" /* yacc.c:1661  */
     { (yyval) = (yyvsp[-2]) - (yyvsp[0]); }
-#line 1358 "infix_calc.tab.c" /* yacc.c:1661  */
+#line 1359 "ltcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 10:
-#line 51 "infix_calc.y" /* yacc.c:1661  */
+#line 52 "ltcalc.y" /* yacc.c:1661  */
     { (yyval) = (yyvsp[-2]) * (yyvsp[0]); }
-#line 1364 "infix_calc.tab.c" /* yacc.c:1661  */
+#line 1365 "ltcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 11:
-#line 52 "infix_calc.y" /* yacc.c:1661  */
+#line 53 "ltcalc.y" /* yacc.c:1661  */
     {
     if ((yyvsp[0])) {
       (yyval) = (yyvsp[-2]) / (yyvsp[0]);
     } else {
       (yyval) = 1;
+      // printf("%s", @3);
       division_by_zero((yylsp[0]));
     }
   }
-#line 1377 "infix_calc.tab.c" /* yacc.c:1661  */
+#line 1379 "ltcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 12:
-#line 61 "infix_calc.y" /* yacc.c:1661  */
+#line 63 "ltcalc.y" /* yacc.c:1661  */
     {
       /**
         * The %prec simply instructs Bison that the rule ‘| '-' exp’ 
@@ -1385,23 +1387,23 @@ yyreduce:
         */
       (yyval) = -(yyvsp[0]);          
     }
-#line 1389 "infix_calc.tab.c" /* yacc.c:1661  */
+#line 1391 "ltcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 13:
-#line 68 "infix_calc.y" /* yacc.c:1661  */
+#line 70 "ltcalc.y" /* yacc.c:1661  */
     { (yyval) = pow ((yyvsp[-2]), (yyvsp[0])); }
-#line 1395 "infix_calc.tab.c" /* yacc.c:1661  */
+#line 1397 "ltcalc.tab.c" /* yacc.c:1661  */
     break;
 
   case 14:
-#line 69 "infix_calc.y" /* yacc.c:1661  */
+#line 71 "ltcalc.y" /* yacc.c:1661  */
     { (yyval) = (yyvsp[-1]); }
-#line 1401 "infix_calc.tab.c" /* yacc.c:1661  */
+#line 1403 "ltcalc.tab.c" /* yacc.c:1661  */
     break;
 
 
-#line 1405 "infix_calc.tab.c" /* yacc.c:1661  */
+#line 1407 "ltcalc.tab.c" /* yacc.c:1661  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1636,13 +1638,14 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 71 "infix_calc.y" /* yacc.c:1906  */
+#line 73 "ltcalc.y" /* yacc.c:1906  */
 
 
 /* The lexical analyzer returns a double floating point
    number on the stack and the token NUM, or the numeric code
    of the character read if not a number.  It skips all blanks
    and tabs, and returns 0 for end-of-input.  */
+
 
 int yylex (void) {
   int c;
@@ -1672,8 +1675,8 @@ int yylex (void) {
   /* Return a single char, and update location.  */
   if (c == '\n') {
     ++line_number;
-    ++yylloc.last_line;
-    yylloc.last_column = 0;
+      ++yylloc.last_line;
+      yylloc.last_column = 0;
   } else
     ++yylloc.last_column;
   return c;
@@ -1692,7 +1695,8 @@ void yyerror (char const *s) {
   fprintf (stderr, "%s\n", s);
 }
 
-void division_by_zero(YYLTYPE &yylloc) {
+void division_by_zero(YYLTYPE yylloc) {
+// void division_by_zero() {
   fprintf (stderr, "SEVERE ERROR %d:%d - %d:%d. Division by zero",
                    yylloc.first_line, yylloc.first_column,
                    yylloc.last_line, yylloc.last_column);
