@@ -3,15 +3,18 @@ LIB= -ll
 LDFLAGS:  -L/usr/local/opt/flex/lib
 SRC= noname.flex
 CSRC= 
-CGEN= noname-lex.cc noname-parse.cc
+CGEN= noname-lex.cc noname-parse.cc noname-main.cc
 LIBS=
 CFIL= ${CSRC} ${CGEN}
 LSRC= Makefile
 OBJS= ${CFIL:.cc=.o}
 OUTPUT= test.output
 CPPINCLUDE= -I. -I${CLASSDIR}/include -I${CLASSDIR}/src -I/usr/local/opt/flex/include
-FLEX_FLAGS= -d -X -P noname_yy -o noname-lex.cc
-BISON_FLAGS= -d -v -y -b noname --debug -p noname_yy
+# FLEX_FLAGS= -d -X -P noname_yy -o noname-lex.cc
+# BISON_FLAGS= -d -v -y -b noname --debug -p noname_yy
+#TO ENAMBLE DEBUG => FLEX_FLAGS= -d -X -o noname-lex.cc
+FLEX_FLAGS= -X -o noname-lex.cc
+BISON_FLAGS= -d -v -y -b noname --debug
 CC=g++
 # CFLAGS= -g -Wall -Wno-unused -Wno-write-strings ${CPPINCLUDE}
 CFLAGS= -g -Wall -Wno-unused -Wno-deprecated -Wno-write-strings ${CPPINCLUDE}

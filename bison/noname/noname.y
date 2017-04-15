@@ -1,66 +1,9 @@
-/* noname language.  */
-%define api.pure
-%define parse.error verbose
 %{
-  struct pcdata {};
-%}
-%parse-param { struct pcdata *pp }
-%lex-param { struct pcdata *pp }
-
-%{
-#define YYLEX_PARAM pp->scaninfo
 #include <stdio.h>
-#include <stdlib.h> /* malloc. */
-#include <string.h> /* strlen. */
-#include <string> 
-#include <ctype.h>
-#include <stdio.h>
-#include <math.h>
-#include <math.h>
-#include <map>
-#include "noname-tree.h"
-// #include "noname-parse.h"
+#include "noname-types.h"
 
-#define YYLTYPE YYLTYPE
-typedef struct YYLTYPE {
-    int first_line;
-    int first_column;
-    int last_line;
-    int last_column;
-  } YYLTYPE;
-
-// struct ast {
-//   int nodetype;
-//   struct ast *l;
-//   struct ast *r;
-// };
-
-// struct symbol { /* a variable name */
-//   char *name;
-//   double value;
-//   struct ast *func; /* stmt for the function */
-//   struct symlist *syms; /* list of dummy args */
-// };
-
-/* per-parse data */
-// struct pcdata {
-//  void* scaninfo; /* scanner context */
-//  struct symbol *symtab; /* symbols for this parse */
-//  struct ast *ast; /* most recently parsed AST */
-// };
-
-YYLTYPE yylloc;
-
-/* Function type.  */
-// typedef double (*func_t) (double);
-
-// YYLTYPE yylloc;
-
-int line_number;
-char buf[1024 * 8];
-std::map<std::string, symrec*> symbol_table;
-std::map<std::string, symrec*>::iterator symbol_table_it;
-
+extern int yylex(void);
+extern void yyerror(const char *error_msg);
 %}
 
 //////////////////////////////////////////////////
@@ -75,24 +18,6 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
     symrec* symrecv;
     char* error_msg;
 };
-
-%{
-
-int main (const int args, const char** argv);
-
-// int yylex (void);
-void noname_yyerror(YYLTYPE *yylloc, void *pp, char const * message);
-// void noname_yyerror(YYLTYPE * yylloc, char const *);
-
-// stuff from flex that bison needs to know about:
-extern int noname_yylex(YYSTYPE *yylval, YYLTYPE* llocp, void* yyscanner);
-// extern int noname_yyparse(void* yyscanner);
-// extern FILE *yyin;
-
-// void division_by_zero();
-void division_by_zero(YYLTYPE yylloc);
-
-%}
 
 %token LINE_BREAK            "line_break"             
 %token STMT_SEP              "stmt_sep"           
@@ -168,200 +93,24 @@ stmt:
 ;
 
 assignment:
-  ID '=' exp {
-
-    $$ = (symrec *) malloc (sizeof (symrec));
-    symbol_table_it = symbol_table.find($1);
-
-    if (symbol_table_it == symbol_table.end()) {
-
-      char buf[1024];
-      sprintf(buf, "No such ID %s found", $1);
-      yyerror(&yylloc, pp, buf);
-
-    } else {
-      
-      $$->name = $1;
-      $$->value.doublev = $3->value.doublev;
-      symbol_table[$1] = $$;
-      // printf("\nID %s -> %lf", $1, $$->value.doublev);
-      printf("\n[assignment]");
-    }
-  }
-  | LET ID '=' exp {
-
-    $$ = (symrec *) malloc (sizeof (symrec));
-    symbol_table_it = symbol_table.find($2);
-
-    if (symbol_table_it != symbol_table.end()) {
-
-      char buf[1024];
-      sprintf(buf, "Cannot redefine ID %s", $2);
-      yyerror(&yylloc, pp, buf);
-
-    } else {
-      
-      $$->name = $2;
-      $$->value.doublev = $4->value.doublev;
-      symbol_table[$2] = $$;
-      // printf("\nID %s -> %lf", $1, $$->value.doublev);
-      printf("\n[assignment]");
-    }
-  }
+  ID '=' exp          {}
+  | LET ID '=' exp    {}
 ;
 
 declaration:
-  LET ID {
-
-    $$ = (symrec *) malloc (sizeof (symrec));
-    symbol_table_it = symbol_table.find($2);
-
-    if (symbol_table_it != symbol_table.end()) {
-
-      char buf[1024];
-      sprintf(buf, "Cannot redefine ID %s", $2);
-      yyerror(&yylloc, pp, buf);
-
-    } else {
-      
-      $$->name = $2;
-      symbol_table[$2] = $$;
-      // $$->value.doublev = symbol_table_it->second->value.doublev;
-      // printf("\nID %s -> %lf", $1, $$->value.doublev);
-      printf("\n[declaration]");
-    }
-  }
+  LET ID               {}
 ;
 
 exp:
-  ID {
-     
-    $$ = (symrec *) malloc (sizeof (symrec));
-    symbol_table_it = symbol_table.find($1);
-
-    if (symbol_table_it == symbol_table.end()) {
-
-      char buf[1024];
-      sprintf(buf, "No such ID %s found", $1);
-      yyerror(&yylloc, pp, buf);
-
-    } else {
-      
-      $$->name = $1;
-      $$->value.doublev = symbol_table_it->second->value.doublev;
-      printf("\nID %s -> %lf", $1, $$->value.doublev);
-    }
-  }
-  | NUM {
-    $$ = (symrec *) malloc (sizeof (symrec));
-    $$->name = (char*) "__annon";
-    $$->value.doublev = $1;
-    printf("\nexp %lf", $1);
-  }
-  | exp '+' exp        {
-      // $$ = $1 + $3;
-      $$ = (symrec *) malloc (sizeof (symrec));
-      $$->name = (char*) "__annon";
-      $$->value.doublev = $1->value.doublev + $3->value.doublev;
-      printf("\nexp + exp %lf %lf", $1->value.doublev, $3->value.doublev);
-    }
-  | exp '-' exp        {
-      // $$ = $1 - $3;
-      $$ = (symrec *) malloc (sizeof (symrec));
-      $$->name = (char*) "__annon";
-      $$->value.doublev = $1->value.doublev - $3->value.doublev;
-      printf("\nexp - exp %lf %lf", $1->value.doublev, $3->value.doublev);
-    }
-  | exp '*' exp        {
-      // $$ = $1 * $3;
-      $$ = (symrec *) malloc (sizeof (symrec));
-      $$->name = (char*) "__annon";
-      $$->value.doublev = $1->value.doublev * $3->value.doublev;
-      printf("\nexp * exp %lf %lf", $1->value.doublev, $3->value.doublev);
-    }
-  | exp '/' exp {
-      $$ = (symrec *) malloc (sizeof (symrec));
-      $$->name = (char*) "__annon";
-    
-      if ($3->value.doublev) {
-        // $$ = $1 / $3;
-        $$->value.doublev = $1->value.doublev / $3->value.doublev;
-      } else {
-        // $$ = $1;
-        $$->value.doublev = $1->value.doublev;
-        division_by_zero(@3);
-      }
-      printf("\nexp / exp %lf %lf", $1->value.doublev, $3->value.doublev);
-    }
-  | '-' exp  %prec NEG {
-      /**
-        * The %prec simply instructs Bison that the rule ‘| '-' exp’ 
-        * has the same precedence as NEG—in this case the next-to-highest
-        */
-      // $$ = -($2->value.doublev);
-      $$ = (symrec *) malloc (sizeof (symrec));
-      $$->name = (char*) "__annon";
-      $$->value.doublev = -$2->value.doublev;
-      printf("\nexp ^ exp %lf", $2->value.doublev);
-    }
-  | exp '^' exp        {
-      //$$ = pow($1->value.doublev, $3->value.doublev);
-      $$ = (symrec *) malloc (sizeof (symrec));
-      $$->name = (char*) "__annon";
-      $$->value.doublev = pow($1->value.doublev, $3->value.doublev);
-      printf("\nexp ^ exp %lf %lf", $1->value.doublev, $3->value.doublev);
-    }
-  | '(' exp ')'        {
-      // $$ = $2->value.doublev;
-      $$ = (symrec *) malloc (sizeof (symrec));
-      $$->name = (char*) "__annon";
-      $$->value.doublev = $2->value.doublev;
-      printf("\n(exp) %lf", $2->value.doublev);
-    }
+  ID                   {}
+  | NUM                {}
+  | exp '+' exp        {}
+  | exp '-' exp        {}
+  | exp '*' exp        {}
+  | exp '/' exp        {}
+  | '-' exp  %prec NEG {}
+  | exp '^' exp        {}
+  | '(' exp ')'        {}
   // | error                 { printf("ERROR3"); }
   ;
 %%
-
-//////////////////////////////////////////////////
-///////////* Code definitions. *//////////////////
-//////////////////////////////////////////////////
-
-int main (const int args, const char** argv) {
-
-  puts("aaa");
-
-  line_number = 1;
-
-  yylloc.first_line = yylloc.last_line = 1;
-  yylloc.first_column = yylloc.last_column = 0;
-
-  puts("bbb");
-
-  struct pcdata p;
-
-  puts("ccc");
-  // // /* set up scanner */
-  // // if(yylex_init_extra(&p, &p.scaninfo)) {
-  // //   perror("init alloc failed");
-  // //   return 1;
-  // // }
-
-  // // /* allocate and zero out the symbol table */
-  // // if(!(p.symtab = calloc(NHASH, sizeof(struct symbol)))) {
-  // //   perror("sym alloc failed");
-  // //   return 1;
-  // // }
-  
-  return yyparse(&p);
-}
-
-/* Called by yyparse on error.  */
-void yyerror(YYLTYPE *yylloc, void *pp, char const *s) {
-  fprintf (stderr, "ERROR: %s\n", s);
-}
-
-void division_by_zero(YYLTYPE yylloc) {
-  fprintf (stderr, "SEVERE ERROR %d:%d - %d:%d. Division by zero",
-                   yylloc.first_line, yylloc.first_column,
-                   yylloc.last_line, yylloc.last_column);
-}

@@ -50,7 +50,7 @@
 #define YYSKELETON_NAME "yacc.c"
 
 /* Pure parsers.  */
-#define YYPURE 1
+#define YYPURE 0
 
 /* Push parsers.  */
 #define YYPUSH 0
@@ -59,75 +59,18 @@
 #define YYPULL 1
 
 
-/* Substitute the variable and function names.  */
-#define yyparse         noname_yyparse
-#define yylex           noname_yylex
-#define yyerror         noname_yyerror
-#define yydebug         noname_yydebug
-#define yynerrs         noname_yynerrs
 
 
 /* Copy the first part of user declarations.  */
-#line 4 "noname.y" /* yacc.c:339  */
+#line 1 "noname.y" /* yacc.c:339  */
 
-  struct pcdata {};
-#line 10 "noname.y" /* yacc.c:339  */
-
-#define YYLEX_PARAM pp->scaninfo
 #include <stdio.h>
-#include <stdlib.h> /* malloc. */
-#include <string.h> /* strlen. */
-#include <string> 
-#include <ctype.h>
-#include <stdio.h>
-#include <math.h>
-#include <math.h>
-#include <map>
-#include "noname-tree.h"
-// #include "noname-parse.h"
+#include "noname-types.h"
 
-#define YYLTYPE YYLTYPE
-typedef struct YYLTYPE {
-    int first_line;
-    int first_column;
-    int last_line;
-    int last_column;
-  } YYLTYPE;
+extern int yylex(void);
+extern void yyerror(const char *error_msg);
 
-// struct ast {
-//   int nodetype;
-//   struct ast *l;
-//   struct ast *r;
-// };
-
-// struct symbol { /* a variable name */
-//   char *name;
-//   double value;
-//   struct ast *func; /* stmt for the function */
-//   struct symlist *syms; /* list of dummy args */
-// };
-
-/* per-parse data */
-// struct pcdata {
-//  void* scaninfo; /* scanner context */
-//  struct symbol *symtab; /* symbols for this parse */
-//  struct ast *ast; /* most recently parsed AST */
-// };
-
-YYLTYPE yylloc;
-
-/* Function type.  */
-// typedef double (*func_t) (double);
-
-// YYLTYPE yylloc;
-
-int line_number;
-char buf[1024 * 8];
-std::map<std::string, symrec*> symbol_table;
-std::map<std::string, symrec*>::iterator symbol_table_it;
-
-
-#line 131 "noname.tab.c" /* yacc.c:339  */
+#line 74 "noname.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -142,19 +85,19 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
 # undef YYERROR_VERBOSE
 # define YYERROR_VERBOSE 1
 #else
-# define YYERROR_VERBOSE 1
+# define YYERROR_VERBOSE 0
 #endif
 
 /* In a future release of Bison, this section will be replaced
    by #include "noname.tab.h".  */
-#ifndef YY_NONAME_YY_NONAME_TAB_H_INCLUDED
-# define YY_NONAME_YY_NONAME_TAB_H_INCLUDED
+#ifndef YY_YY_NONAME_TAB_H_INCLUDED
+# define YY_YY_NONAME_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 1
 #endif
 #if YYDEBUG
-extern int noname_yydebug;
+extern int yydebug;
 #endif
 
 /* Token type.  */
@@ -249,7 +192,7 @@ extern int noname_yydebug;
 
 union YYSTYPE
 {
-#line 70 "noname.y" /* yacc.c:355  */
+#line 13 "noname.y" /* yacc.c:355  */
 
     char* idv;
     char charv;
@@ -258,7 +201,7 @@ union YYSTYPE
     symrec* symrecv;
     char* error_msg;
 
-#line 262 "noname.tab.c" /* yacc.c:355  */
+#line 205 "noname.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -281,31 +224,15 @@ struct YYLTYPE
 #endif
 
 
+extern YYSTYPE yylval;
+extern YYLTYPE yylloc;
+int yyparse (void);
 
-int noname_yyparse (struct pcdata *pp);
-
-#endif /* !YY_NONAME_YY_NONAME_TAB_H_INCLUDED  */
+#endif /* !YY_YY_NONAME_TAB_H_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
-#line 79 "noname.y" /* yacc.c:358  */
 
-
-int main (const int args, const char** argv);
-
-// int yylex (void);
-void noname_yyerror(YYLTYPE *yylloc, void *pp, char const * message);
-// void noname_yyerror(YYLTYPE * yylloc, char const *);
-
-// stuff from flex that bison needs to know about:
-extern int noname_yylex(YYSTYPE *yylval, YYLTYPE* llocp, void* yyscanner);
-// extern int noname_yyparse(void* yyscanner);
-// extern FILE *yyin;
-
-// void division_by_zero();
-void division_by_zero(YYLTYPE yylloc);
-
-
-#line 309 "noname.tab.c" /* yacc.c:358  */
+#line 236 "noname.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -607,15 +534,15 @@ static const yytype_uint8 yytranslate[] =
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint16 yyrline[] =
+static const yytype_uint8 yyrline[] =
 {
-       0,   158,   158,   159,   160,   164,   165,   166,   167,   171,
-     191,   214,   237,   255,   261,   268,   275,   282,   296,   307,
-     314
+       0,    83,    83,    84,    85,    89,    90,    91,    92,    96,
+      97,   101,   105,   106,   107,   108,   109,   110,   111,   112,
+     113
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE || 1
+#if YYDEBUG || YYERROR_VERBOSE || 0
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
@@ -767,7 +694,7 @@ do                                                              \
     }                                                           \
   else                                                          \
     {                                                           \
-      yyerror (&yylloc, pp, YY_("syntax error: cannot back up")); \
+      yyerror (YY_("syntax error: cannot back up")); \
       YYERROR;                                                  \
     }                                                           \
 while (0)
@@ -869,7 +796,7 @@ do {                                                                      \
     {                                                                     \
       YYFPRINTF (stderr, "%s ", Title);                                   \
       yy_symbol_print (stderr,                                            \
-                  Type, Value, Location, pp); \
+                  Type, Value, Location); \
       YYFPRINTF (stderr, "\n");                                           \
     }                                                                     \
 } while (0)
@@ -880,12 +807,11 @@ do {                                                                      \
 `----------------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, struct pcdata *pp)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
 {
   FILE *yyo = yyoutput;
   YYUSE (yyo);
   YYUSE (yylocationp);
-  YYUSE (pp);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
@@ -901,14 +827,14 @@ yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvalue
 `--------------------------------*/
 
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, struct pcdata *pp)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
 {
   YYFPRINTF (yyoutput, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
   YY_LOCATION_PRINT (yyoutput, *yylocationp);
   YYFPRINTF (yyoutput, ": ");
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, pp);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -941,7 +867,7 @@ do {                                                            \
 `------------------------------------------------*/
 
 static void
-yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, struct pcdata *pp)
+yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule)
 {
   unsigned long int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
@@ -955,7 +881,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule
       yy_symbol_print (stderr,
                        yystos[yyssp[yyi + 1 - yynrhs]],
                        &(yyvsp[(yyi + 1) - (yynrhs)])
-                       , &(yylsp[(yyi + 1) - (yynrhs)])                       , pp);
+                       , &(yylsp[(yyi + 1) - (yynrhs)])                       );
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -963,7 +889,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule
 # define YY_REDUCE_PRINT(Rule)          \
 do {                                    \
   if (yydebug)                          \
-    yy_reduce_print (yyssp, yyvsp, yylsp, Rule, pp); \
+    yy_reduce_print (yyssp, yyvsp, yylsp, Rule); \
 } while (0)
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1221,11 +1147,10 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 `-----------------------------------------------*/
 
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, struct pcdata *pp)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp)
 {
   YYUSE (yyvaluep);
   YYUSE (yylocationp);
-  YYUSE (pp);
   if (!yymsg)
     yymsg = "Deleting";
   YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
@@ -1238,34 +1163,28 @@ yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocatio
 
 
 
+/* The lookahead symbol.  */
+int yychar;
+
+/* The semantic value of the lookahead symbol.  */
+YYSTYPE yylval;
+/* Location data for the lookahead symbol.  */
+YYLTYPE yylloc
+# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+  = { 1, 1, 1, 1 }
+# endif
+;
+/* Number of syntax errors so far.  */
+int yynerrs;
+
+
 /*----------.
 | yyparse.  |
 `----------*/
 
 int
-yyparse (struct pcdata *pp)
+yyparse (void)
 {
-/* The lookahead symbol.  */
-int yychar;
-
-
-/* The semantic value of the lookahead symbol.  */
-/* Default value used for initialization, for pacifying older GCCs
-   or non-GCC compilers.  */
-YY_INITIAL_VALUE (static YYSTYPE yyval_default;)
-YYSTYPE yylval YY_INITIAL_VALUE (= yyval_default);
-
-/* Location data for the lookahead symbol.  */
-static YYLTYPE yyloc_default
-# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
-  = { 1, 1, 1, 1 }
-# endif
-;
-YYLTYPE yylloc = yyloc_default;
-
-    /* Number of syntax errors so far.  */
-    int yynerrs;
-
     int yystate;
     /* Number of tokens to shift before error messages enabled.  */
     int yyerrstatus;
@@ -1437,7 +1356,7 @@ yybackup:
   if (yychar == YYEMPTY)
     {
       YYDPRINTF ((stderr, "Reading a token: "));
-      yychar = yylex (&yylval, &yylloc, pp);
+      yychar = yylex ();
     }
 
   if (yychar <= YYEOF)
@@ -1517,235 +1436,103 @@ yyreduce:
   switch (yyn)
     {
         case 5:
-#line 164 "noname.y" /* yacc.c:1661  */
+#line 89 "noname.y" /* yacc.c:1661  */
     { printf("\n[stmt] %lf\n", (yyvsp[-1].symrecv)->value.doublev); }
-#line 1523 "noname.tab.c" /* yacc.c:1661  */
+#line 1442 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 6:
-#line 165 "noname.y" /* yacc.c:1661  */
+#line 90 "noname.y" /* yacc.c:1661  */
     { printf("\n[stmt] %lf\n", (yyvsp[-1].symrecv)->value.doublev); }
-#line 1529 "noname.tab.c" /* yacc.c:1661  */
+#line 1448 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 7:
-#line 166 "noname.y" /* yacc.c:1661  */
+#line 91 "noname.y" /* yacc.c:1661  */
     { printf("\n[stmt] %lf\n", (yyvsp[-1].symrecv)->value.doublev); }
-#line 1535 "noname.tab.c" /* yacc.c:1661  */
+#line 1454 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 8:
-#line 167 "noname.y" /* yacc.c:1661  */
+#line 92 "noname.y" /* yacc.c:1661  */
     { printf("%d:%d", (yylsp[-1]).first_column, (yylsp[-1]).last_column); }
-#line 1541 "noname.tab.c" /* yacc.c:1661  */
+#line 1460 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 9:
-#line 171 "noname.y" /* yacc.c:1661  */
-    {
-
-    (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
-    symbol_table_it = symbol_table.find((yyvsp[-2].idv));
-
-    if (symbol_table_it == symbol_table.end()) {
-
-      char buf[1024];
-      sprintf(buf, "No such ID %s found", (yyvsp[-2].idv));
-      yyerror(&yylloc, pp, buf);
-
-    } else {
-      
-      (yyval.symrecv)->name = (yyvsp[-2].idv);
-      (yyval.symrecv)->value.doublev = (yyvsp[0].symrecv)->value.doublev;
-      symbol_table[(yyvsp[-2].idv)] = (yyval.symrecv);
-      // printf("\nID %s -> %lf", $1, $$->value.doublev);
-      printf("\n[assignment]");
-    }
-  }
-#line 1566 "noname.tab.c" /* yacc.c:1661  */
+#line 96 "noname.y" /* yacc.c:1661  */
+    {}
+#line 1466 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 10:
-#line 191 "noname.y" /* yacc.c:1661  */
-    {
-
-    (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
-    symbol_table_it = symbol_table.find((yyvsp[-2].idv));
-
-    if (symbol_table_it != symbol_table.end()) {
-
-      char buf[1024];
-      sprintf(buf, "Cannot redefine ID %s", (yyvsp[-2].idv));
-      yyerror(&yylloc, pp, buf);
-
-    } else {
-      
-      (yyval.symrecv)->name = (yyvsp[-2].idv);
-      (yyval.symrecv)->value.doublev = (yyvsp[0].symrecv)->value.doublev;
-      symbol_table[(yyvsp[-2].idv)] = (yyval.symrecv);
-      // printf("\nID %s -> %lf", $1, $$->value.doublev);
-      printf("\n[assignment]");
-    }
-  }
-#line 1591 "noname.tab.c" /* yacc.c:1661  */
+#line 97 "noname.y" /* yacc.c:1661  */
+    {}
+#line 1472 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 11:
-#line 214 "noname.y" /* yacc.c:1661  */
-    {
-
-    (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
-    symbol_table_it = symbol_table.find((yyvsp[0].idv));
-
-    if (symbol_table_it != symbol_table.end()) {
-
-      char buf[1024];
-      sprintf(buf, "Cannot redefine ID %s", (yyvsp[0].idv));
-      yyerror(&yylloc, pp, buf);
-
-    } else {
-      
-      (yyval.symrecv)->name = (yyvsp[0].idv);
-      symbol_table[(yyvsp[0].idv)] = (yyval.symrecv);
-      // $$->value.doublev = symbol_table_it->second->value.doublev;
-      // printf("\nID %s -> %lf", $1, $$->value.doublev);
-      printf("\n[declaration]");
-    }
-  }
-#line 1616 "noname.tab.c" /* yacc.c:1661  */
+#line 101 "noname.y" /* yacc.c:1661  */
+    {}
+#line 1478 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 12:
-#line 237 "noname.y" /* yacc.c:1661  */
-    {
-     
-    (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
-    symbol_table_it = symbol_table.find((yyvsp[0].idv));
-
-    if (symbol_table_it == symbol_table.end()) {
-
-      char buf[1024];
-      sprintf(buf, "No such ID %s found", (yyvsp[0].idv));
-      yyerror(&yylloc, pp, buf);
-
-    } else {
-      
-      (yyval.symrecv)->name = (yyvsp[0].idv);
-      (yyval.symrecv)->value.doublev = symbol_table_it->second->value.doublev;
-      printf("\nID %s -> %lf", (yyvsp[0].idv), (yyval.symrecv)->value.doublev);
-    }
-  }
-#line 1639 "noname.tab.c" /* yacc.c:1661  */
+#line 105 "noname.y" /* yacc.c:1661  */
+    {}
+#line 1484 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 13:
-#line 255 "noname.y" /* yacc.c:1661  */
-    {
-    (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
-    (yyval.symrecv)->name = (char*) "__annon";
-    (yyval.symrecv)->value.doublev = (yyvsp[0].doublev);
-    printf("\nexp %lf", (yyvsp[0].doublev));
-  }
-#line 1650 "noname.tab.c" /* yacc.c:1661  */
+#line 106 "noname.y" /* yacc.c:1661  */
+    {}
+#line 1490 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 14:
-#line 261 "noname.y" /* yacc.c:1661  */
-    {
-      // $$ = $1 + $3;
-      (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
-      (yyval.symrecv)->name = (char*) "__annon";
-      (yyval.symrecv)->value.doublev = (yyvsp[-2].symrecv)->value.doublev + (yyvsp[0].symrecv)->value.doublev;
-      printf("\nexp + exp %lf %lf", (yyvsp[-2].symrecv)->value.doublev, (yyvsp[0].symrecv)->value.doublev);
-    }
-#line 1662 "noname.tab.c" /* yacc.c:1661  */
+#line 107 "noname.y" /* yacc.c:1661  */
+    {}
+#line 1496 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 15:
-#line 268 "noname.y" /* yacc.c:1661  */
-    {
-      // $$ = $1 - $3;
-      (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
-      (yyval.symrecv)->name = (char*) "__annon";
-      (yyval.symrecv)->value.doublev = (yyvsp[-2].symrecv)->value.doublev - (yyvsp[0].symrecv)->value.doublev;
-      printf("\nexp - exp %lf %lf", (yyvsp[-2].symrecv)->value.doublev, (yyvsp[0].symrecv)->value.doublev);
-    }
-#line 1674 "noname.tab.c" /* yacc.c:1661  */
+#line 108 "noname.y" /* yacc.c:1661  */
+    {}
+#line 1502 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 16:
-#line 275 "noname.y" /* yacc.c:1661  */
-    {
-      // $$ = $1 * $3;
-      (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
-      (yyval.symrecv)->name = (char*) "__annon";
-      (yyval.symrecv)->value.doublev = (yyvsp[-2].symrecv)->value.doublev * (yyvsp[0].symrecv)->value.doublev;
-      printf("\nexp * exp %lf %lf", (yyvsp[-2].symrecv)->value.doublev, (yyvsp[0].symrecv)->value.doublev);
-    }
-#line 1686 "noname.tab.c" /* yacc.c:1661  */
+#line 109 "noname.y" /* yacc.c:1661  */
+    {}
+#line 1508 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 17:
-#line 282 "noname.y" /* yacc.c:1661  */
-    {
-      (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
-      (yyval.symrecv)->name = (char*) "__annon";
-    
-      if ((yyvsp[0].symrecv)->value.doublev) {
-        // $$ = $1 / $3;
-        (yyval.symrecv)->value.doublev = (yyvsp[-2].symrecv)->value.doublev / (yyvsp[0].symrecv)->value.doublev;
-      } else {
-        // $$ = $1;
-        (yyval.symrecv)->value.doublev = (yyvsp[-2].symrecv)->value.doublev;
-        division_by_zero((yylsp[0]));
-      }
-      printf("\nexp / exp %lf %lf", (yyvsp[-2].symrecv)->value.doublev, (yyvsp[0].symrecv)->value.doublev);
-    }
-#line 1705 "noname.tab.c" /* yacc.c:1661  */
+#line 110 "noname.y" /* yacc.c:1661  */
+    {}
+#line 1514 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 18:
-#line 296 "noname.y" /* yacc.c:1661  */
-    {
-      /**
-        * The %prec simply instructs Bison that the rule ‘| '-' exp’ 
-        * has the same precedence as NEG—in this case the next-to-highest
-        */
-      // $$ = -($2->value.doublev);
-      (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
-      (yyval.symrecv)->name = (char*) "__annon";
-      (yyval.symrecv)->value.doublev = -(yyvsp[0].symrecv)->value.doublev;
-      printf("\nexp ^ exp %lf", (yyvsp[0].symrecv)->value.doublev);
-    }
-#line 1721 "noname.tab.c" /* yacc.c:1661  */
+#line 111 "noname.y" /* yacc.c:1661  */
+    {}
+#line 1520 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 19:
-#line 307 "noname.y" /* yacc.c:1661  */
-    {
-      //$$ = pow($1->value.doublev, $3->value.doublev);
-      (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
-      (yyval.symrecv)->name = (char*) "__annon";
-      (yyval.symrecv)->value.doublev = pow((yyvsp[-2].symrecv)->value.doublev, (yyvsp[0].symrecv)->value.doublev);
-      printf("\nexp ^ exp %lf %lf", (yyvsp[-2].symrecv)->value.doublev, (yyvsp[0].symrecv)->value.doublev);
-    }
-#line 1733 "noname.tab.c" /* yacc.c:1661  */
+#line 112 "noname.y" /* yacc.c:1661  */
+    {}
+#line 1526 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 20:
-#line 314 "noname.y" /* yacc.c:1661  */
-    {
-      // $$ = $2->value.doublev;
-      (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
-      (yyval.symrecv)->name = (char*) "__annon";
-      (yyval.symrecv)->value.doublev = (yyvsp[-1].symrecv)->value.doublev;
-      printf("\n(exp) %lf", (yyvsp[-1].symrecv)->value.doublev);
-    }
-#line 1745 "noname.tab.c" /* yacc.c:1661  */
+#line 113 "noname.y" /* yacc.c:1661  */
+    {}
+#line 1532 "noname.tab.c" /* yacc.c:1661  */
     break;
 
 
-#line 1749 "noname.tab.c" /* yacc.c:1661  */
+#line 1536 "noname.tab.c" /* yacc.c:1661  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1796,7 +1583,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (&yylloc, pp, YY_("syntax error"));
+      yyerror (YY_("syntax error"));
 #else
 # define YYSYNTAX_ERROR yysyntax_error (&yymsg_alloc, &yymsg, \
                                         yyssp, yytoken)
@@ -1823,7 +1610,7 @@ yyerrlab:
                 yymsgp = yymsg;
               }
           }
-        yyerror (&yylloc, pp, yymsgp);
+        yyerror (yymsgp);
         if (yysyntax_error_status == 2)
           goto yyexhaustedlab;
       }
@@ -1847,7 +1634,7 @@ yyerrlab:
       else
         {
           yydestruct ("Error: discarding",
-                      yytoken, &yylval, &yylloc, pp);
+                      yytoken, &yylval, &yylloc);
           yychar = YYEMPTY;
         }
     }
@@ -1904,7 +1691,7 @@ yyerrlab1:
 
       yyerror_range[1] = *yylsp;
       yydestruct ("Error: popping",
-                  yystos[yystate], yyvsp, yylsp, pp);
+                  yystos[yystate], yyvsp, yylsp);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1946,7 +1733,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (&yylloc, pp, YY_("memory exhausted"));
+  yyerror (YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1958,7 +1745,7 @@ yyreturn:
          user semantic actions for why this is necessary.  */
       yytoken = YYTRANSLATE (yychar);
       yydestruct ("Cleanup: discarding lookahead",
-                  yytoken, &yylval, &yylloc, pp);
+                  yytoken, &yylval, &yylloc);
     }
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYABORT or YYACCEPT.  */
@@ -1967,7 +1754,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-                  yystos[*yyssp], yyvsp, yylsp, pp);
+                  yystos[*yyssp], yyvsp, yylsp);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -1980,49 +1767,4 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 323 "noname.y" /* yacc.c:1906  */
-
-
-//////////////////////////////////////////////////
-///////////* Code definitions. *//////////////////
-//////////////////////////////////////////////////
-
-int main (const int args, const char** argv) {
-
-  puts("aaa");
-
-  line_number = 1;
-
-  yylloc.first_line = yylloc.last_line = 1;
-  yylloc.first_column = yylloc.last_column = 0;
-
-  puts("bbb");
-
-  struct pcdata p;
-
-  puts("ccc");
-  // // /* set up scanner */
-  // // if(yylex_init_extra(&p, &p.scaninfo)) {
-  // //   perror("init alloc failed");
-  // //   return 1;
-  // // }
-
-  // // /* allocate and zero out the symbol table */
-  // // if(!(p.symtab = calloc(NHASH, sizeof(struct symbol)))) {
-  // //   perror("sym alloc failed");
-  // //   return 1;
-  // // }
-  
-  return yyparse(&p);
-}
-
-/* Called by yyparse on error.  */
-void yyerror(YYLTYPE *yylloc, void *pp, char const *s) {
-  fprintf (stderr, "ERROR: %s\n", s);
-}
-
-void division_by_zero(YYLTYPE yylloc) {
-  fprintf (stderr, "SEVERE ERROR %d:%d - %d:%d. Division by zero",
-                   yylloc.first_line, yylloc.first_column,
-                   yylloc.last_line, yylloc.last_column);
-}
+#line 116 "noname.y" /* yacc.c:1906  */

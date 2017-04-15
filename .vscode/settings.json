@@ -15,6 +15,23 @@
         "string": "cpp",
         "system_error": "cpp",
         "vector": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "__bit_reference": "cpp",
+        "__hash_table": "cpp",
+        "__split_buffer": "cpp",
+        "__sso_allocator": "cpp",
+        "__tree": "cpp",
+        "array": "cpp",
+        "dynarray": "cpp",
+        "iterator": "cpp",
+        "string_view": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "map": "cpp",
+        "memory": "cpp",
+        "scoped_allocator": "cpp",
+        "thread": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp"
     }
 }

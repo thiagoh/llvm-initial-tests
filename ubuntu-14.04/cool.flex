@@ -288,7 +288,7 @@ QUOTES          \"
 <INITIAL>{NEW}                   { return (NEW); }
 <INITIAL>{OF}                    { return (OF); }
 <INITIAL>{NOT}                   { return (NOT); }
-<INITIAL>{DARROW}		 { return (DARROW); }
+<INITIAL>{DARROW}		             { return (DARROW); }
 <INITIAL>{ASSIGN}                { return (ASSIGN); }
 <INITIAL>{LE}                    { return (LE); }
 
