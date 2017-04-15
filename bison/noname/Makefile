@@ -23,7 +23,7 @@ OUTPUT= test.output
 # CPPFLAGS: -I/usr/local/opt/flex/include
 CPPINCLUDE= -I. -I${CLASSDIR}/include -I${CLASSDIR}/src -I/usr/local/opt/flex/include
 
-FFLAGS= -ononame-lex.cc
+FFLAGS= -d -X -P noname_yy -o noname-lex.cc
 # FFLAGS= -d -ononame-lex.cc ${LDFLAGS}
 
 CC=g++

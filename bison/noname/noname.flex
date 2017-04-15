@@ -6,11 +6,8 @@
   #include "noname-parse.h"
 
   /* The compiler assumes these identifiers. */
-  // #define yylval noname_yylval
-  // #ifdef yylex
-  //   #undef yylex
-  // #endif
-  // #define yylex noname_yylex
+  #define yylval noname_yylval
+  #define yylex noname_yylex
 
   using namespace std;
   // int yylex(void);
@@ -43,40 +40,10 @@
   extern int verbose_flag;
 
   extern YYSTYPE noname_yylval;
-
+  extern int yylex(void);
 %}
 
-  //%option noyywrap nounput batch debug
-
-  void print(const char* v) {
-    buffer += v;
-    buffer += newline;
-  }
-  void exec_identifier() {
-    num_chars += strlen(yytext);
-    print("[IDENTIFIER]");
-  }
-  void exec_if() {
-    num_chars += strlen(yytext);
-    print("[IF]");
-  }
-  void exec_then() {
-    num_chars += strlen(yytext);
-    print("[THEN]");
-  }
-  void exec_elsif() {
-    num_chars += strlen(yytext);
-    print("[ELSIF]");
-  }
-  void exec_else() {
-    num_chars += strlen(yytext);
-    print("[ELSE]");
-  }
-  void exec_lb() {
-    ++num_chars;
-    ++num_lines;
-    print("[LINE_BREAK]");
-  }
+%option noyywrap nounput batch debug
 
 %START COMMENT
 
@@ -168,9 +135,48 @@ QUOTES          \"
 
 %%
 
-// int main(const int len, char** argv) {
+
+
+//
+//  The lexer keeps this global variable up to date with the line number
+//  of the current line read from the input.
+//
+int curr_lineno = 1;
+char *curr_filename = "<stdin>"; // this name is arbitrary
+FILE *fin; // This is the file pointer from which the lexer reads its input.
+
+//
+//  noname_yylex() is the function produced by flex. It returns the next
+//  token each time it is called.
+//
+extern int noname_yylex();
+YYSTYPE noname_yylval; // Not compiled with parser, so must define this.
+
+extern int optind; // used for option processing (man 3 getopt for more info)
+
+//
+//  Option -v sets the lex_verbose flag. The main() function prints out tokens
+//  if the program is invoked with option -v.  Option -l sets yy_flex_debug.
+//
+extern int yy_flex_debug; // Flex debugging; see flex documentation.
+extern int lex_verbose;   // Controls printing of tokens.
+void handle_flags(int argc, char *argv[]);
+
+//
+//  The full Cool compiler contains several debugging flags, all of which
+//  are handled and set by the routine handle_flags.  Here we declare
+//  noname_yydebug, which is not used by the lexer but is needed to link
+//  with handle_flags.
+//
+int noname_yydebug;
+
+// defined in utilities.cc
+extern void dump_noname_token(ostream &out, int lineno, int token,
+                            YYSTYPE yylval);
+
+int main(const int len, char** argv) {
 //   yylex();
 //   printf("%s", buffer.c_str());
 //   printf( "# of lines = %d, # of chars = %d\n", num_lines, num_chars );
-//   return 0;
-// }
+  return 0;
+}
