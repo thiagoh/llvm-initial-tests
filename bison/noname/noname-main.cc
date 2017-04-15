@@ -22,8 +22,10 @@
 // extern int curr_lineno;
 // extern int verbose_flag;
 
+std::map<int, std::string> map;
 extern YYSTYPE yylval;
-extern int yylex(void);
+// extern int yylex(void);
+extern int noname_yylex(void);
 extern int yyparse();
 void yyerror(char const *s);
 
@@ -70,6 +72,15 @@ char *curr_filename = "<stdin>"; // this name is arbitrary
 
 /* Called by yyparse on error.  */
 
+int yylex(void) {
+
+  int token = noname_yylex();
+
+  printf("=> #%d[%s] %lf\n", token, map[token].c_str(), yylval.doublev);
+  
+  return token;
+}
+
 int main(int argc, char **argv) {
   int token;
 
@@ -79,8 +90,6 @@ int main(int argc, char **argv) {
   //   exit(1);
   // }
 
-  std::map<int, std::string> map;
-  
   map[258] = "LINE_BREAK";
   map[259] = "STMT_SEP";
   map[260] = "LETTER";
@@ -121,22 +130,6 @@ int main(int argc, char **argv) {
   map[295] = "NUM";
   map[300] = "NEG";
 
-  if (1) {
-
-    //
-    // Scan and print all tokens.
-    //
-    // cout << "#name \"" << argv[optind] << "\"" << endl;
-
-    while ((token = yylex()) != 0) {
-      // dump_cool_token(cout, curr_lineno, token, yylval);
-      printf("#%d[%s] %lf\n", token, map[token].c_str(), yylval.doublev);
-    }
-
-    // fclose(fin);
-    exit(0);
-  }
-  
   return yyparse();
 }
 

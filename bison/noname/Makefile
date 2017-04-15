@@ -13,7 +13,7 @@ CPPINCLUDE= -I. -I${CLASSDIR}/include -I${CLASSDIR}/src -I/usr/local/opt/flex/in
 # FLEX_FLAGS= -d -X -P noname_yy -o noname-lex.cc
 # BISON_FLAGS= -d -v -y -b noname --debug -p noname_yy
 #TO ENAMBLE DEBUG => FLEX_FLAGS= -d -X -o noname-lex.cc
-FLEX_FLAGS= -X -o noname-lex.cc
+FLEX_FLAGS= -X -P noname_yy -o noname-lex.cc
 BISON_FLAGS= -d -v -y -b noname --debug
 CC=g++
 # CFLAGS= -g -Wall -Wno-unused -Wno-write-strings ${CPPINCLUDE}

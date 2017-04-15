@@ -5,10 +5,10 @@
 
   int num_lines = 0, num_chars = 0;
   extern YYSTYPE yylval;
-  // extern int yylex(void);
   extern void yyerror(char const *s);
 %}
 
+%option noyywrap 
   // %option noyywrap nounput batch debug yylineno
   // %option warn noyywrap nodefault yylineno reentrant bison-bridge 
 
