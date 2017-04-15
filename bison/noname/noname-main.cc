@@ -75,8 +75,15 @@ char *curr_filename = "<stdin>"; // this name is arbitrary
 int yylex(void) {
 
   int token = noname_yylex();
+  
+  double v = -1;
+  if (token == INT) {
+    v = yylval.intv;
+  } else if (token == DOUBLE) {
+    v = yylval.doublev;
+  }
 
-  printf("=> #%d[%s] %lf\n", token, map[token].c_str(), yylval.doublev);
+  printf("=> #%d[%s] %lf\n", token, map[token].c_str(), v);
   
   return token;
 }
@@ -127,8 +134,9 @@ int main(int argc, char **argv) {
   map[292] = "END_COMMENT";
   map[293] = "QUOTES";
   map[294] = "ID";
-  map[295] = "NUM";
-  map[300] = "NEG";
+  map[295] = "DOUBLE";
+  map[296] = "INT";
+  map[301] = "NEG";
 
   return yyparse();
 }

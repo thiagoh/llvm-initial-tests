@@ -383,8 +383,8 @@ static void yy_fatal_error (yyconst char msg[]  );
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
 
-#define YY_NUM_RULES 32
-#define YY_END_OF_BUFFER 33
+#define YY_NUM_RULES 33
+#define YY_END_OF_BUFFER 34
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -394,12 +394,12 @@ struct yy_trans_info
 	};
 static yyconst flex_int16_t yy_accept[66] =
     {   0,
-        0,    0,    3,    3,   33,   31,    2,    1,   15,   29,
-       30,   23,   21,   17,   22,   27,   24,   16,   18,   14,
-       25,    4,   28,   15,   15,   15,   15,   15,   15,   15,
-       19,   20,   26,    3,    2,    1,    2,   15,    0,   16,
+        0,    0,    3,    3,   34,   32,    2,    1,   15,   30,
+       31,   24,   22,   18,   23,   28,   25,   16,   19,   14,
+       26,    4,   29,   15,   15,   15,   15,   15,   15,   15,
+       20,   21,   27,    3,    2,    1,    2,   15,    0,   16,
        15,   15,    6,    7,   15,   15,   15,   15,   15,    3,
-        2,   16,   15,   15,    8,   12,   13,   15,   15,   11,
+        2,   17,   15,   15,    8,   12,   13,   15,   15,   11,
         5,    9,   15,   10,    0
     } ;
 
@@ -519,12 +519,11 @@ char *noname_yytext;
 
   int num_lines = 0, num_chars = 0;
   extern YYSTYPE yylval;
-  // extern int noname_yylex(void);
   extern void yyerror(char const *s);
 // %option noyywrap nounput batch debug noname_yylineno
 // %option warn noyywrap nodefault noname_yylineno reentrant bison-bridge 
 
-#line 528 "noname-lex.cc"
+#line 527 "noname-lex.cc"
 
 #define INITIAL 0
 #define COMMENT 1
@@ -710,7 +709,7 @@ YY_DECL
 #line 62 "noname.flex"
 
 
-#line 714 "noname-lex.cc"
+#line 713 "noname-lex.cc"
 
 	if ( !(yy_init) )
 		{
@@ -881,92 +880,97 @@ YY_RULE_SETUP
 case 16:
 YY_RULE_SETUP
 #line 87 "noname.flex"
-{ yylval.doublev = atoi(noname_yytext); return (NUM); }
+{ yylval.intv = atoi(noname_yytext); return (INT); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 89 "noname.flex"
-{ return int(','); }
+#line 88 "noname.flex"
+{ yylval.doublev = atof(noname_yytext); return (DOUBLE); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 90 "noname.flex"
-{ return int(':'); }
+{ return int(','); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 91 "noname.flex"
-{ return int('{'); }
+{ return int(':'); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 92 "noname.flex"
-{ return int('}'); }
+{ return int('{'); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 93 "noname.flex"
-{ return int('+'); }
+{ return int('}'); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 94 "noname.flex"
-{ return int('-'); }
+{ return int('+'); }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 95 "noname.flex"
-{ return int('*'); }
+{ return int('-'); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 96 "noname.flex"
-{ return int('/'); }
+{ return int('*'); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 97 "noname.flex"
-{ return int('<'); }
+{ return int('/'); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 98 "noname.flex"
-{ return int('~'); }
+{ return int('<'); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
 #line 99 "noname.flex"
-{ return int('.'); }
+{ return int('~'); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 100 "noname.flex"
-{ return int('@'); }
+{ return int('.'); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 101 "noname.flex"
-{ return int('('); }
+{ return int('@'); }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 102 "noname.flex"
-{ return int(')'); }
+{ return int('('); }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 104 "noname.flex"
+#line 103 "noname.flex"
+{ return int(')'); }
+	YY_BREAK
+case 32:
+YY_RULE_SETUP
+#line 105 "noname.flex"
 {
     printf("error '%s'", noname_yytext);
     yylval.error_msg = noname_yytext; return 0; 
   }
 	YY_BREAK
-case 32:
+case 33:
 YY_RULE_SETUP
-#line 109 "noname.flex"
+#line 110 "noname.flex"
 ECHO;
 	YY_BREAK
-#line 970 "noname-lex.cc"
+#line 974 "noname-lex.cc"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENT):
 	yyterminate();
@@ -1964,6 +1968,6 @@ void noname_yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 109 "noname.flex"
+#line 110 "noname.flex"
 
 

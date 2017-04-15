@@ -57,7 +57,8 @@ extern void yyerror(const char *error_msg);
 %token QUOTES                "quotes"         
 
 %token <idv> ID              "identifier"
-%token <doublev> NUM         "number"
+%token <doublev> DOUBLE      "double"
+%token <intv> INT            "integer"
 %token <charv> '+'           "operator +"
 %token <charv> '-'           "operator -"
 %token <charv> '/'           "operator /"
@@ -103,7 +104,7 @@ declaration:
 
 exp:
   ID                   {}
-  | NUM                {}
+  | INT DOUBLE         {}
   | exp '+' exp        {}
   | exp '-' exp        {}
   | exp '*' exp        {}

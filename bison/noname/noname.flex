@@ -20,7 +20,8 @@ LETTER          [a-zA-Z]
 ALPHA           [a-zA-Z$_]
 DIGIT           [0-9]
 DIGITS          {DIGIT}+
-NUM             {DIGIT}+(\.{DIGIT}+)?
+INT             {DIGIT}+
+DOUBLE          {DIGIT}+(\.{DIGIT}+)?
 ID              {ALPHA}({ALPHA}|{DIGIT})*
 
 ELSE            [eE][lL][sS][eE]
@@ -83,7 +84,8 @@ QUOTES          \"
 <INITIAL>{NOT}                   { return (NOT); }
 <INITIAL>{STMT_SEP}              { return (STMT_SEP); }
 <INITIAL>{ID}                    { return (ID); }
-<INITIAL>{NUM}                   { yylval.doublev = atoi(yytext); return (NUM); }
+<INITIAL>{INT}                   { yylval.intv = atoi(yytext); return (INT); }
+<INITIAL>{DOUBLE}                { yylval.doublev = atof(yytext); return (DOUBLE); }
 
 <INITIAL>","                     { return int(','); }
 <INITIAL>":"                     { return int(':'); }

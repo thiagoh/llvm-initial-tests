@@ -118,8 +118,9 @@ extern int yydebug;
     END_COMMENT = 292,
     QUOTES = 293,
     ID = 294,
-    NUM = 295,
-    NEG = 300
+    DOUBLE = 295,
+    INT = 296,
+    NEG = 301
   };
 #endif
 /* Tokens.  */
@@ -160,8 +161,9 @@ extern int yydebug;
 #define END_COMMENT 292
 #define QUOTES 293
 #define ID 294
-#define NUM 295
-#define NEG 300
+#define DOUBLE 295
+#define INT 296
+#define NEG 301
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -177,7 +179,7 @@ union YYSTYPE
     symrec* symrecv;
     char* error_msg;
 
-#line 145 "noname.tab.h" /* yacc.c:1915  */
+#line 147 "noname.tab.h" /* yacc.c:1915  */
 };
 
 typedef union YYSTYPE YYSTYPE;
