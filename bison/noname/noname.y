@@ -1,6 +1,14 @@
-/* Infix notation calculator.  */
+/* noname language.  */
+%define api.pure
+%define parse.error verbose
 %{
+  struct pcdata {};
+%}
+%parse-param { struct pcdata *pp }
+%lex-param { struct pcdata *pp }
 
+%{
+#define YYLEX_PARAM pp->scaninfo
 #include <stdio.h>
 #include <stdlib.h> /* malloc. */
 #include <string.h> /* strlen. */
@@ -11,6 +19,7 @@
 #include <math.h>
 #include <map>
 #include "noname-tree.h"
+// #include "noname-parse.h"
 
 #define YYLTYPE YYLTYPE
 typedef struct YYLTYPE {
@@ -20,7 +29,27 @@ typedef struct YYLTYPE {
     int last_column;
   } YYLTYPE;
 
-// YYLTYPE yylloc;
+// struct ast {
+//   int nodetype;
+//   struct ast *l;
+//   struct ast *r;
+// };
+
+// struct symbol { /* a variable name */
+//   char *name;
+//   double value;
+//   struct ast *func; /* stmt for the function */
+//   struct symlist *syms; /* list of dummy args */
+// };
+
+/* per-parse data */
+// struct pcdata {
+//  void* scaninfo; /* scanner context */
+//  struct symbol *symtab; /* symbols for this parse */
+//  struct ast *ast; /* most recently parsed AST */
+// };
+
+YYLTYPE yylloc;
 
 /* Function type.  */
 // typedef double (*func_t) (double);
@@ -31,14 +60,6 @@ int line_number;
 char buf[1024 * 8];
 std::map<std::string, symrec*> symbol_table;
 std::map<std::string, symrec*>::iterator symbol_table_it;
-int yylex (void);
-void yyerror (char const *);
-
-symrec * putsym (char const *sym_name, int sym_type);
-symrec * getsym (char const *sym_name);
-
-// void division_by_zero();
-void division_by_zero(YYLTYPE yylloc);
 
 %}
 
@@ -55,7 +76,24 @@ void division_by_zero(YYLTYPE yylloc);
     char* error_msg;
 };
 
-%define parse.error verbose
+%{
+
+int main (const int args, const char** argv);
+
+// int yylex (void);
+void noname_yyerror(YYLTYPE *yylloc, void *pp, char const * message);
+// void noname_yyerror(YYLTYPE * yylloc, char const *);
+
+// stuff from flex that bison needs to know about:
+extern int noname_yylex(YYSTYPE *yylval, YYLTYPE* llocp, void* yyscanner);
+// extern int noname_yyparse(void* yyscanner);
+// extern FILE *yyin;
+
+// void division_by_zero();
+void division_by_zero(YYLTYPE yylloc);
+
+%}
+
 %token LINE_BREAK            "line_break"             
 %token STMT_SEP              "stmt_sep"           
 %token LETTER                "letter"         
@@ -139,7 +177,7 @@ assignment:
 
       char buf[1024];
       sprintf(buf, "No such ID %s found", $1);
-      yyerror(buf);
+      yyerror(&yylloc, pp, buf);
 
     } else {
       
@@ -159,7 +197,7 @@ assignment:
 
       char buf[1024];
       sprintf(buf, "Cannot redefine ID %s", $2);
-      yyerror(buf);
+      yyerror(&yylloc, pp, buf);
 
     } else {
       
@@ -182,7 +220,7 @@ declaration:
 
       char buf[1024];
       sprintf(buf, "Cannot redefine ID %s", $2);
-      yyerror(buf);
+      yyerror(&yylloc, pp, buf);
 
     } else {
       
@@ -205,7 +243,7 @@ exp:
 
       char buf[1024];
       sprintf(buf, "No such ID %s found", $1);
-      yyerror(buf);
+      yyerror(&yylloc, pp, buf);
 
     } else {
       
@@ -288,108 +326,37 @@ exp:
 ///////////* Code definitions. *//////////////////
 //////////////////////////////////////////////////
 
-/* The lexical analyzer returns a double floating point
-   number on the stack and the token NUM, or the numeric code
-   of the character read if not a number.  It skips all blanks
-   and tabs, and returns 0 for end-of-input.  */
+int main (const int args, const char** argv) {
 
-int yylex (void) {
-  int c;
-  /* Skip white space.  */
-  while ((c = getchar()) == ' ' || c == '\t')
-    ++yylloc.last_column;
-  printf("char -> %c\n", c); 
-  /* Step.  */
-  yylloc.first_line = yylloc.last_line;
-  yylloc.first_column = yylloc.last_column;
-  /* Process numbers.  */
+  puts("aaa");
 
-  if (c == '.' || isdigit(c)) {
-    // ungetc(c, stdin);
-    char* doubleBuf = new char[64];
-    char* doubleBufBegin = doubleBuf;
-    int dix = 0;
-    do {
-      ++yylloc.last_column;
-      *doubleBuf = c;
-      doubleBuf++;
-      dix++;
-      c = getchar();
-    } while(c == '.' || isdigit(c));
-    *doubleBuf = '\0';
-    double val = strtod(doubleBufBegin, 0);
-    yylval.doublev = val;
-    // sscanf(doubleBuf, "%lf", &val);
-    // printf("\nhere %s %lf \nhere %s %lf", &doubleBuf[0], val, &doubleBuf[0], val);
-    return NUM;
-  }
-  
-  /* Return end-of-input.  */
-  if (c == EOF)
-    return 0;
-  if (c == 'l') {
-    ++yylloc.last_line;
-    printf("LET\n");
-    return LET;
-  }
-  if (isalpha(c)) {
-    char* s = new char[1];
-    *s = c;
-    yylval.idv = s;
-    ++yylloc.last_line;
-    return ID;
-  }
-  if (c == ';') {
-    ++yylloc.last_line;
-    printf("STMT_SEP\n");
-    return STMT_SEP;
-  }
-  /* Return a single char, and update location.  */
-  if (c == '\n') {
-    printf("STMT_SEP\n");
-    ++line_number;
-    ++yylloc.last_line;
-    yylloc.last_column = 0;
-    return STMT_SEP;
-  } else
-    ++yylloc.last_column;
-  
-  return c;
-}
-
-int main (void) {
   line_number = 1;
+
   yylloc.first_line = yylloc.last_line = 1;
   yylloc.first_column = yylloc.last_column = 0;
+
+  puts("bbb");
+
+  struct pcdata p;
+
+  puts("ccc");
+  // // /* set up scanner */
+  // // if(yylex_init_extra(&p, &p.scaninfo)) {
+  // //   perror("init alloc failed");
+  // //   return 1;
+  // // }
+
+  // // /* allocate and zero out the symbol table */
+  // // if(!(p.symtab = calloc(NHASH, sizeof(struct symbol)))) {
+  // //   perror("sym alloc failed");
+  // //   return 1;
+  // // }
   
-  return yyparse ();
-}
-
-symrec * putsym (char const *sym_name, int sym_type) {
-
-  // symrec *ptr = (symrec *) malloc (sizeof (symrec));
-  // ptr->name = (char *) malloc (strlen (sym_name) + 1);
-  // strcpy (ptr->name,sym_name);
-  // ptr->type = sym_type;
-  // ptr->value.doublev = 0; /* Set value to 0 even if fctn.  */
-  // ptr->next = (struct symrec *)sym_table;
-  // sym_table = ptr;
-  // return ptr;
-  return 0;
-}
-
-symrec * getsym (char const *sym_name) {
-
-  // symrec *ptr;
-
-  // for (ptr = sym_table; ptr != (symrec *) 0; ptr = (symrec *)ptr->next)
-  //   if (strcmp (ptr->name, sym_name) == 0)
-  //     return ptr;
-  return 0;
+  return yyparse(&p);
 }
 
 /* Called by yyparse on error.  */
-void yyerror(char const *s) {
+void yyerror(YYLTYPE *yylloc, void *pp, char const *s) {
   fprintf (stderr, "ERROR: %s\n", s);
 }
 

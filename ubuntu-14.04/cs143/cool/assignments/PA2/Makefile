@@ -36,8 +36,8 @@ ${OUTPUT}:	lexer test.cl
 lexer: ${OBJS}
 	${CC} ${CFLAGS} ${OBJS} ${LIB} -o lexer
 
-.cc.o:
-	${CC} ${CFLAGS} -c $<
+%.o: %.cc
+	${CC} ${CFLAGS} -c -o $@ $<
 
 cool-lex.cc: cool.flex 
 	${FLEX} cool.flex
@@ -74,6 +74,7 @@ clean-compile:
 
 %.d: %.cc ${SRC} ${LSRC}
 	${SHELL} -ec '${DEPEND} $< | sed '\''s/\($*\.o\)[ :]*/\1 $@ : /g'\'' > $@'
+#${SHELL} -ec '${DEPEND} $<' > $@'
 
 -include ${CFIL:.cc=.d}
 

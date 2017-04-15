@@ -14,6 +14,7 @@
         "regex": "cpp",
         "string": "cpp",
         "system_error": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "*.inc": "cpp"
     }
 }
