@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
   map[294] = "ERROR";
   map[295] = "ID";
   map[296] = "DOUBLE";
-  map[297] = "INT";
+  map[297] = "LONG";
   map[302] = "NEG";
 
   return yyparse();

@@ -6,9 +6,12 @@
 #include "noname-parse.h"
 #include "noname-types.h"
 
+#define YYDEBUG 1
+
 extern int yylex(void);
 extern void yyerror(const char *error_msg);
 extern void division_by_zero(YYLTYPE &yylloc);
+
 
 std::map<std::string, symrec*> symbol_table;
 std::map<std::string, symrec*>::iterator symbol_table_it;
@@ -125,15 +128,15 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
 
 prog:
   %empty
-  | prog stmt 
-  | prog STMT_SEP
+  | STMT_SEP
+  | prog stmt STMT_SEP
 ;
 
 stmt:
-  exp ';'               { printf("\n[stmt] 1"); print_stmt($1); }
-  | declaration STMT_SEP     { printf("\n[stmt] 2"); print_stmt($1); }
-  | assignment STMT_SEP      { printf("\n[stmt] 3"); print_stmt($1); }
-  | error STMT_SEP           { printf("%d:%d", @1.first_column, @1.last_column); }
+  exp                { printf("\n[stmt] 1"); print_stmt($1); }
+  | declaration      { printf("\n[stmt] 2"); print_stmt($1); }
+  | assignment       { printf("\n[stmt] 3"); print_stmt($1); }
+  | error            { printf("%d:%d", @1.first_column, @1.last_column); }
 ;
 
 assignment:
@@ -205,9 +208,9 @@ declaration:
 exp:
   ID {
      
-    $$ = (symrec *) malloc (sizeof (symrec));
+    printf("\n/ aaaaaaaaaaa %s /", $1);
 
-    printf("/ aaaaaaaaaaa %s /", $1);
+    $$ = (symrec *) malloc (sizeof (symrec));
 
     if (!symbol_exist($1)) {
 

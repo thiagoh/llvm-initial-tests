@@ -23,7 +23,7 @@
 %x STRING
 
 LINE_BREAK      \n
-STMT_SEP        (\n|;)
+STMT_SEP        ;
 LETTER          [a-zA-Z]
 ALPHA           [a-zA-Z$_]
 DIGIT           [0-9]
@@ -122,7 +122,6 @@ QUOTES          \"
 <INITIAL>{NOT}                   { return (NOT); }
 <INITIAL>{ID}      {
   yylval.id_v = yytext;
-  printf("'%s'", yytext);
   return (ID); }
 <INITIAL>{LONG}     {
   yylval.long_v = atoi(yytext);
