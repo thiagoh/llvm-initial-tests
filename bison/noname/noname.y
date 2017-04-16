@@ -47,7 +47,19 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
     return symbol_table[skey];
   }
 
-  void print_stmt(symrecv sym) {
+  void assign_symrecv_value(symrecv from, symrecv to) {
+    if (from->type == TYPE_DOUBLE) {
+      to->value.doublev = from->value.doublev;
+    } else if (from->type == TYPE_LONG) {
+      to->value.longv = from->value.longv;
+    } else if (from->type == TYPE_CHAR) {
+      to->value.charv = from->value.charv;
+    } else {
+      fprintf(stderr, "assign_symrecv_value not implemented for %d" , from->type);
+    }
+  }
+
+  void print_symrecv_value(symrecv sym) {
 
     if (sym->type == TYPE_LONG) {
       printf("%d", sym->value.intv);
@@ -131,10 +143,10 @@ prog:
 ;
 
 stmt:
-  declaration STMT_SEP     { printf("\n[stmt] 2: "); print_stmt($1); }
-  | assignment STMT_SEP      { printf("\n[stmt] 3: "); print_stmt($1); }
-  | exp STMT_SEP               { printf("\n[stmt] 1: "); print_stmt($1); }
-  | error                    { printf("%d:%d", @1.first_column, @1.last_column); }
+  declaration STMT_SEP      { printf("\n[stmt] 2: "); print_symrecv_value($1); $$ = $1;}
+  | assignment STMT_SEP     { printf("\n[stmt] 3: "); print_symrecv_value($1); $$ = $1;}
+  | exp STMT_SEP            { printf("\n[stmt] 1: "); print_symrecv_value($1); $$ = $1;}
+  | error                   { printf("%d:%d", @1.first_column, @1.last_column); }
 ;
 
 assignment:
@@ -152,7 +164,7 @@ assignment:
       
       $$->name = $1;
       $$->type = $3->type;
-      $$->value.doublev = $3->value.doublev;
+      assign_symrecv_value($3, $$);
       symbol_insert($1, $$);
       // printf("\nID %s -> %lf", $1, $$->value.doublev);
       printf("\n[assignment]");
@@ -172,9 +184,8 @@ assignment:
       
       $$->name = $2;
       $$->type = $4->type;
-      $$->value.doublev = $4->value.doublev;
+      assign_symrecv_value($4, $$);
       symbol_insert($2, $$);
-      // printf("\nID %s -> %lf", $1, $$->value.doublev);
       printf("\n[assignment]");
     }
   }
@@ -206,8 +217,6 @@ declaration:
 exp:
   ID {
      
-    printf("\n/ aaaaaaaaaaa %s /", $1);
-
     $$ = (symrec *) malloc (sizeof (symrec));
 
     if (!symbol_exist($1)) {
@@ -218,9 +227,13 @@ exp:
 
     } else {
       
+      symrecv sym = symbol_retrieve($1);
+
       $$->name = $1;
-      $$->value.doublev = symbol_retrieve($1)->value.doublev;
-      printf("\nID %s -> %lf", $1, $$->value.doublev);
+      $$->type = sym->type;
+      assign_symrecv_value(sym, $$);
+      // $$->value.doublev = symbol_retrieve($1)->value.doublev;
+      // printf("\nID %s -> %lf", $1, $$->value.doublev);
     }
   }
   | LONG {
