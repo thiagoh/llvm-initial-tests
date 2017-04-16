@@ -36,8 +36,6 @@ void dump_bool(ostream &, int, bool);
 // typedef list_node<Case> Cases_class;
 // typedef Cases_class *Cases;
 
-
-
 /* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison interface for Yacc-like parsers in C
@@ -72,7 +70,7 @@ void dump_bool(ostream &, int, bool);
 
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+#define YYDEBUG 1
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -80,51 +78,50 @@ extern int yydebug;
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-  enum yytokentype
-  {
-    LINE_BREAK = 258,
-    STMT_SEP = 259,
-    LETTER = 260,
-    DIGIT = 261,
-    DIGITS = 262,
-    DARROW = 263,
-    ELSE = 264,
-    FALSE = 265,
-    IF = 266,
-    IN = 267,
-    LET = 268,
-    LOOP = 269,
-    THEN = 270,
-    WHILE = 271,
-    BREAK = 272,
-    CASE = 273,
-    NEW = 274,
-    NOT = 275,
-    TRUE = 276,
-    NEWLINE = 277,
-    NOTNEWLINE = 278,
-    WHITESPACE = 279,
-    LE = 280,
-    ASSIGN = 281,
-    NULLCH = 282,
-    BACKSLASH = 283,
-    STAR = 284,
-    NOTSTAR = 285,
-    LEFTPAREN = 286,
-    NOTLEFTPAREN = 287,
-    RIGHTPAREN = 288,
-    NOTRIGHTPAREN = 289,
-    LINE_COMMENT = 290,
-    START_COMMENT = 291,
-    END_COMMENT = 292,
-    QUOTES = 293,
-    ERROR = 294,
-    ID = 295,
-    DOUBLE = 296,
-    INT = 297,
-    NEG = 302
-  };
+#define YYTOKENTYPE
+enum yytokentype {
+  LINE_BREAK = 258,
+  STMT_SEP = 259,
+  LETTER = 260,
+  DIGIT = 261,
+  DIGITS = 262,
+  DARROW = 263,
+  ELSE = 264,
+  FALSE = 265,
+  IF = 266,
+  IN = 267,
+  LET = 268,
+  LOOP = 269,
+  THEN = 270,
+  WHILE = 271,
+  BREAK = 272,
+  CASE = 273,
+  NEW = 274,
+  NOT = 275,
+  TRUE = 276,
+  NEWLINE = 277,
+  NOTNEWLINE = 278,
+  WHITESPACE = 279,
+  LE = 280,
+  ASSIGN = 281,
+  NULLCH = 282,
+  BACKSLASH = 283,
+  STAR = 284,
+  NOTSTAR = 285,
+  LEFTPAREN = 286,
+  NOTLEFTPAREN = 287,
+  RIGHTPAREN = 288,
+  NOTRIGHTPAREN = 289,
+  LINE_COMMENT = 290,
+  START_COMMENT = 291,
+  END_COMMENT = 292,
+  QUOTES = 293,
+  ERROR = 294,
+  ID = 295,
+  DOUBLE = 296,
+  LONG = 297,
+  NEG = 302
+};
 #endif
 /* Tokens.  */
 #define LINE_BREAK 258
@@ -166,48 +163,44 @@ extern int yydebug;
 #define ERROR 294
 #define ID 295
 #define DOUBLE 296
-#define INT 297
+#define LONG 297
 #define NEG 302
 
 /* Value type.  */
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+#if !defined YYSTYPE && !defined YYSTYPE_IS_DECLARED
 
-union YYSTYPE
-{
-#line 13 "noname.y" /* yacc.c:1915  */
+union YYSTYPE {
 
-    char* idv;
-    char charv;
-    double doublev;
-    int intv;
-    symrec* symrecv;
-    char* error_msg;
+  char *id_v;
+  double double_v;
+  long long_v;
 
-#line 149 "noname.tab.h" /* yacc.c:1915  */
+  symrecv symrecv;
+  char *error_msg;
+
+#line 181 "noname.tab.h" /* yacc.c:1915  */
 };
 
 typedef union YYSTYPE YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
-# define YYSTYPE_IS_DECLARED 1
+#define YYSTYPE_IS_TRIVIAL 1
+#define YYSTYPE_IS_DECLARED 1
 #endif
 
 /* Location type.  */
-#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+#if !defined YYLTYPE && !defined YYLTYPE_IS_DECLARED
 typedef struct YYLTYPE YYLTYPE;
-struct YYLTYPE
-{
+struct YYLTYPE {
   int first_line;
   int first_column;
   int last_line;
   int last_column;
 };
-# define YYLTYPE_IS_DECLARED 1
-# define YYLTYPE_IS_TRIVIAL 1
+#define YYLTYPE_IS_DECLARED 1
+#define YYLTYPE_IS_TRIVIAL 1
 #endif
-
 
 extern YYSTYPE yylval;
 extern YYLTYPE yylloc;
-int yyparse (void);
+int yyparse(void);
 
 #endif /* !YY_YY_NONAME_TAB_H_INCLUDED  */

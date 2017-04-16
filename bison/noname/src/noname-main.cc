@@ -1,10 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <map>
 #include "lexer-utilities.h"
 #include "noname-parse.h"
 #include "noname-types.h"
+#include <map>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 
 // void yyerror(const char *);
 
@@ -76,16 +76,17 @@ char *curr_filename = "<stdin>"; // this name is arbitrary
 int yylex(void) {
 
   int token = noname_yylex();
-  
-  double v = -1;
-  if (token == INT) {
-    v = yylval.intv;
+
+  if (token == LONG) {
+    printf("=> #%d[%s] %ld\n", token, map[token].c_str(), yylval.long_v);
   } else if (token == DOUBLE) {
-    v = yylval.doublev;
+    printf("=> #%d[%s] %lf\n", token, map[token].c_str(), yylval.double_v);
+  } else if (token == ID) {
+    printf("=> #%d[%s] %s\n", token, map[token].c_str(), yylval.id_v);
+  } else {
+    printf("=> #%d[%s]\n", token, map[token].c_str());
   }
 
-  printf("=> #%d[%s] %lf\n", token, map[token].c_str(), v);
-  
   return token;
 }
 
@@ -134,12 +135,19 @@ int main(int argc, char **argv) {
   map[291] = "START_COMMENT";
   map[292] = "END_COMMENT";
   map[293] = "QUOTES";
-  map[294] = "ID";
-  map[295] = "DOUBLE";
-  map[296] = "INT";
-  map[301] = "NEG";
+  map[294] = "ERROR";
+  map[295] = "ID";
+  map[296] = "DOUBLE";
+  map[297] = "INT";
+  map[302] = "NEG";
 
   return yyparse();
+}
+
+void division_by_zero(YYLTYPE &yylloc) {
+  fprintf(stderr, "SEVERE ERROR %d:%d - %d:%d. Division by zero",
+          yylloc.first_line, yylloc.first_column, yylloc.last_line,
+          yylloc.last_column);
 }
 
 void yyerror(char const *s) { fprintf(stderr, "ERROR: %s\n", s); }

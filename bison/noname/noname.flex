@@ -3,6 +3,7 @@
   #include "stdlib.h"
   #include "lexer-utilities.h"
   #include "noname-parse.h"
+  #include "noname-types.h"
 
   int num_lines = 0, num_chars = 0;
   extern YYSTYPE yylval;
@@ -27,7 +28,7 @@ LETTER          [a-zA-Z]
 ALPHA           [a-zA-Z$_]
 DIGIT           [0-9]
 DIGITS          {DIGIT}+
-INT             {DIGIT}+
+LONG            {DIGIT}+
 DOUBLE          {DIGIT}+(\.{DIGIT}+)?
 ID              {ALPHA}({ALPHA}|{DIGIT})*
 
@@ -119,11 +120,18 @@ QUOTES          \"
 <INITIAL>{CASE}                  { return (CASE); }
 <INITIAL>{NEW}                   { return (NEW); }
 <INITIAL>{NOT}                   { return (NOT); }
-<INITIAL>{STMT_SEP}              { return (STMT_SEP); }
-<INITIAL>{ID}                    { yylval.idv = yytext; return (ID); }
-<INITIAL>{INT}                   { yylval.intv = atoi(yytext); return (INT); }
-<INITIAL>{DOUBLE}                { yylval.doublev = atof(yytext); return (DOUBLE); }
+<INITIAL>{ID}      {
+  yylval.id_v = yytext;
+  printf("'%s'", yytext);
+  return (ID); }
+<INITIAL>{LONG}     {
+  yylval.long_v = atoi(yytext);
+  return (LONG); }
+<INITIAL>{DOUBLE}  {
+  yylval.double_v = atof(yytext);
+  return (DOUBLE); }
 
+<INITIAL>{STMT_SEP}              { return (STMT_SEP); }
 <INITIAL>","                     { return int(','); }
 <INITIAL>":"                     { return int(':'); }
 <INITIAL>"{"                     { return int('{'); }
