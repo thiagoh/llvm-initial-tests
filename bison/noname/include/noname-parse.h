@@ -36,6 +36,7 @@ void dump_bool(ostream &, int, bool);
 // typedef list_node<Case> Cases_class;
 // typedef Cases_class *Cases;
 
+
 /* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison interface for Yacc-like parsers in C
@@ -172,7 +173,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 24 "noname.y" /* yacc.c:1915  */
+#line 22 "noname.y" /* yacc.c:1915  */
 
 
   char* id_v;

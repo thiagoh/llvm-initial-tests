@@ -78,17 +78,26 @@ int yylex(void) {
   int token = noname_yylex();
 
   if (token == LONG) {
-    printf("=> #%d[%s] %ld\n", token, map[token].c_str(), yylval.long_v);
+    fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %ld\n", token, map[token].c_str(), yylval.long_v);
   } else if (token == DOUBLE) {
-    printf("=> #%d[%s] %lf\n", token, map[token].c_str(), yylval.double_v);
+    fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %lf\n", token, map[token].c_str(), yylval.double_v);
   } else if (token == ID) {
-    printf("=> #%d[%s] %s\n", token, map[token].c_str(), yylval.id_v);
+    fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %s\n", token, map[token].c_str(), yylval.id_v);
   } else {
-    printf("=> #%d[%s]\n", token, map[token].c_str());
+    fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %c\n", token, map[token].c_str(), (char) token);
   }
 
   return token;
 }
+
+void division_by_zero(YYLTYPE &yylloc) {
+  fprintf(stderr, "SEVERE ERROR %d:%d - %d:%d. Division by zero",
+          yylloc.first_line, yylloc.first_column, yylloc.last_line,
+          yylloc.last_column);
+}
+
+void yyerror(char const *s) { fprintf(stderr, "\nERROR: %s\n", s); }
+
 
 int main(int argc, char **argv) {
   int token;
@@ -140,14 +149,10 @@ int main(int argc, char **argv) {
   map[296] = "DOUBLE";
   map[297] = "LONG";
   map[302] = "NEG";
+  
+  
+
+  yydebug = 5;
 
   return yyparse();
 }
-
-void division_by_zero(YYLTYPE &yylloc) {
-  fprintf(stderr, "SEVERE ERROR %d:%d - %d:%d. Division by zero",
-          yylloc.first_line, yylloc.first_column, yylloc.last_line,
-          yylloc.last_column);
-}
-
-void yyerror(char const *s) { fprintf(stderr, "ERROR: %s\n", s); }

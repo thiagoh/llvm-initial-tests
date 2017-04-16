@@ -6,8 +6,6 @@
 #include "noname-parse.h"
 #include "noname-types.h"
 
-#define YYDEBUG 1
-
 extern int yylex(void);
 extern void yyerror(const char *error_msg);
 extern void division_by_zero(YYLTYPE &yylloc);
@@ -119,24 +117,24 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
 %right '^'        /* exponentiation */
 %precedence NEG   /* negation--unary minus */
 
+%start prog
+
 %% 
 
 //////////////////////////////////////////////////
 ///////////* The grammar follows. *///////////////
 //////////////////////////////////////////////////
 
-
 prog:
   %empty
-  | STMT_SEP
-  | prog stmt STMT_SEP
+  | prog stmt
 ;
 
 stmt:
-  exp                { printf("\n[stmt] 1"); print_stmt($1); }
-  | declaration      { printf("\n[stmt] 2"); print_stmt($1); }
-  | assignment       { printf("\n[stmt] 3"); print_stmt($1); }
-  | error            { printf("%d:%d", @1.first_column, @1.last_column); }
+  declaration STMT_SEP     { printf("\n[stmt] 2: "); print_stmt($1); }
+  | assignment STMT_SEP      { printf("\n[stmt] 3: "); print_stmt($1); }
+  | exp STMT_SEP               { printf("\n[stmt] 1: "); print_stmt($1); }
+  | error                    { printf("%d:%d", @1.first_column, @1.last_column); }
 ;
 
 assignment:
@@ -306,6 +304,6 @@ exp:
       $$->value.doublev = $2->value.doublev;
       printf("\n(exp) %lf", $2->value.doublev);
     }
-  // | error                 { printf("ERROR3"); }
+  | error                 { printf("\nERROR on exp rule"); }
   ;
 %%

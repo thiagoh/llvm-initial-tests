@@ -121,16 +121,15 @@ QUOTES          \"
 <INITIAL>{NEW}                   { return (NEW); }
 <INITIAL>{NOT}                   { return (NOT); }
 <INITIAL>{ID}      {
-  yylval.id_v = yytext;
+  yylval.id_v = strdup(yytext);
   return (ID); }
 <INITIAL>{LONG}     {
-  yylval.long_v = atoi(yytext);
+  yylval.long_v = atoi(strdup(yytext));
   return (LONG); }
 <INITIAL>{DOUBLE}  {
-  yylval.double_v = atof(yytext);
+  yylval.double_v = atof(strdup(yytext));
   return (DOUBLE); }
 
-<INITIAL>{STMT_SEP}              { return (STMT_SEP); }
 <INITIAL>","                     { return int(','); }
 <INITIAL>":"                     { return int(':'); }
 <INITIAL>"{"                     { return int('{'); }
@@ -145,9 +144,11 @@ QUOTES          \"
 <INITIAL>"@"                     { return int('@'); }
 <INITIAL>"("                     { return int('('); }
 <INITIAL>")"                     { return int(')'); }
+<INITIAL>"&"                     { return int('&'); }
+<INITIAL>";"                     { return int(STMT_SEP); }
 
 <INITIAL>. {
-    printf("error '%s'", yytext);
+    printf("lexer error '%s'", yytext);
     yylval.error_msg = yytext; return 0; 
   }
 
