@@ -55,6 +55,7 @@ extern void yyerror(const char *error_msg);
 %token START_COMMENT         "start_comment"                 
 %token END_COMMENT           "end_comment"               
 %token QUOTES                "quotes"         
+%token ERROR                 "error"         
 
 %token <idv> ID              "identifier"
 %token <doublev> DOUBLE      "double"

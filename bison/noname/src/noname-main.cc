@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string>
 #include <map>
+#include "lexer-utilities.h"
 #include "noname-parse.h"
 #include "noname-types.h"
 

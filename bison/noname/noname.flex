@@ -1,18 +1,25 @@
 %{
   #include "stdio.h"
   #include "stdlib.h"
+  #include "lexer-utilities.h"
   #include "noname-parse.h"
 
   int num_lines = 0, num_chars = 0;
   extern YYSTYPE yylval;
   extern void yyerror(char const *s);
+  
+  extern int curr_lineno;
+  extern int verbose_flag;
+
+  unsigned int comment = 0;
 %}
 
 %option noyywrap 
   // %option noyywrap nounput batch debug yylineno
   // %option warn noyywrap nodefault yylineno reentrant bison-bridge 
 
-%START COMMENT
+%x COMMENT
+%x STRING
 
 LINE_BREAK      \n
 STMT_SEP        (\n|;)
@@ -65,13 +72,43 @@ QUOTES          \"
                                   ++num_chars;
                                   ++num_lines;
                                 }
-{WHITESPACE}                    {
-                                  ++num_chars;
-                                }
-<COMMENT>.*                     {
-                                        num_chars += yyleng;
-                                        // print(yytext);
-                                }
+
+{START_COMMENT} {
+  comment++;
+  BEGIN(COMMENT);
+}
+
+<COMMENT><<EOF>> {
+  yylval.error_msg = "EOF in comment";
+  BEGIN(INITIAL);
+  return (ERROR);
+}
+
+<COMMENT>{BACKSLASH}(.|{NEWLINE}) {
+  backslash_common();
+};
+
+<COMMENT>{BACKSLASH}               ;
+
+<COMMENT>{START_COMMENT} {
+  comment++;
+}
+
+<COMMENT>{END_COMMENT} {
+  comment--;
+  if (comment == 0) {
+    BEGIN(INITIAL);
+  }
+}
+
+<COMMENT>.                      { ++num_chars; }
+
+<INITIAL>{END_COMMENT} {
+  yylval.error_msg = "Unmatched */";
+  return (ERROR);
+}
+
+<*>{WHITESPACE}                  { ++num_chars; }
 <INITIAL>{ASSIGN}                { return (ASSIGN); }
 <INITIAL>{ELSE}                  { return (ELSE); }
 <INITIAL>{IF}                    { return (IF); }
@@ -83,7 +120,7 @@ QUOTES          \"
 <INITIAL>{NEW}                   { return (NEW); }
 <INITIAL>{NOT}                   { return (NOT); }
 <INITIAL>{STMT_SEP}              { return (STMT_SEP); }
-<INITIAL>{ID}                    { return (ID); }
+<INITIAL>{ID}                    { yylval.idv = yytext; return (ID); }
 <INITIAL>{INT}                   { yylval.intv = atoi(yytext); return (INT); }
 <INITIAL>{DOUBLE}                { yylval.doublev = atof(yytext); return (DOUBLE); }
 

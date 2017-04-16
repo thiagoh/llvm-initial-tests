@@ -155,7 +155,7 @@ QUOTES          \"
     *  Integers
     *  Error
     */
-<INITIAL,COMMENT>{NEWLINE} {
+<*>{NEWLINE} {
     curr_lineno++;
 }
 

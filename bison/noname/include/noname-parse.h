@@ -36,6 +36,8 @@ void dump_bool(ostream &, int, bool);
 // typedef list_node<Case> Cases_class;
 // typedef Cases_class *Cases;
 
+
+
 /* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison interface for Yacc-like parsers in C
@@ -117,10 +119,11 @@ extern int yydebug;
     START_COMMENT = 291,
     END_COMMENT = 292,
     QUOTES = 293,
-    ID = 294,
-    DOUBLE = 295,
-    INT = 296,
-    NEG = 301
+    ERROR = 294,
+    ID = 295,
+    DOUBLE = 296,
+    INT = 297,
+    NEG = 302
   };
 #endif
 /* Tokens.  */
@@ -160,10 +163,11 @@ extern int yydebug;
 #define START_COMMENT 291
 #define END_COMMENT 292
 #define QUOTES 293
-#define ID 294
-#define DOUBLE 295
-#define INT 296
-#define NEG 301
+#define ERROR 294
+#define ID 295
+#define DOUBLE 296
+#define INT 297
+#define NEG 302
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -179,7 +183,7 @@ union YYSTYPE
     symrec* symrecv;
     char* error_msg;
 
-#line 147 "noname.tab.h" /* yacc.c:1915  */
+#line 149 "noname.tab.h" /* yacc.c:1915  */
 };
 
 typedef union YYSTYPE YYSTYPE;

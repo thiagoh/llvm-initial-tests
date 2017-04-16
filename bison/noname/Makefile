@@ -3,7 +3,7 @@ LIB= -ll
 LDFLAGS:  -L/usr/local/opt/flex/lib
 SRC= noname.flex
 CSRC= 
-CGEN= noname-lex.cc noname-parse.cc noname-main.cc
+CGEN= noname-lex.cc noname-parse.cc src/noname-main.cc src/lexer-utilities.cc
 LIBS=
 CFIL= ${CSRC} ${CGEN}
 LSRC= Makefile
@@ -55,12 +55,14 @@ dotest:	lexer noname.nn
 	./lexer noname.nn
 
 clean:
-	-rm -f ${OUTPUT} *.s core ${OBJS} noname-*.d lexer noname-lex.cc noname.tab.c noname-parse.cc noname.tab.h *~ parser cgen semant
+	-rm -f ${OUTPUT} *.s core ${OBJS} noname-*.d lexer noname-lex.cc noname.tab.c noname-parse.cc src/*.d src/*.o	noname.tab.h *~ parser cgen semant
 
 clean-compile:
 	@-rm -f core ${OBJS} noname-lex.cc
 
 %.d: %.cc ${SRC} ${LSRC}
-	${SHELL} -ec '${DEPEND} $< | sed '\''s/\($*\.o\)[ :]*/\1 $@ : /g'\'' > $@'
+	${SHELL} -ec '${DEPEND} $< > $@'
+
+#${SHELL} -ec '${DEPEND} $< | sed '\''s/\($*\.o\)[ :]*/\1 $@ : /g'\'' > $@'
 
 -include ${CFIL:.cc=.d}
