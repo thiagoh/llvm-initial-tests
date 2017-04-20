@@ -7,6 +7,7 @@
 #include "noname-types.h"
 
 extern int yylex(void);
+extern int yydebug;
 extern void yyerror(const char *error_msg);
 extern void division_by_zero(YYLTYPE &yylloc);
 
@@ -55,7 +56,9 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
     } else if (from->type == TYPE_CHAR) {
       to->value.charv = from->value.charv;
     } else {
-      fprintf(stderr, "assign_symrecv_value not implemented for %d" , from->type);
+      if (yydebug) {
+        fprintf(stderr, "assign_symrecv_value not implemented for %d" , from->type);
+      }
     }
   }
 
@@ -144,9 +147,24 @@ prog:
 ;
 
 stmt:
-  declaration STMT_SEP      { printf("\n[stmt] 2: "); print_symrecv_value($1); $$ = $1;}
-  | assignment STMT_SEP     { printf("\n[stmt] 3: "); print_symrecv_value($1); $$ = $1;}
-  | exp STMT_SEP            { printf("\n[stmt] 1: "); print_symrecv_value($1); $$ = $1;}
+  declaration STMT_SEP      { 
+      if (yydebug) {
+        fprintf(stderr, "\n[stmt] 2: ");
+      }
+      print_symrecv_value($1); $$ = $1;
+    }
+  | assignment STMT_SEP     { 
+      if (yydebug) {
+        fprintf(stderr, "\n[stmt] 3: ");
+      }
+      print_symrecv_value($1); $$ = $1;
+    }
+  | exp STMT_SEP            { 
+      if (yydebug) {
+        fprintf(stderr, "\n[stmt] 1: ");
+      }
+      print_symrecv_value($1); $$ = $1;
+    }
 ;
 
 assignment:
@@ -167,7 +185,9 @@ assignment:
       assign_symrecv_value($3, $$);
       symbol_insert($1, $$);
       // printf("\nID %s -> %lf", $1, $$->value.doublev);
-      printf("\n[assignment]");
+      if (yydebug) {
+        fprintf(stderr, "\n[assignment]");
+      }
     }
   }
   | LET ID ASSIGN exp {
@@ -186,7 +206,10 @@ assignment:
       $$->type = $4->type;
       assign_symrecv_value($4, $$);
       symbol_insert($2, $$);
-      printf("\n[assignment]");
+      
+      if (yydebug) {
+        fprintf(stderr, "\n[assignment]");
+      }
     }
   }
 ;
@@ -241,14 +264,18 @@ exp:
     $$->name = (char*) "__annon";
     $$->type = TYPE_LONG;
     $$->value.intv = $1;
-    printf("\nexp %ld", $1);
+    if (yydebug) {
+      fprintf(stderr, "\nexp %ld", $1);
+    }
   }
   | DOUBLE {
     $$ = (symrec *) malloc (sizeof (symrec));
     $$->name = (char*) "__annon";
     $$->type = TYPE_DOUBLE;
     $$->value.doublev = $1;
-    printf("\nexp %lf", $1);
+    if (yydebug) {
+      fprintf(stderr, "\nexp %lf", $1);
+    }
   }
   | exp '+' exp        {
       // $$ = $1 + $3;
@@ -256,7 +283,9 @@ exp:
       $$->name = (char*) "__annon";
       $$->type = $1->type == TYPE_DOUBLE || $3->type == TYPE_DOUBLE ? TYPE_DOUBLE : $1->type;
       $$->value.doublev = $1->value.doublev + $3->value.doublev;
-      printf("\nexp + exp %lf %lf", $1->value.doublev, $3->value.doublev);
+      if (yydebug) {
+        fprintf(stderr, "\nexp + exp %lf %lf", $1->value.doublev, $3->value.doublev);
+      }
     }
   | exp '-' exp        {
       // $$ = $1 - $3;
@@ -264,7 +293,9 @@ exp:
       $$->name = (char*) "__annon";
       $$->type = $1->type == TYPE_DOUBLE || $3->type == TYPE_DOUBLE ? TYPE_DOUBLE : $1->type;
       $$->value.doublev = $1->value.doublev - $3->value.doublev;
-      printf("\nexp - exp %lf %lf", $1->value.doublev, $3->value.doublev);
+      if (yydebug) {
+        fprintf(stderr, "\nexp - exp %lf %lf", $1->value.doublev, $3->value.doublev);
+      }
     }
   | exp '*' exp        {
       // $$ = $1 * $3;
@@ -272,7 +303,9 @@ exp:
       $$->name = (char*) "__annon";
       $$->type = $1->type == TYPE_DOUBLE || $3->type == TYPE_DOUBLE ? TYPE_DOUBLE : $1->type;
       $$->value.doublev = $1->value.doublev * $3->value.doublev;
-      printf("\nexp * exp %lf %lf", $1->value.doublev, $3->value.doublev);
+      if (yydebug) {
+        fprintf(stderr, "\nexp * exp %lf %lf", $1->value.doublev, $3->value.doublev);
+      }
     }
   | exp '/' exp {
       $$ = (symrec *) malloc (sizeof (symrec));
@@ -287,7 +320,9 @@ exp:
         $$->value.doublev = $1->value.doublev;
         division_by_zero(@3);
       }
-      printf("\nexp / exp %lf %lf", $1->value.doublev, $3->value.doublev);
+      if (yydebug) {
+        fprintf(stderr, "\nexp / exp %lf %lf", $1->value.doublev, $3->value.doublev);
+      }
     }
   | '-' exp  %prec NEG {
       /**
@@ -299,7 +334,9 @@ exp:
       $$->name = (char*) "__annon";
       $$->type = $2->type;
       $$->value.doublev = -$2->value.doublev;
-      printf("\nexp ^ exp %lf", $2->value.doublev);
+      if (yydebug) {
+        fprintf(stderr, "\nexp ^ exp %lf", $2->value.doublev);
+      }
     }
   | exp '^' exp        {
       //$$ = pow($1->value.doublev, $3->value.doublev);
@@ -307,7 +344,9 @@ exp:
       $$->name = (char*) "__annon";
       $$->type = $1->type;
       $$->value.doublev = pow($1->value.doublev, $3->value.doublev);
-      printf("\nexp ^ exp %lf %lf", $1->value.doublev, $3->value.doublev);
+      if (yydebug) {
+        fprintf(stderr, "\nexp ^ exp %lf %lf", $1->value.doublev, $3->value.doublev);
+      }
     }
   | '(' exp ')'        {
       // $$ = $2->value.doublev;
@@ -315,7 +354,9 @@ exp:
       $$->name = (char*) "__annon";
       $$->type = $2->type;
       $$->value.doublev = $2->value.doublev;
-      printf("\n(exp) %lf", $2->value.doublev);
+      if (yydebug) {
+        fprintf(stderr, "\n(exp) %lf", $2->value.doublev);
+      }
     }
   ;
 %%
