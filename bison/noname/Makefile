@@ -3,7 +3,7 @@ LIB= -ll
 LDFLAGS:  -L/usr/local/opt/flex/lib
 SRC= noname.flex
 CSRC= 
-CGEN= noname-lex.cc noname-parse.cc src/noname-main.cc src/lexer-utilities.cc
+CGEN= noname-lex.cc noname-parse.cc src/noname-types.cc src/noname-main.cc src/lexer-utilities.cc
 LIBS=
 CFIL= ${CSRC} ${CGEN}
 LSRC= Makefile
@@ -15,9 +15,11 @@ CPPINCLUDE= -I. -I${CLASSDIR}/include -I${CLASSDIR}/src -I/usr/local/opt/flex/in
 #TO ENAMBLE DEBUG => FLEX_FLAGS= -d -X -o noname-lex.cc
 FLEX_FLAGS= -X -P noname_yy -o noname-lex.cc
 BISON_FLAGS= -d -v -t -y -b noname --debug
-CC=g++
+# CC=g++
+CC=clang++
 # CFLAGS= -g -Wall -Wno-unused -Wno-write-strings ${CPPINCLUDE}
-CFLAGS= -g -Wall -Wno-unused -Wno-deprecated -Wno-write-strings ${CPPINCLUDE}
+# `llvm-config --cxxflags --ldflags --system-libs --libs core`
+CFLAGS= -g -std=c++11 -Wall -Wno-unused -Wno-deprecated -Wno-write-strings ${CPPINCLUDE} 
 FLEX= flex ${FLEX_FLAGS}
 BISON= bison ${BISON_FLAGS}
 DEPEND = ${CC} -MM ${CPPINCLUDE}
