@@ -35,7 +35,7 @@ void yyerror(char const *s);
 //  of the current line read from the input.
 //
 int curr_lineno = 1;
-char *curr_filename = "<stdin>"; // this name is arbitrary
+char *curr_filename = "<stdin>";  // this name is arbitrary
 // FILE *fin; // This is the file pointer from which the lexer reads its input.
 
 //
@@ -74,17 +74,22 @@ char *curr_filename = "<stdin>"; // this name is arbitrary
 /* Called by yyparse on error.  */
 
 int yylex(void) {
-
   int token = noname_yylex();
 
-  if (token == LONG) {
-    fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %ld\n", token, map[token].c_str(), yylval.long_v);
-  } else if (token == DOUBLE) {
-    fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %lf\n", token, map[token].c_str(), yylval.double_v);
-  } else if (token == ID) {
-    fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %s\n", token, map[token].c_str(), yylval.id_v);
-  } else {
-    fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %c\n", token, map[token].c_str(), (char) token);
+  if (yydebug) {
+    if (token == LONG) {
+      fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %ld\n", token,
+              map[token].c_str(), yylval.long_v);
+    } else if (token == DOUBLE) {
+      fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %lf\n", token,
+              map[token].c_str(), yylval.double_v);
+    } else if (token == ID) {
+      fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %s\n", token,
+              map[token].c_str(), yylval.id_v);
+    } else {
+      fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %c\n", token,
+              map[token].c_str(), (char)token);
+    }
   }
 
   return token;
@@ -97,7 +102,6 @@ void division_by_zero(YYLTYPE &yylloc) {
 }
 
 void yyerror(char const *s) { fprintf(stderr, "\nERROR: %s\n", s); }
-
 
 int main(int argc, char **argv) {
   int token;
@@ -149,7 +153,7 @@ int main(int argc, char **argv) {
   map[296] = "DOUBLE";
   map[297] = "LONG";
   map[302] = "NEG";
-  
+
   // yydebug = 5;
 
   return yyparse();

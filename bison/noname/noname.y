@@ -62,13 +62,13 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
   void print_symrecv_value(symrecv sym) {
 
     if (sym->type == TYPE_LONG) {
-      printf("%d", sym->value.intv);
+      fprintf(stderr, "%d", sym->value.intv);
 
     } else if (sym->type == TYPE_DOUBLE) {
-      printf("%lf", sym->value.doublev);
+      fprintf(stderr, "%lf", sym->value.doublev);
 
     } else {
-      printf("print not implemented for type %d", sym->type);
+      fprintf(stderr, "print not implemented for type %d", sym->type);
     }
   }
 %}
@@ -140,13 +140,13 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
 prog:
   %empty
   | prog stmt
+  | error                   { yyerrok; printf("%d:%d", @1.first_column, @1.last_column); }
 ;
 
 stmt:
   declaration STMT_SEP      { printf("\n[stmt] 2: "); print_symrecv_value($1); $$ = $1;}
   | assignment STMT_SEP     { printf("\n[stmt] 3: "); print_symrecv_value($1); $$ = $1;}
   | exp STMT_SEP            { printf("\n[stmt] 1: "); print_symrecv_value($1); $$ = $1;}
-  | error                   { printf("%d:%d", @1.first_column, @1.last_column); }
 ;
 
 assignment:
@@ -317,6 +317,5 @@ exp:
       $$->value.doublev = $2->value.doublev;
       printf("\n(exp) %lf", $2->value.doublev);
     }
-  | error                 { printf("\nERROR on exp rule"); }
   ;
 %%
