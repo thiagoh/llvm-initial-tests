@@ -48,6 +48,69 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
     return symbol_table[skey];
   }
 
+  ////////////////////////////////////////////////////////////
+  void multiply_longs(long v1, long v2, long* output) {
+    *output = v1 * v2;
+  }
+
+  void multiply_doubles(double v1, double v2, double* output) {
+    *output = v1 * v2;
+  }
+
+  void multiply_ints(int v1, int v2, int* output) {
+    *output = v1 * v2;
+  }
+
+  void multiply_values(int type, void* v1, void* v2, void* output) {
+    if (type == TYPE_DOUBLE) {
+      double d1 = *(double*)v1;
+      fprintf(stderr, "\nnha %lf %lf", d1, *(double*)v2);
+      multiply_doubles(*(double*)v1, *(double*)v2, (double*)output);
+    } else if (type == TYPE_LONG) {
+      multiply_longs(*(long*)v1, *(long*)v2, (long*)output);
+    } else if (type == TYPE_INT) {
+      multiply_ints(*(int*)v1, *(int*)v2, (int*)output);
+    }
+  }
+
+  ////////////////////////////////////////////////////////////
+  void divide_longs(long v1, long v2, long* output) {
+    *output = v2 == 0 ? 0 : v1 / v2;
+  }
+
+  void divide_doubles(double v1, double v2, double* output) {
+    *output = v2 == 0 ? 0 : v1 / v2;
+  }
+
+  void divide_ints(int v1, int v2, int* output) {
+    *output = v2 == 0 ? 0 : v1 / v2;
+  }
+
+  void divide_values(int type, void* v1, void* v2, void* output) {
+     if (type == TYPE_DOUBLE) {
+      divide_doubles(*(double*)v1, *(double*)v2, (double*)output);
+    } else if (type == TYPE_LONG) {
+      divide_longs(*(long*)v1, *(long*)v2, (long*)output);
+    } else if (type == TYPE_INT) {
+      divide_ints(*(int*)v1, *(int*)v2, (int*)output);
+    }
+  }
+
+  void assign_symrecv_double_value(int type, double value, symrecv to) {
+    if (type == TYPE_DOUBLE) {
+      to->value.doublev = value;
+    } else if (type == TYPE_LONG) {
+      to->value.longv = (long) value;
+    } else if (type == TYPE_INT) {
+      to->value.longv = (int) value;
+    } else if (type == TYPE_CHAR) {
+      to->value.charv = (char) value;
+    } else {
+      if (yydebug) {
+        fprintf(stderr, "assign_symrecv_value not implemented for %d" , type);
+      }
+    }
+  }
   void assign_symrecv_value(symrecv from, symrecv to) {
     if (from->type == TYPE_DOUBLE) {
       to->value.doublev = from->value.doublev;
@@ -56,19 +119,53 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
     } else if (from->type == TYPE_CHAR) {
       to->value.charv = from->value.charv;
     } else {
-      if (yydebug) {
-        fprintf(stderr, "assign_symrecv_value not implemented for %d" , from->type);
-      }
+      fprintf(stderr, "assign_symrecv_value not implemented for %d" , from->type);
+    }
+  }
+
+  void* get_symrecv_value(symrecv sym) {
+
+    if (sym->type == TYPE_LONG) {
+      return &(sym->value.longv);
+
+    } else if (sym->type == TYPE_DOUBLE) {
+      return &(sym->value.doublev);
+
+    } else if (sym->type == TYPE_INT) {
+      return &(sym->value.longv);
+
+    } else {
+      fprintf(stderr, "get_symrecv_value not implemented for %d" , sym->type);
+      return 0;
+    }
+  }
+
+  double get_symrecv_double_value(symrecv sym) {
+
+    if (sym->type == TYPE_LONG) {
+      return (double) sym->value.longv;
+
+    } else if (sym->type == TYPE_DOUBLE) {
+      return sym->value.doublev;
+
+    } else if (sym->type == TYPE_INT) {
+      return (double) sym->value.longv;
+
+    } else {
+      return 0;
     }
   }
 
   void print_symrecv_value(symrecv sym) {
 
     if (sym->type == TYPE_LONG) {
-      fprintf(stderr, "%d", sym->value.intv);
+      fprintf(stderr, "%ld", sym->value.longv);
 
     } else if (sym->type == TYPE_DOUBLE) {
       fprintf(stderr, "%lf", sym->value.doublev);
+
+    } else if (sym->type == TYPE_INT) {
+      fprintf(stderr, "%ld", sym->value.longv);
 
     } else {
       fprintf(stderr, "print not implemented for type %d", sym->type);
@@ -143,7 +240,7 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
 prog:
   %empty
   | prog stmt
-  | error                   { yyerrok; printf("%d:%d", @1.first_column, @1.last_column); }
+  | error STMT_SEP         { yyerrok; fprintf(stderr, "Error at %d:%d", @1.first_column, @1.last_column); }
 ;
 
 stmt:
@@ -263,7 +360,7 @@ exp:
     $$ = (symrec *) malloc (sizeof (symrec));
     $$->name = (char*) "__annon";
     $$->type = TYPE_LONG;
-    $$->value.intv = $1;
+    $$->value.longv = $1;
     if (yydebug) {
       fprintf(stderr, "\nexp %ld", $1);
     }
@@ -302,7 +399,12 @@ exp:
       $$ = (symrec *) malloc (sizeof (symrec));
       $$->name = (char*) "__annon";
       $$->type = $1->type == TYPE_DOUBLE || $3->type == TYPE_DOUBLE ? TYPE_DOUBLE : $1->type;
-      $$->value.doublev = $1->value.doublev * $3->value.doublev;
+
+      double v1 = get_symrecv_double_value($1);
+      double v2 = get_symrecv_double_value($3);
+      double res = v1 * v2;
+      assign_symrecv_double_value($$->type, res, $$);
+
       if (yydebug) {
         fprintf(stderr, "\nexp * exp %lf %lf", $1->value.doublev, $3->value.doublev);
       }
@@ -310,11 +412,18 @@ exp:
   | exp '/' exp {
       $$ = (symrec *) malloc (sizeof (symrec));
       $$->name = (char*) "__annon";
-      $$->type = $1->type == TYPE_DOUBLE || $3->type == TYPE_DOUBLE ? TYPE_DOUBLE : $1->type;
+      $$->type = TYPE_DOUBLE;
     
-      if ($3->value.doublev) {
+      if ($3->value.doublev || $3->value.longv) {
+
+        double v1 = get_symrecv_double_value($1);
+        double v2 = get_symrecv_double_value($3);
+        double res = v2 == 0 ? 0 : v1 / v2;
+        assign_symrecv_double_value($$->type, res, $$);
+        
         // $$ = $1 / $3;
-        $$->value.doublev = $1->value.doublev / $3->value.doublev;
+        $$->value.doublev = res;
+
       } else {
         // $$ = $1;
         $$->value.doublev = $1->value.doublev;
