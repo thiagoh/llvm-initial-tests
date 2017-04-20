@@ -1,6 +1,6 @@
 CLASSDIR=.
 LIB= -ll
-LDFLAGS:  -L/usr/local/opt/flex/lib
+LDFLAGS: `llvm-config --cxxflags --ldflags --system-libs --libs core`
 SRC= noname.flex
 CSRC= 
 CGEN= noname-lex.cc noname-parse.cc src/noname-types.cc src/noname-main.cc src/lexer-utilities.cc
