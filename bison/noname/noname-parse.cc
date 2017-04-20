@@ -278,14 +278,12 @@ int yyparse (void);
     *output = v1 * v2;
   }
 
-  void multiply_values(int type, void* v1, void* v2, void* output) {
-    if (type == TYPE_DOUBLE) {
-      double d1 = *(double*)v1;
-      fprintf(stderr, "\nnha %lf %lf", d1, *(double*)v2);
+  void multiply_values(int valueType, void* v1, void* v2, void* output) {
+    if (valueType == TYPE_DOUBLE) {
       multiply_doubles(*(double*)v1, *(double*)v2, (double*)output);
-    } else if (type == TYPE_LONG) {
+    } else if (valueType == TYPE_LONG) {
       multiply_longs(*(long*)v1, *(long*)v2, (long*)output);
-    } else if (type == TYPE_INT) {
+    } else if (valueType == TYPE_INT) {
       multiply_ints(*(int*)v1, *(int*)v2, (int*)output);
     }
   }
@@ -303,35 +301,69 @@ int yyparse (void);
     *output = v2 == 0 ? 0 : v1 / v2;
   }
 
-  void divide_values(int type, void* v1, void* v2, void* output) {
-     if (type == TYPE_DOUBLE) {
+  void divide_values(int valueType, void* v1, void* v2, void* output) {
+     if (valueType == TYPE_DOUBLE) {
       divide_doubles(*(double*)v1, *(double*)v2, (double*)output);
-    } else if (type == TYPE_LONG) {
+    } else if (valueType == TYPE_LONG) {
       divide_longs(*(long*)v1, *(long*)v2, (long*)output);
-    } else if (type == TYPE_INT) {
+    } else if (valueType == TYPE_INT) {
       divide_ints(*(int*)v1, *(int*)v2, (int*)output);
     }
   }
 
-  void assign_symrecv_double_value(int type, double value, symrecv to) {
-    if (type == TYPE_DOUBLE) {
+  void assign_symrecv_double_value(int valueType, double value, symrecv to) {
+    if (valueType == TYPE_DOUBLE) {
       to->value.doublev = value;
-    } else if (type == TYPE_LONG) {
+    } else if (valueType == TYPE_LONG) {
       to->value.longv = (long) value;
-    } else if (type == TYPE_INT) {
+    } else if (valueType == TYPE_INT) {
       to->value.longv = (int) value;
-    } else if (type == TYPE_CHAR) {
+    } else if (valueType == TYPE_CHAR) {
       to->value.charv = (char) value;
     } else {
       if (yydebug) {
-        fprintf(stderr, "assign_symrecv_value not implemented for %d" , type);
+        fprintf(stderr, "assign_symrecv_value not implemented for %d" , valueType);
+      }
+    }
+  }
+
+  template<class Ret, class In>
+  inline Ret _cast(void* v) {
+    return (Ret) *(In*)v;
+  }
+
+  void assign_symrecv_value(int valueType, void* value, symrecv to) {
+    if (to->type == TYPE_DOUBLE || to->type == TYPE_FLOAT) {
+      if (valueType == TYPE_INT) {
+        to->value.doublev = _cast<double, int>(value);
+      } else if (valueType == TYPE_LONG) {
+        to->value.doublev = _cast<double, long>(value);
+      } else {
+        to->value.doublev = _cast<double, double>(value);
+      }
+      
+    } else if (to->type == TYPE_LONG || to->type == TYPE_INT) {
+      if (valueType == TYPE_INT) {
+        to->value.longv = _cast<long, int>(value);
+      } else if (valueType == TYPE_LONG) {
+        to->value.longv = _cast<long, long>(value);
+      } else {
+        to->value.longv = _cast<long, double>(value);
+      }
+      
+    // } else if (to->type == TYPE_CHAR) {
+    //   to->value.charv = (char) value;
+      
+    } else {
+      if (yydebug) {
+        fprintf(stderr, "assign_symrecv_value not implemented for %d" , valueType);
       }
     }
   }
   void assign_symrecv_value(symrecv from, symrecv to) {
     if (from->type == TYPE_DOUBLE) {
       to->value.doublev = from->value.doublev;
-    } else if (from->type == TYPE_LONG) {
+    } else if (from->type == TYPE_LONG || from->type == TYPE_INT) {
       to->value.longv = from->value.longv;
     } else if (from->type == TYPE_CHAR) {
       to->value.charv = from->value.charv;
@@ -342,14 +374,11 @@ int yyparse (void);
 
   void* get_symrecv_value(symrecv sym) {
 
-    if (sym->type == TYPE_LONG) {
+    if (sym->type == TYPE_LONG || sym->type == TYPE_INT) {
       return &(sym->value.longv);
 
     } else if (sym->type == TYPE_DOUBLE) {
       return &(sym->value.doublev);
-
-    } else if (sym->type == TYPE_INT) {
-      return &(sym->value.longv);
 
     } else {
       fprintf(stderr, "get_symrecv_value not implemented for %d" , sym->type);
@@ -359,14 +388,11 @@ int yyparse (void);
 
   double get_symrecv_double_value(symrecv sym) {
 
-    if (sym->type == TYPE_LONG) {
+    if (sym->type == TYPE_LONG || sym->type == TYPE_INT) {
       return (double) sym->value.longv;
 
     } else if (sym->type == TYPE_DOUBLE) {
       return sym->value.doublev;
-
-    } else if (sym->type == TYPE_INT) {
-      return (double) sym->value.longv;
 
     } else {
       return 0;
@@ -375,21 +401,18 @@ int yyparse (void);
 
   void print_symrecv_value(symrecv sym) {
 
-    if (sym->type == TYPE_LONG) {
+    if (sym->type == TYPE_LONG || sym->type == TYPE_INT) {
       fprintf(stderr, "%ld", sym->value.longv);
 
     } else if (sym->type == TYPE_DOUBLE) {
       fprintf(stderr, "%lf", sym->value.doublev);
-
-    } else if (sym->type == TYPE_INT) {
-      fprintf(stderr, "%ld", sym->value.longv);
 
     } else {
       fprintf(stderr, "print not implemented for type %d", sym->type);
     }
   }
 
-#line 393 "noname.tab.c" /* yacc.c:358  */
+#line 416 "noname.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -693,9 +716,9 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   241,   241,   242,   243,   247,   253,   259,   268,   290,
-     315,   338,   359,   368,   377,   387,   397,   412,   436,   450,
-     460
+       0,   264,   264,   265,   266,   270,   276,   282,   291,   313,
+     338,   361,   382,   391,   400,   410,   420,   436,   457,   471,
+     481
 };
 #endif
 
@@ -1595,46 +1618,46 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 243 "noname.y" /* yacc.c:1661  */
+#line 266 "noname.y" /* yacc.c:1661  */
     { yyerrok; fprintf(stderr, "Error at %d:%d", (yylsp[-1]).first_column, (yylsp[-1]).last_column); }
-#line 1601 "noname.tab.c" /* yacc.c:1661  */
+#line 1624 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 5:
-#line 247 "noname.y" /* yacc.c:1661  */
+#line 270 "noname.y" /* yacc.c:1661  */
     { 
       if (yydebug) {
         fprintf(stderr, "\n[stmt] 2: ");
       }
       print_symrecv_value((yyvsp[-1].symrecv)); (yyval.symrecv) = (yyvsp[-1].symrecv);
     }
-#line 1612 "noname.tab.c" /* yacc.c:1661  */
+#line 1635 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 6:
-#line 253 "noname.y" /* yacc.c:1661  */
+#line 276 "noname.y" /* yacc.c:1661  */
     { 
       if (yydebug) {
         fprintf(stderr, "\n[stmt] 3: ");
       }
       print_symrecv_value((yyvsp[-1].symrecv)); (yyval.symrecv) = (yyvsp[-1].symrecv);
     }
-#line 1623 "noname.tab.c" /* yacc.c:1661  */
+#line 1646 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 7:
-#line 259 "noname.y" /* yacc.c:1661  */
+#line 282 "noname.y" /* yacc.c:1661  */
     { 
       if (yydebug) {
         fprintf(stderr, "\n[stmt] 1: ");
       }
       print_symrecv_value((yyvsp[-1].symrecv)); (yyval.symrecv) = (yyvsp[-1].symrecv);
     }
-#line 1634 "noname.tab.c" /* yacc.c:1661  */
+#line 1657 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 8:
-#line 268 "noname.y" /* yacc.c:1661  */
+#line 291 "noname.y" /* yacc.c:1661  */
     {
 
     (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
@@ -1657,11 +1680,11 @@ yyreduce:
       }
     }
   }
-#line 1661 "noname.tab.c" /* yacc.c:1661  */
+#line 1684 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 9:
-#line 290 "noname.y" /* yacc.c:1661  */
+#line 313 "noname.y" /* yacc.c:1661  */
     {
 
     (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
@@ -1684,11 +1707,11 @@ yyreduce:
       }
     }
   }
-#line 1688 "noname.tab.c" /* yacc.c:1661  */
+#line 1711 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 10:
-#line 315 "noname.y" /* yacc.c:1661  */
+#line 338 "noname.y" /* yacc.c:1661  */
     {
 
     (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
@@ -1709,11 +1732,11 @@ yyreduce:
       printf("\n[declaration]");
     }
   }
-#line 1713 "noname.tab.c" /* yacc.c:1661  */
+#line 1736 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 11:
-#line 338 "noname.y" /* yacc.c:1661  */
+#line 361 "noname.y" /* yacc.c:1661  */
     {
      
     (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
@@ -1735,11 +1758,11 @@ yyreduce:
       // printf("\nID %s -> %lf", $1, $$->value.doublev);
     }
   }
-#line 1739 "noname.tab.c" /* yacc.c:1661  */
+#line 1762 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 12:
-#line 359 "noname.y" /* yacc.c:1661  */
+#line 382 "noname.y" /* yacc.c:1661  */
     {
     (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
     (yyval.symrecv)->name = (char*) "__annon";
@@ -1749,11 +1772,11 @@ yyreduce:
       fprintf(stderr, "\nexp %ld", (yyvsp[0].long_v));
     }
   }
-#line 1753 "noname.tab.c" /* yacc.c:1661  */
+#line 1776 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 13:
-#line 368 "noname.y" /* yacc.c:1661  */
+#line 391 "noname.y" /* yacc.c:1661  */
     {
     (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
     (yyval.symrecv)->name = (char*) "__annon";
@@ -1763,11 +1786,11 @@ yyreduce:
       fprintf(stderr, "\nexp %lf", (yyvsp[0].double_v));
     }
   }
-#line 1767 "noname.tab.c" /* yacc.c:1661  */
+#line 1790 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 14:
-#line 377 "noname.y" /* yacc.c:1661  */
+#line 400 "noname.y" /* yacc.c:1661  */
     {
       // $$ = $1 + $3;
       (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
@@ -1778,11 +1801,11 @@ yyreduce:
         fprintf(stderr, "\nexp + exp %lf %lf", (yyvsp[-2].symrecv)->value.doublev, (yyvsp[0].symrecv)->value.doublev);
       }
     }
-#line 1782 "noname.tab.c" /* yacc.c:1661  */
+#line 1805 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 15:
-#line 387 "noname.y" /* yacc.c:1661  */
+#line 410 "noname.y" /* yacc.c:1661  */
     {
       // $$ = $1 - $3;
       (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
@@ -1793,11 +1816,11 @@ yyreduce:
         fprintf(stderr, "\nexp - exp %lf %lf", (yyvsp[-2].symrecv)->value.doublev, (yyvsp[0].symrecv)->value.doublev);
       }
     }
-#line 1797 "noname.tab.c" /* yacc.c:1661  */
+#line 1820 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 16:
-#line 397 "noname.y" /* yacc.c:1661  */
+#line 420 "noname.y" /* yacc.c:1661  */
     {
       // $$ = $1 * $3;
       (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
@@ -1807,17 +1830,18 @@ yyreduce:
       double v1 = get_symrecv_double_value((yyvsp[-2].symrecv));
       double v2 = get_symrecv_double_value((yyvsp[0].symrecv));
       double res = v1 * v2;
-      assign_symrecv_double_value((yyval.symrecv)->type, res, (yyval.symrecv));
+      // assign_symrecv_double_value($$->type, res, $$);
+      assign_symrecv_value(TYPE_DOUBLE, &res, (yyval.symrecv));
 
       if (yydebug) {
         fprintf(stderr, "\nexp * exp %lf %lf", (yyvsp[-2].symrecv)->value.doublev, (yyvsp[0].symrecv)->value.doublev);
       }
     }
-#line 1817 "noname.tab.c" /* yacc.c:1661  */
+#line 1841 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 17:
-#line 412 "noname.y" /* yacc.c:1661  */
+#line 436 "noname.y" /* yacc.c:1661  */
     {
       (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
       (yyval.symrecv)->name = (char*) "__annon";
@@ -1830,9 +1854,6 @@ yyreduce:
         double res = v2 == 0 ? 0 : v1 / v2;
         assign_symrecv_double_value((yyval.symrecv)->type, res, (yyval.symrecv));
         
-        // $$ = $1 / $3;
-        (yyval.symrecv)->value.doublev = res;
-
       } else {
         // $$ = $1;
         (yyval.symrecv)->value.doublev = (yyvsp[-2].symrecv)->value.doublev;
@@ -1842,11 +1863,11 @@ yyreduce:
         fprintf(stderr, "\nexp / exp %lf %lf", (yyvsp[-2].symrecv)->value.doublev, (yyvsp[0].symrecv)->value.doublev);
       }
     }
-#line 1846 "noname.tab.c" /* yacc.c:1661  */
+#line 1867 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 18:
-#line 436 "noname.y" /* yacc.c:1661  */
+#line 457 "noname.y" /* yacc.c:1661  */
     {
       /**
         * The %prec simply instructs Bison that the rule ‘| '-' exp’ 
@@ -1861,11 +1882,11 @@ yyreduce:
         fprintf(stderr, "\nexp ^ exp %lf", (yyvsp[0].symrecv)->value.doublev);
       }
     }
-#line 1865 "noname.tab.c" /* yacc.c:1661  */
+#line 1886 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 19:
-#line 450 "noname.y" /* yacc.c:1661  */
+#line 471 "noname.y" /* yacc.c:1661  */
     {
       //$$ = pow($1->value.doublev, $3->value.doublev);
       (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
@@ -1876,11 +1897,11 @@ yyreduce:
         fprintf(stderr, "\nexp ^ exp %lf %lf", (yyvsp[-2].symrecv)->value.doublev, (yyvsp[0].symrecv)->value.doublev);
       }
     }
-#line 1880 "noname.tab.c" /* yacc.c:1661  */
+#line 1901 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 20:
-#line 460 "noname.y" /* yacc.c:1661  */
+#line 481 "noname.y" /* yacc.c:1661  */
     {
       // $$ = $2->value.doublev;
       (yyval.symrecv) = (symrec *) malloc (sizeof (symrec));
@@ -1891,11 +1912,11 @@ yyreduce:
         fprintf(stderr, "\n(exp) %lf", (yyvsp[-1].symrecv)->value.doublev);
       }
     }
-#line 1895 "noname.tab.c" /* yacc.c:1661  */
+#line 1916 "noname.tab.c" /* yacc.c:1661  */
     break;
 
 
-#line 1899 "noname.tab.c" /* yacc.c:1661  */
+#line 1920 "noname.tab.c" /* yacc.c:1661  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2130,4 +2151,4 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 471 "noname.y" /* yacc.c:1906  */
+#line 492 "noname.y" /* yacc.c:1906  */

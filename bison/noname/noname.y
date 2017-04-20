@@ -61,14 +61,12 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
     *output = v1 * v2;
   }
 
-  void multiply_values(int type, void* v1, void* v2, void* output) {
-    if (type == TYPE_DOUBLE) {
-      double d1 = *(double*)v1;
-      fprintf(stderr, "\nnha %lf %lf", d1, *(double*)v2);
+  void multiply_values(int valueType, void* v1, void* v2, void* output) {
+    if (valueType == TYPE_DOUBLE) {
       multiply_doubles(*(double*)v1, *(double*)v2, (double*)output);
-    } else if (type == TYPE_LONG) {
+    } else if (valueType == TYPE_LONG) {
       multiply_longs(*(long*)v1, *(long*)v2, (long*)output);
-    } else if (type == TYPE_INT) {
+    } else if (valueType == TYPE_INT) {
       multiply_ints(*(int*)v1, *(int*)v2, (int*)output);
     }
   }
@@ -86,35 +84,69 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
     *output = v2 == 0 ? 0 : v1 / v2;
   }
 
-  void divide_values(int type, void* v1, void* v2, void* output) {
-     if (type == TYPE_DOUBLE) {
+  void divide_values(int valueType, void* v1, void* v2, void* output) {
+     if (valueType == TYPE_DOUBLE) {
       divide_doubles(*(double*)v1, *(double*)v2, (double*)output);
-    } else if (type == TYPE_LONG) {
+    } else if (valueType == TYPE_LONG) {
       divide_longs(*(long*)v1, *(long*)v2, (long*)output);
-    } else if (type == TYPE_INT) {
+    } else if (valueType == TYPE_INT) {
       divide_ints(*(int*)v1, *(int*)v2, (int*)output);
     }
   }
 
-  void assign_symrecv_double_value(int type, double value, symrecv to) {
-    if (type == TYPE_DOUBLE) {
+  void assign_symrecv_double_value(int valueType, double value, symrecv to) {
+    if (valueType == TYPE_DOUBLE) {
       to->value.doublev = value;
-    } else if (type == TYPE_LONG) {
+    } else if (valueType == TYPE_LONG) {
       to->value.longv = (long) value;
-    } else if (type == TYPE_INT) {
+    } else if (valueType == TYPE_INT) {
       to->value.longv = (int) value;
-    } else if (type == TYPE_CHAR) {
+    } else if (valueType == TYPE_CHAR) {
       to->value.charv = (char) value;
     } else {
       if (yydebug) {
-        fprintf(stderr, "assign_symrecv_value not implemented for %d" , type);
+        fprintf(stderr, "assign_symrecv_value not implemented for %d" , valueType);
+      }
+    }
+  }
+
+  template<class Ret, class In>
+  inline Ret _cast(void* v) {
+    return (Ret) *(In*)v;
+  }
+
+  void assign_symrecv_value(int valueType, void* value, symrecv to) {
+    if (to->type == TYPE_DOUBLE || to->type == TYPE_FLOAT) {
+      if (valueType == TYPE_INT) {
+        to->value.doublev = _cast<double, int>(value);
+      } else if (valueType == TYPE_LONG) {
+        to->value.doublev = _cast<double, long>(value);
+      } else {
+        to->value.doublev = _cast<double, double>(value);
+      }
+      
+    } else if (to->type == TYPE_LONG || to->type == TYPE_INT) {
+      if (valueType == TYPE_INT) {
+        to->value.longv = _cast<long, int>(value);
+      } else if (valueType == TYPE_LONG) {
+        to->value.longv = _cast<long, long>(value);
+      } else {
+        to->value.longv = _cast<long, double>(value);
+      }
+      
+    // } else if (to->type == TYPE_CHAR) {
+    //   to->value.charv = (char) value;
+      
+    } else {
+      if (yydebug) {
+        fprintf(stderr, "assign_symrecv_value not implemented for %d" , valueType);
       }
     }
   }
   void assign_symrecv_value(symrecv from, symrecv to) {
     if (from->type == TYPE_DOUBLE) {
       to->value.doublev = from->value.doublev;
-    } else if (from->type == TYPE_LONG) {
+    } else if (from->type == TYPE_LONG || from->type == TYPE_INT) {
       to->value.longv = from->value.longv;
     } else if (from->type == TYPE_CHAR) {
       to->value.charv = from->value.charv;
@@ -125,14 +157,11 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
 
   void* get_symrecv_value(symrecv sym) {
 
-    if (sym->type == TYPE_LONG) {
+    if (sym->type == TYPE_LONG || sym->type == TYPE_INT) {
       return &(sym->value.longv);
 
     } else if (sym->type == TYPE_DOUBLE) {
       return &(sym->value.doublev);
-
-    } else if (sym->type == TYPE_INT) {
-      return &(sym->value.longv);
 
     } else {
       fprintf(stderr, "get_symrecv_value not implemented for %d" , sym->type);
@@ -142,14 +171,11 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
 
   double get_symrecv_double_value(symrecv sym) {
 
-    if (sym->type == TYPE_LONG) {
+    if (sym->type == TYPE_LONG || sym->type == TYPE_INT) {
       return (double) sym->value.longv;
 
     } else if (sym->type == TYPE_DOUBLE) {
       return sym->value.doublev;
-
-    } else if (sym->type == TYPE_INT) {
-      return (double) sym->value.longv;
 
     } else {
       return 0;
@@ -158,14 +184,11 @@ std::map<std::string, symrec*>::iterator symbol_table_it;
 
   void print_symrecv_value(symrecv sym) {
 
-    if (sym->type == TYPE_LONG) {
+    if (sym->type == TYPE_LONG || sym->type == TYPE_INT) {
       fprintf(stderr, "%ld", sym->value.longv);
 
     } else if (sym->type == TYPE_DOUBLE) {
       fprintf(stderr, "%lf", sym->value.doublev);
-
-    } else if (sym->type == TYPE_INT) {
-      fprintf(stderr, "%ld", sym->value.longv);
 
     } else {
       fprintf(stderr, "print not implemented for type %d", sym->type);
@@ -403,7 +426,8 @@ exp:
       double v1 = get_symrecv_double_value($1);
       double v2 = get_symrecv_double_value($3);
       double res = v1 * v2;
-      assign_symrecv_double_value($$->type, res, $$);
+      // assign_symrecv_double_value($$->type, res, $$);
+      assign_symrecv_value(TYPE_DOUBLE, &res, $$);
 
       if (yydebug) {
         fprintf(stderr, "\nexp * exp %lf %lf", $1->value.doublev, $3->value.doublev);
@@ -421,9 +445,6 @@ exp:
         double res = v2 == 0 ? 0 : v1 / v2;
         assign_symrecv_double_value($$->type, res, $$);
         
-        // $$ = $1 / $3;
-        $$->value.doublev = res;
-
       } else {
         // $$ = $1;
         $$->value.doublev = $1->value.doublev;
