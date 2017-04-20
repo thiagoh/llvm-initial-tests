@@ -91,6 +91,17 @@ class VarNode : public ASTNode {
   const std::string &getName() const { return name; }
 };
 
+class UnaryExpNode : public ASTNode {
+ private:
+  char op;
+  std::unique_ptr<ASTNode> lhs;
+ public:
+  UnaryExpNode(char op, std::unique_ptr<ASTNode> lhs)
+      : op(op), lhs(std::move(lhs)) {}
+  UnaryExpNode(char op, ASTNode* lhs)
+      : op(op), lhs(std::unique_ptr<ASTNode>(std::move(lhs))) {}
+};
+
 class BinaryExpNode : public ASTNode {
  private:
   char op;
@@ -119,16 +130,13 @@ class AssignmentNode : public ASTNode {
       rhs(std::unique_ptr<ASTNode>(std::move(rhs))) {}
 };
 
-
-
-
-
-
-
-
-
-
-
+class DeclarationNode : public ASTNode {
+ private:
+  std::string name;
+ public:
+  DeclarationNode(const std::string &name)
+      : name(name) {}
+};
 
 
 

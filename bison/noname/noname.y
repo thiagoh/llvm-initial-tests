@@ -140,7 +140,7 @@ assignment:
 
 declaration:
   LET ID {
-
+    $$ = new DeclarationNode($ID);
   }
 ;
 
@@ -167,6 +167,7 @@ exp:
       $$ = new BinaryExpNode('/', $1, $3);
     }
   | '-' exp  %prec NEG {
+      $$ = new UnaryExpNode('-', $2);
     }
   | exp '^' exp        {
       $$ = new BinaryExpNode('^', $1, $3);

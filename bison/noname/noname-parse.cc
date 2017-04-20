@@ -558,8 +558,8 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyrline[] =
 {
        0,   105,   105,   106,   107,   111,   117,   123,   132,   136,
-     142,   148,   151,   154,   157,   160,   163,   166,   169,   171,
-     174
+     142,   148,   151,   154,   157,   160,   163,   166,   169,   172,
+     175
 };
 #endif
 
@@ -1517,7 +1517,7 @@ yyreduce:
   case 10:
 #line 142 "noname.y" /* yacc.c:1661  */
     {
-
+    (yyval.node) = new DeclarationNode((yyvsp[0].id_v));
   }
 #line 1523 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1581,28 +1581,29 @@ yyreduce:
   case 18:
 #line 169 "noname.y" /* yacc.c:1661  */
     {
+      (yyval.node) = new UnaryExpNode('-', (yyvsp[0].node));
     }
-#line 1586 "noname.tab.c" /* yacc.c:1661  */
+#line 1587 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 19:
-#line 171 "noname.y" /* yacc.c:1661  */
+#line 172 "noname.y" /* yacc.c:1661  */
     {
       (yyval.node) = new BinaryExpNode('^', (yyvsp[-2].node), (yyvsp[0].node));
     }
-#line 1594 "noname.tab.c" /* yacc.c:1661  */
+#line 1595 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 20:
-#line 174 "noname.y" /* yacc.c:1661  */
+#line 175 "noname.y" /* yacc.c:1661  */
     {
       (yyval.node) = new BinaryExpNode(0, (yyvsp[-1].node), NULL);
     }
-#line 1602 "noname.tab.c" /* yacc.c:1661  */
+#line 1603 "noname.tab.c" /* yacc.c:1661  */
     break;
 
 
-#line 1606 "noname.tab.c" /* yacc.c:1661  */
+#line 1607 "noname.tab.c" /* yacc.c:1661  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1837,4 +1838,4 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 178 "noname.y" /* yacc.c:1906  */
+#line 179 "noname.y" /* yacc.c:1906  */
