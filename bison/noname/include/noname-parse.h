@@ -171,8 +171,11 @@ extern int yydebug;
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 
-union YYSTYPE
-{
+struct ast {
+  std::unique_ptr<ASTNode> node;
+};
+
+union YYSTYPE {
 #line 22 "noname.y" /* yacc.c:1915  */
 
 
@@ -180,11 +183,14 @@ union YYSTYPE
   double double_v;
   long long_v;
   
-  symrecv symrecv;
+  ASTNode* node;
+  // struct ast* ast;
   char* error_msg;
 
 #line 150 "noname.tab.h" /* yacc.c:1915  */
 };
+
+// typedef struct ast ast;
 
 typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1

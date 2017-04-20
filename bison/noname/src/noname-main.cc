@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
   map[297] = "LONG";
   map[302] = "NEG";
 
-  // yydebug = 5;
+  yydebug = 1;
 
   return yyparse();
 }

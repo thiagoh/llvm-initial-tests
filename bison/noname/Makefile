@@ -1,6 +1,6 @@
 CLASSDIR=.
 LIB= -ll
-LDFLAGS: `llvm-config --cxxflags --ldflags --system-libs --libs core`
+LDFLAGS: `llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native`
 SRC= noname.flex
 CSRC= 
 CGEN= noname-lex.cc noname-parse.cc src/noname-types.cc src/noname-main.cc src/lexer-utilities.cc
@@ -9,20 +9,21 @@ CFIL= ${CSRC} ${CGEN}
 LSRC= Makefile
 OBJS= ${CFIL:.cc=.o}
 OUTPUT= test.output
-CPPINCLUDE= -I. -I${CLASSDIR}/include -I${CLASSDIR}/src -I/usr/local/opt/flex/include
+CPPINCLUDE= -I${CLASSDIR}/include -I/usr/local/opt/flex/include
 # FLEX_FLAGS= -d -X -P noname_yy -o noname-lex.cc
 # BISON_FLAGS= -d -v -y -b noname --debug -p noname_yy
 #TO ENAMBLE DEBUG => FLEX_FLAGS= -d -X -o noname-lex.cc
 FLEX_FLAGS= -X -P noname_yy -o noname-lex.cc
 BISON_FLAGS= -d -v -t -y -b noname --debug
-# CC=g++
-CC=clang++
+CC=g++
+# CC=clang++
 # CFLAGS= -g -Wall -Wno-unused -Wno-write-strings ${CPPINCLUDE}
 # `llvm-config --cxxflags --ldflags --system-libs --libs core`
-CFLAGS= -g -std=c++11 -Wall -Wno-unused -Wno-deprecated -Wno-write-strings ${CPPINCLUDE} 
+#CFLAGS= -g -std=c++11 `llvm-config --cxxflags` -Wall -Wno-unused -Wno-deprecated -Wno-write-strings ${CPPINCLUDE}
+CFLAGS= -g `llvm-config --cxxflags`  -Wall -Wno-unused -Wno-deprecated -Wno-write-strings ${CPPINCLUDE}
 FLEX= flex ${FLEX_FLAGS}
 BISON= bison ${BISON_FLAGS}
-DEPEND = ${CC} -MM ${CPPINCLUDE}
+DEPEND = ${CC} -MM `llvm-config --cxxflags` ${CPPINCLUDE}
 
 source : ${SRC} ${LSRC} ${LIBS} lsource
 
@@ -39,7 +40,7 @@ parser: ${OBJS}
 	${CC} ${CFLAGS} ${OBJS} ${LIB} -o parser
 
 noname: ${OBJS} noname-lex.cc 
-	${CC} ${CFLAGS} ${OBJS} ${LIB} ${LDFLAGS} -o noname -lm
+	${CC} ${CFLAGS} ${OBJS} ${LIB} ${LDFLAGS} `llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -o noname -lm
 
 %.o: %.cc 
 	${CC} ${CFLAGS} -c -o $@ $<
