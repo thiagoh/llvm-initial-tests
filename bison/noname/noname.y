@@ -1,7 +1,18 @@
 %{
-#include <stdio.h>
 #include <string>
 #include <map>
+#include <vector>
+#include <stdio.h>
+#include <algorithm>
+#include <cassert>
+#include <cctype>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 #include <math.h>
 #include "noname-parse.h"
 #include "noname-types.h"
@@ -23,7 +34,8 @@ extern void division_by_zero(YYLTYPE &yylloc);
   char* id_v;
   double double_v;
   long long_v;
-  
+  struct explist* exp_list;
+
   ASTNode* node;
   char* error_msg;
 };
@@ -86,6 +98,7 @@ extern void division_by_zero(YYLTYPE &yylloc);
 %type  <node> assignment     "assignment"
 %type  <node> declaration    "declaration"
 %type  <node> exp            "expression"
+%type  <exp_list> exp_list   "exp_list"
 %type  <node> stmt           "statement"
 
 %left '-' '+'
@@ -175,5 +188,12 @@ exp:
   | '(' exp ')'        {
       $$ = new BinaryExpNode(0, $2, NULL);
     }
+  | ID '(' exp_list ')'        {
+      $$ = new CallExprNode($ID, $exp_list);
+    }
   ;
+
+exp_list:
+  exp                   { $$ = newexplist(NULL, $1); }
+  | exp_list ',' exp    { $$ = newexplist($1, $3); }
 %%

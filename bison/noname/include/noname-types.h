@@ -20,7 +20,6 @@
 #include "llvm/Transforms/Scalar/GVN.h"
 
 #include "lexer-utilities.h"
-#include "noname-parse.h"
 #include <stdio.h>
 #include <algorithm>
 #include <cassert>
@@ -60,6 +59,12 @@ enum yytokentype {
 class ASTNode {
  public:
   virtual ~ASTNode() = default;
+};
+
+/* list of symbols, for an argument list */
+struct explist {
+  ASTNode* node;
+  struct explist *next;
 };
 
 class NumberNode : public ASTNode {
@@ -117,6 +122,37 @@ class BinaryExpNode : public ASTNode {
       rhs(std::unique_ptr<ASTNode>(std::move(rhs))) {}
 };
 
+/// CallExprNode - Expression class for function calls.
+class CallExprNode : public ASTNode {
+ private:
+  std::string callee;
+  std::vector<std::unique_ptr<ASTNode>> args;
+
+public:
+  CallExprNode(const std::string &callee, std::vector<std::unique_ptr<ASTNode>> args)
+      : callee(callee), args(std::move(args)) {}
+  CallExprNode(const std::string &callee, struct explist* exp_list)
+      : callee(callee), args(std::vector<std::unique_ptr<ASTNode>>())  {
+
+        // fprintf(stderr, "\n\n");
+        // fprintf(stderr, "HERE");
+        // fprintf(stderr, "\n\n");
+
+        if (exp_list->node) {
+          args.push_back(std::unique_ptr<ASTNode>(std::move(exp_list->node)));
+        }
+
+        while (exp_list->next) {
+          exp_list = exp_list->next;
+
+          if (exp_list->node) {
+            args.push_back(std::unique_ptr<ASTNode>(std::move(exp_list->node)));
+          }
+        }
+      }
+};
+
+
 class AssignmentNode : public ASTNode {
  private:
   std::string name;
@@ -138,7 +174,6 @@ class DeclarationNode : public ASTNode {
       : name(name) {}
 };
 
-
-
+struct explist *newexplist(struct explist *explist, ASTNode *node);
 
 #endif
