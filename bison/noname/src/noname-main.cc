@@ -48,7 +48,13 @@ void division_by_zero(YYLTYPE &yylloc) {
           yylloc.last_column);
 }
 
-void yyerror(char const *s) { fprintf(stderr, "\nERROR: %s\n", s); }
+void yyerror(char const *s) {
+  fprintf(stderr, "\nERROR: %s\n", s); 
+}
+
+void eval(ASTNode* node) {
+  fprintf(stderr, "\neval: %s\n", ""); 
+}
 
 int main(int argc, char **argv) {
   int token;
@@ -97,10 +103,11 @@ int main(int argc, char **argv) {
   map[293] = "QUOTES";
   map[294] = "ERROR";
   map[295] = "ID";
-  map[296] = "DOUBLE";
-  map[297] = "LONG";
-  map[302] = "NEG";
-
+  map[296] = "STR_CONST";
+  map[297] = "DOUBLE";
+  map[298] = "LONG";
+  map[304] = "NEG";
+  
   yydebug = 1;
 
   return yyparse();

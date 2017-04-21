@@ -119,9 +119,10 @@ extern int yydebug;
     QUOTES = 293,
     ERROR = 294,
     ID = 295,
-    DOUBLE = 296,
-    LONG = 297,
-    NEG = 303
+    STR_CONST = 296,
+    DOUBLE = 297,
+    LONG = 298,
+    NEG = 304
   };
 #endif
 /* Tokens.  */
@@ -163,16 +164,17 @@ extern int yydebug;
 #define QUOTES 293
 #define ERROR 294
 #define ID 295
-#define DOUBLE 296
-#define LONG 297
-#define NEG 303
+#define STR_CONST 296
+#define DOUBLE 297
+#define LONG 298
+#define NEG 304
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 
 union YYSTYPE
 {
-#line 22 "noname.y" /* yacc.c:1915  */
+#line 34 "noname.y" /* yacc.c:1915  */
 
   char* id_v;
   double double_v;
@@ -182,7 +184,7 @@ union YYSTYPE
   ASTNode* node;
   char* error_msg;
 
-#line 150 "noname.tab.h" /* yacc.c:1915  */
+#line 152 "noname.tab.h" /* yacc.c:1915  */
 };
 
 typedef union YYSTYPE YYSTYPE;

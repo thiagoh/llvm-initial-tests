@@ -1,3 +1,4 @@
+#include "lexer-utilities.h"
 #include "noname-parse.h"
 #include "noname-types.h"
 #include <stdio.h>
@@ -9,13 +10,19 @@ extern char *noname_yytext;
 extern int curr_lineno;
 
 #define yytext noname_yytext
-#define MAX_STR_CONST 1025
-char string_buf[MAX_STR_CONST]; /* to assemble string constants */
 
+char string_buf[MAX_STR_CONST]; /* to assemble string constants */
 char *string_buf_ptr;
 unsigned int string_buf_left;
 bool string_error;
 
+char* copy_string(char *s, int len) {
+  char* str = new char[len+1];
+  strncpy(str, s, len);
+  str[len] = '\0';
+  return str;
+}
+  
 int str_write(char *str, unsigned int len) {
   if (len < string_buf_left) {
     strncpy(string_buf_ptr, str, len);
@@ -35,7 +42,7 @@ int null_character_err() {
   return -1;
 }
 
-char *backslash_common() {
+char * backslash_common() {
   char *c = &yytext[1];
   if (*c == '\n') {
     curr_lineno++;

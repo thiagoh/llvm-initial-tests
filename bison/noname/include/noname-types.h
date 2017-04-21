@@ -87,6 +87,17 @@ class NumberNode : public ASTNode {
   };
 };
 
+class StringNode : public ASTNode {
+ private:
+  std::string value;
+
+ public:
+  StringNode(std::string &value) : value(value) {
+  };
+  StringNode(const char* value) : value(std::string(value)) {
+  };
+};
+
 class VarNode : public ASTNode {
  private:
   std::string name;

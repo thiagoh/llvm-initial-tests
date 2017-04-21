@@ -21,6 +21,7 @@ extern int yylex(void);
 extern int yydebug;
 extern void yyerror(const char *error_msg);
 extern void division_by_zero(YYLTYPE &yylloc);
+extern void eval(ASTNode* node);
 
 // std::map<std::string, symrec*> symbol_table;
 // std::map<std::string, symrec*>::iterator symbol_table_it;
@@ -93,6 +94,7 @@ extern void division_by_zero(YYLTYPE &yylloc);
 %token '^'                    "^"
 
 %token <id_v> ID             "identifier"
+%token <id_v> STR_CONST      "string_constant"
 %token <double_v> DOUBLE     "double"
 %token <long_v> LONG         "long"
 %type  <node> assignment     "assignment"
@@ -116,7 +118,9 @@ extern void division_by_zero(YYLTYPE &yylloc);
 
 prog:
   %empty
-  | prog stmt
+  | prog stmt {
+    eval($2);
+  } 
   | error STMT_SEP         { yyerrok; fprintf(stderr, "Error at %d:%d", @1.first_column, @1.last_column); }
 ;
 
@@ -125,19 +129,19 @@ stmt:
       if (yydebug) {
         fprintf(stderr, "\n[stmt - declaration]: ");
       }
-      // $$ = $1;
+      $$ = $1;
     }
   | assignment STMT_SEP     { 
       if (yydebug) {
         fprintf(stderr, "\n[stmt - assignment]: ");
       }
-      // $$ = $1;
+      $$ = $1;
     }
   | exp STMT_SEP            { 
       if (yydebug) {
         fprintf(stderr, "\n[stmt exp]: ");
       }
-      // $$ = $1;
+      $$ = $1;
     }
 ;
 
@@ -160,6 +164,9 @@ declaration:
 exp:
   ID {
     $$ = new VarNode($1);
+  }
+  | STR_CONST {
+    $$ = new StringNode($STR_CONST);
   }
   | LONG {
     $$ = new NumberNode($1);
