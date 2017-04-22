@@ -56,16 +56,57 @@ enum yytokentype {
 #define TYPE_LONG 36
 #define TYPE_DOUBLE 37
 
-class ASTNode {
- public:
-  virtual ~ASTNode() = default;
+#ifndef AST_NODE_TYPE
+#define AST_NODE_TYPE
+enum ast_node_type {
+  AST_NODE_TYPE_AST_NODE =        32,
+  AST_NODE_TYPE_NUMBER =          33,
+  AST_NODE_TYPE_VARIABLE =        34,
+  AST_NODE_TYPE_STRING =          35,
+  AST_NODE_TYPE_UNARY_EXP =       36,
+  AST_NODE_TYPE_BINARY =          37,
+  AST_NODE_TYPE_CALL_EXP =        38,
 };
+#endif
+
+#define AST_NODE_TYPE_AST_NODE    32
+#define AST_NODE_TYPE_NUMBER      33
+#define AST_NODE_TYPE_VARIABLE    34
+#define AST_NODE_TYPE_STRING      35
+#define AST_NODE_TYPE_UNARY_EXP   36
+#define AST_NODE_TYPE_BINARY      37
+#define AST_NODE_TYPE_CALL_EXP    38
+
+class ASTNode;
 
 /* list of symbols, for an argument list */
 struct explist {
   ASTNode* node;
   struct explist *next;
 };
+
+class ASTNode {
+ public:
+  virtual ~ASTNode() = default;
+  virtual int getType() const {
+    return getClassType();
+  };
+  static int getClassType() {
+    return AST_NODE_TYPE_AST_NODE;
+  };
+};
+
+template <typename To, typename From>
+struct is_of_type_impl {
+  static inline bool doit(const From &from) {
+    // fprintf(stderr, "\ncomparing %d with %d", from.getType(), To::getClassType());
+    return from.getType() == To::getClassType() || std::is_base_of<To, From>::value;
+  }
+};
+
+template <class To, class From> inline bool is_of_type(const From &from) {
+  return is_of_type_impl<To, From>::doit(from);
+}
 
 class NumberNode : public ASTNode {
  private:
@@ -85,6 +126,14 @@ class NumberNode : public ASTNode {
     value = new long;
     memcpy(value, &val, sizeof(long));
   };
+
+  int getType() const override {
+    return getClassType();
+  };
+
+  static int getClassType() {
+    return AST_NODE_TYPE_NUMBER;
+  };
 };
 
 class StringNode : public ASTNode {
@@ -96,6 +145,13 @@ class StringNode : public ASTNode {
   };
   StringNode(const char* value) : value(std::string(value)) {
   };
+
+  int getType() const override {
+    return getClassType();
+  };
+  static int getClassType() {
+    return AST_NODE_TYPE_STRING;
+  };
 };
 
 class VarNode : public ASTNode {
@@ -105,6 +161,13 @@ class VarNode : public ASTNode {
  public:
   VarNode(const std::string &name) : name(name) {}
   const std::string &getName() const { return name; }
+
+  int getType() const override {
+    return getClassType();
+  };
+  static int getClassType() {
+    return AST_NODE_TYPE_VARIABLE;
+  };
 };
 
 class UnaryExpNode : public ASTNode {
@@ -116,6 +179,13 @@ class UnaryExpNode : public ASTNode {
       : op(op), lhs(std::move(lhs)) {}
   UnaryExpNode(char op, ASTNode* lhs)
       : op(op), lhs(std::unique_ptr<ASTNode>(std::move(lhs))) {}
+
+  int getType() const override {
+    return getClassType();
+  };
+  static int getClassType() {
+    return AST_NODE_TYPE_UNARY_EXP;
+  };
 };
 
 class BinaryExpNode : public ASTNode {
@@ -131,6 +201,13 @@ class BinaryExpNode : public ASTNode {
       : op(op), 
       lhs(std::unique_ptr<ASTNode>(std::move(lhs))), 
       rhs(std::unique_ptr<ASTNode>(std::move(rhs))) {}
+
+  int getType() const override {
+    return getClassType();
+  };
+  static int getClassType() {
+    return AST_NODE_TYPE_BINARY;
+  };
 };
 
 /// CallExprNode - Expression class for function calls.
@@ -145,22 +222,26 @@ public:
   CallExprNode(const std::string &callee, struct explist* exp_list)
       : callee(callee), args(std::vector<std::unique_ptr<ASTNode>>())  {
 
-        // fprintf(stderr, "\n\n");
-        // fprintf(stderr, "HERE");
-        // fprintf(stderr, "\n\n");
+    if (exp_list->node) {
+      args.push_back(std::unique_ptr<ASTNode>(std::move(exp_list->node)));
+    }
 
-        if (exp_list->node) {
-          args.push_back(std::unique_ptr<ASTNode>(std::move(exp_list->node)));
-        }
+    while (exp_list->next) {
+      exp_list = exp_list->next;
 
-        while (exp_list->next) {
-          exp_list = exp_list->next;
-
-          if (exp_list->node) {
-            args.push_back(std::unique_ptr<ASTNode>(std::move(exp_list->node)));
-          }
-        }
+      if (exp_list->node) {
+        args.push_back(std::unique_ptr<ASTNode>(std::move(exp_list->node)));
       }
+    }
+  }
+  int getType() const override {
+    return getClassType();
+  };
+  static int getClassType() {
+    return AST_NODE_TYPE_CALL_EXP;
+  };
+
+  const std::string &getCallee() const { return callee; }
 };
 
 
