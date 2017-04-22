@@ -92,37 +92,38 @@ extern int yydebug;
     IF = 266,
     IN = 267,
     LET = 268,
-    LOOP = 269,
-    THEN = 270,
-    WHILE = 271,
-    BREAK = 272,
-    CASE = 273,
-    NEW = 274,
-    NOT = 275,
-    TRUE = 276,
-    NEWLINE = 277,
-    NOTNEWLINE = 278,
-    WHITESPACE = 279,
-    LE = 280,
-    ASSIGN = 281,
-    NULLCH = 282,
-    BACKSLASH = 283,
-    STAR = 284,
-    NOTSTAR = 285,
-    LEFTPAREN = 286,
-    NOTLEFTPAREN = 287,
-    RIGHTPAREN = 288,
-    NOTRIGHTPAREN = 289,
-    LINE_COMMENT = 290,
-    START_COMMENT = 291,
-    END_COMMENT = 292,
-    QUOTES = 293,
-    ERROR = 294,
-    ID = 295,
-    STR_CONST = 296,
-    DOUBLE = 297,
-    LONG = 298,
-    NEG = 304
+    DEF = 269,
+    LOOP = 270,
+    THEN = 271,
+    WHILE = 272,
+    BREAK = 273,
+    CASE = 274,
+    NEW = 275,
+    NOT = 276,
+    TRUE = 277,
+    NEWLINE = 278,
+    NOTNEWLINE = 279,
+    WHITESPACE = 280,
+    LE = 281,
+    ASSIGN = 282,
+    NULLCH = 283,
+    BACKSLASH = 284,
+    STAR = 285,
+    NOTSTAR = 286,
+    LEFTPAREN = 287,
+    NOTLEFTPAREN = 288,
+    RIGHTPAREN = 289,
+    NOTRIGHTPAREN = 290,
+    LINE_COMMENT = 291,
+    START_COMMENT = 292,
+    END_COMMENT = 293,
+    QUOTES = 294,
+    ERROR = 295,
+    ID = 296,
+    STR_CONST = 297,
+    DOUBLE = 298,
+    LONG = 299,
+    NEG = 308
   };
 #endif
 /* Tokens.  */
@@ -137,37 +138,38 @@ extern int yydebug;
 #define IF 266
 #define IN 267
 #define LET 268
-#define LOOP 269
-#define THEN 270
-#define WHILE 271
-#define BREAK 272
-#define CASE 273
-#define NEW 274
-#define NOT 275
-#define TRUE 276
-#define NEWLINE 277
-#define NOTNEWLINE 278
-#define WHITESPACE 279
-#define LE 280
-#define ASSIGN 281
-#define NULLCH 282
-#define BACKSLASH 283
-#define STAR 284
-#define NOTSTAR 285
-#define LEFTPAREN 286
-#define NOTLEFTPAREN 287
-#define RIGHTPAREN 288
-#define NOTRIGHTPAREN 289
-#define LINE_COMMENT 290
-#define START_COMMENT 291
-#define END_COMMENT 292
-#define QUOTES 293
-#define ERROR 294
-#define ID 295
-#define STR_CONST 296
-#define DOUBLE 297
-#define LONG 298
-#define NEG 304
+#define DEF 269
+#define LOOP 270
+#define THEN 271
+#define WHILE 272
+#define BREAK 273
+#define CASE 274
+#define NEW 275
+#define NOT 276
+#define TRUE 277
+#define NEWLINE 278
+#define NOTNEWLINE 279
+#define WHITESPACE 280
+#define LE 281
+#define ASSIGN 282
+#define NULLCH 283
+#define BACKSLASH 284
+#define STAR 285
+#define NOTSTAR 286
+#define LEFTPAREN 287
+#define NOTLEFTPAREN 288
+#define RIGHTPAREN 289
+#define NOTRIGHTPAREN 290
+#define LINE_COMMENT 291
+#define START_COMMENT 292
+#define END_COMMENT 293
+#define QUOTES 294
+#define ERROR 295
+#define ID 296
+#define STR_CONST 297
+#define DOUBLE 298
+#define LONG 299
+#define NEG 308
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -179,12 +181,14 @@ union YYSTYPE
   char* id_v;
   double double_v;
   long long_v;
-  struct explist* exp_list;
+  explist* exp_list;
+  arglist* arg_list;
+  arg* arg;
 
   ASTNode* node;
   char* error_msg;
 
-#line 152 "noname.tab.h" /* yacc.c:1915  */
+#line 156 "noname.tab.h" /* yacc.c:1915  */
 };
 
 typedef union YYSTYPE YYSTYPE;

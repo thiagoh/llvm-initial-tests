@@ -84,6 +84,19 @@ struct explist {
   ASTNode* node;
   struct explist *next;
 };
+/* list of args, for an argument list */
+struct arg {
+  char* name;
+  ASTNode* defaultValue;
+};
+struct arglist {
+  struct arg* arg;
+  struct arglist *next;
+};
+
+typedef struct explist explist;
+typedef struct arglist arglist;
+typedef struct arg arg;
 
 class ASTNode {
  public:
@@ -219,7 +232,7 @@ class CallExprNode : public ASTNode {
 public:
   CallExprNode(const std::string &callee, std::vector<std::unique_ptr<ASTNode>> args)
       : callee(callee), args(std::move(args)) {}
-  CallExprNode(const std::string &callee, struct explist* exp_list)
+  CallExprNode(const std::string &callee, explist* exp_list)
       : callee(callee), args(std::vector<std::unique_ptr<ASTNode>>())  {
 
     if (exp_list->node) {
@@ -244,6 +257,56 @@ public:
   const std::string &getCallee() const { return callee; }
 };
 
+// FunctionDefNode - Node class for function definition.
+class FunctionDefNode : public ASTNode {
+ private:
+  std::string name;
+  std::vector<std::unique_ptr<arg>> args;
+  std::vector<std::unique_ptr<ASTNode>> body;
+
+public:
+  FunctionDefNode(const std::string &name, std::vector<std::unique_ptr<arg>> args, 
+      std::vector<std::unique_ptr<ASTNode>> body) 
+      : name(name), args(std::move(args)), body(std::move(body)) {}
+  FunctionDefNode(const std::string &name, arglist* arg_list, explist* exp_list)
+      : name(name), args(std::vector<std::unique_ptr<arg>>()), 
+      body(std::vector<std::unique_ptr<ASTNode>>())  {
+
+    if (arg_list->arg) {
+      args.push_back(std::unique_ptr<arg>(std::move(arg_list->arg)));
+    }
+
+    while (arg_list->next) {
+      arg_list = arg_list->next;
+
+      if (arg_list->arg) {
+        args.push_back(std::unique_ptr<arg>(std::move(arg_list->arg)));
+      }
+    }
+
+    if (exp_list->node) {
+      body.push_back(std::unique_ptr<ASTNode>(std::move(exp_list->node)));
+    }
+
+    while (exp_list->next) {
+      exp_list = exp_list->next;
+
+      if (exp_list->node) {
+        body.push_back(std::unique_ptr<ASTNode>(std::move(exp_list->node)));
+      }
+    }
+  }
+
+  int getType() const override {
+    return getClassType();
+  };
+  static int getClassType() {
+    return AST_NODE_TYPE_CALL_EXP;
+  };
+
+  const std::string &getName() const { return name; }
+};
+
 
 class AssignmentNode : public ASTNode {
  private:
@@ -266,6 +329,11 @@ class DeclarationNode : public ASTNode {
       : name(name) {}
 };
 
-struct explist *newexplist(struct explist *explist, ASTNode *node);
+explist *newexplist(explist *next_exp_list, ASTNode *node);
+arg *newarg(char* arg, ASTNode* defaultValue);
+arg *newarg(char* arg, double defaultValue);
+arg *newarg(char* arg, long defaultValue);
+arg *newarg(char* arg, char* defaultValue);
+arglist *newarglist(arglist *next_arg_list, arg* arg);
 
 #endif
