@@ -55,13 +55,15 @@ void yyerror(char const *s) {
 void eval(ASTNode* node) {
 
   fprintf(stderr, "\neval: ASTNode %s %d\n", is_of_type<ASTNode>(*node) ? "true" : "false", node->getType()); 
-  fprintf(stderr, "\neval: NumberNode %s %d\n", is_of_type<NumberNode>(*node) ? "true" : "false", node->getType()); 
-  fprintf(stderr, "\neval: BinaryExpNode %s %d\n", is_of_type<BinaryExpNode>(*node) ? "true" : "false", node->getType()); 
-  fprintf(stderr, "\neval: CallExprNode %s %d\n", is_of_type<CallExprNode>(*node) ? "true" : "false", node->getType()); 
+  // fprintf(stderr, "\neval: NumberNode %s %d\n", is_of_type<NumberNode>(*node) ? "true" : "false", node->getType()); 
+  // fprintf(stderr, "\neval: BinaryExpNode %s %d\n", is_of_type<BinaryExpNode>(*node) ? "true" : "false", node->getType()); 
+  // fprintf(stderr, "\neval: CallExprNode %s %d\n", is_of_type<CallExprNode>(*node) ? "true" : "false", node->getType()); 
 
   if (is_of_type<CallExprNode>(*node)) {
     CallExprNode* callExp = (CallExprNode*) node;
     fprintf(stderr, "\n\nThe called function was: '%s'\n", callExp->getCallee().c_str());
+
+    void* value = callExp->getValue();
 
     if (callExp->getCallee().compare("echo") == 0) {
       printf("\n[echoing because I was told to do so]\n");
