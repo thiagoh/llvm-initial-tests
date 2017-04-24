@@ -158,30 +158,30 @@ stmt:
     }
 ;
 
+  /**
+    * Handling multi level scope/context
+    * https://www.gnu.org/software/bison/manual/html_node/Using-Mid_002dRule-Actions.html#Using-Mid_002dRule-Actions
+    */
 function_def:
   DEF ID '(' arg_list ')' '{' exp_list '}' {
-    // $$ = new AssignmentNode($1, $3);
+    // ASTContext newContext(context);
     $$ = new_function_def(context, $ID, $arg_list, $exp_list);
-    // new FunctionDefNode($ID, std::move($arg_list), std::move($exp_list));
   }
   | DEF ID '(' arg_list ')' '{' '}' {
-    // $$ = new AssignmentNode($1, $3);
+    // ASTContext newContext(context);
     explist* exp_list = (explist*) malloc(sizeof(explist));
     $$ = new_function_def(context, $ID, $arg_list, std::move(exp_list));
-    // new FunctionDefNode($ID, std::move($arg_list), std::move($exp_list));
   }
   | DEF ID '(' ')' '{' exp_list '}' {
-    // $$ = new AssignmentNode($1, $3);
+    // ASTContext newContext(context);
     arglist* arg_list = (arglist*) malloc(sizeof(arglist));
     $$ = new_function_def(context, $ID, arg_list, $exp_list);
-    // new FunctionDefNode($ID, std::move($arg_list), std::move($exp_list));
   }
   | DEF ID '(' ')' '{' '}' {
-    // $$ = new AssignmentNode($1, $3);
+    // ASTContext newContext(context);
     explist* exp_list = (explist*) malloc(sizeof(explist));
     arglist* arg_list = (arglist*) malloc(sizeof(arglist));
     $$ = new_function_def(context, $ID, arg_list, exp_list);
-    // new FunctionDefNode($ID, std::move($arg_list), std::move($exp_list));
   }
 ;
 

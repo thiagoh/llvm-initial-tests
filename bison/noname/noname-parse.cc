@@ -1578,8 +1578,8 @@ yyreduce:
   case 9:
 #line 162 "noname.y" /* yacc.c:1661  */
     {
-    // $$ = new AssignmentNode($1, $3);
-    (yyval.node) = new_function_def(context, (yyvsp[-6].id_v), (yyvsp[-4].arg_list), (yyvsp[-1].exp_list));
+    ASTContext newContext(context);
+    (yyval.node) = new_function_def(newContext, (yyvsp[-6].id_v), (yyvsp[-4].arg_list), (yyvsp[-1].exp_list));
     // new FunctionDefNode($ID, std::move($arg_list), std::move($exp_list));
   }
 #line 1586 "noname.tab.c" /* yacc.c:1661  */
@@ -1588,9 +1588,9 @@ yyreduce:
   case 10:
 #line 167 "noname.y" /* yacc.c:1661  */
     {
-    // $$ = new AssignmentNode($1, $3);
+    ASTContext newContext(context);
     explist* exp_list = (explist*) malloc(sizeof(explist));
-    (yyval.node) = new_function_def(context, (yyvsp[-5].id_v), (yyvsp[-3].arg_list), std::move(exp_list));
+    (yyval.node) = new_function_def(newContext, (yyvsp[-5].id_v), (yyvsp[-3].arg_list), std::move(exp_list));
     // new FunctionDefNode($ID, std::move($arg_list), std::move($exp_list));
   }
 #line 1597 "noname.tab.c" /* yacc.c:1661  */
@@ -1599,9 +1599,9 @@ yyreduce:
   case 11:
 #line 173 "noname.y" /* yacc.c:1661  */
     {
-    // $$ = new AssignmentNode($1, $3);
+    ASTContext newContext(context);
     arglist* arg_list = (arglist*) malloc(sizeof(arglist));
-    (yyval.node) = new_function_def(context, (yyvsp[-5].id_v), arg_list, (yyvsp[-1].exp_list));
+    (yyval.node) = new_function_def(newContext, (yyvsp[-5].id_v), arg_list, (yyvsp[-1].exp_list));
     // new FunctionDefNode($ID, std::move($arg_list), std::move($exp_list));
   }
 #line 1608 "noname.tab.c" /* yacc.c:1661  */
@@ -1610,10 +1610,10 @@ yyreduce:
   case 12:
 #line 179 "noname.y" /* yacc.c:1661  */
     {
-    // $$ = new AssignmentNode($1, $3);
+    ASTContext newContext(context);
     explist* exp_list = (explist*) malloc(sizeof(explist));
     arglist* arg_list = (arglist*) malloc(sizeof(arglist));
-    (yyval.node) = new_function_def(context, (yyvsp[-4].id_v), arg_list, exp_list);
+    (yyval.node) = new_function_def(newContext, (yyvsp[-4].id_v), arg_list, exp_list);
     // new FunctionDefNode($ID, std::move($arg_list), std::move($exp_list));
   }
 #line 1620 "noname.tab.c" /* yacc.c:1661  */
