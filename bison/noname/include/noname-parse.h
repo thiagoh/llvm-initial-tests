@@ -36,7 +36,6 @@ void dump_bool(ostream &, int, bool);
 // typedef list_node<Case> Cases_class;
 // typedef Cases_class *Cases;
 
-
 /* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison interface for Yacc-like parsers in C
@@ -124,7 +123,7 @@ extern int yydebug;
     STR_CONST = 297,
     DOUBLE = 298,
     LONG = 299,
-    NEG = 308
+    NEG = 310
   };
 #endif
 /* Tokens.  */
@@ -170,7 +169,7 @@ extern int yydebug;
 #define STR_CONST 297
 #define DOUBLE 298
 #define LONG 299
-#define NEG 308
+#define NEG 310
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -182,6 +181,7 @@ union YYSTYPE
   char* id_v;
   double double_v;
   long long_v;
+  ASTContext* context;
   explist* exp_list;
   arglist* arg_list;
   arg* arg;

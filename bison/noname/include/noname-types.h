@@ -377,19 +377,25 @@ arglist* newarglist(arglist* next_arg_list, arg* arg);
 
 class ASTContext {
  private:
+  std::string name;
+  ASTContext* parent;
   std::map<std::string, FunctionDefNode*> mFunctions;
   std::map<std::string, FunctionDefNode*>::iterator itFunctions;
   std::map<std::string, VarNode*> mVariables;
   std::map<std::string, VarNode*>::iterator itVariables;
-  ASTContext* parent;
  public:
-  ASTContext() {
+  ASTContext(const std::string &name)
+    : name(name), parent(NULL) {
     
   }
-  ASTContext(ASTContext* parent): parent(parent) {
+  ASTContext(const std::string &name, ASTContext* parent)
+    : name(name), parent(parent) {
     
   }
   virtual ~ASTContext() = default;
+  std::string& getName() {
+    return name;
+  }
   ASTContext* getParent() {
     return parent;
   }

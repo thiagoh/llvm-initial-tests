@@ -2,13 +2,15 @@
 #include "noname-parse.h"
 #include "noname-types.h"
 #include <map>
+#include <stack>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
 
 std::map<int, std::string> map;
+ASTContext* context;
+std::stack<ASTContext*> context_stack;
 extern YYSTYPE yylval;
-extern ASTContext context;
 extern int noname_yylex(void);
 extern int yyparse();
 void yyerror(char const *s);
@@ -55,6 +57,10 @@ void yyerror(char const *s) {
 
 void eval(ASTNode* node) {
 
+  if (!node) {
+    return;
+  }
+
   fprintf(stderr, "\neval: ASTNode %s %d\n", is_of_type<ASTNode>(*node) ? "true" : "false", node->getType()); 
   // fprintf(stderr, "\neval: NumberNode %s %d\n", is_of_type<NumberNode>(*node) ? "true" : "false", node->getType()); 
   // fprintf(stderr, "\neval: BinaryExpNode %s %d\n", is_of_type<BinaryExpNode>(*node) ? "true" : "false", node->getType()); 
@@ -63,7 +69,7 @@ void eval(ASTNode* node) {
   if (is_of_type<CallExprNode>(*node)) {
     CallExprNode* callExp = (CallExprNode*) node;
 
-    FunctionDefNode* functionNode = context.getFunction(callExp->getCallee());
+    FunctionDefNode* functionNode = context->getFunction(callExp->getCallee());
     
     if (functionNode) {
       fprintf(stderr, "\n\nThe called function was: '%s'\n", functionNode->getName().c_str());
@@ -81,6 +87,9 @@ void eval(ASTNode* node) {
 
 int main(int argc, char **argv) {
   int token;
+
+  context = new ASTContext("root");
+  context_stack.push(context);
 
   // fin = fopen(argv[optind], "r");
   // if (fin == NULL) {

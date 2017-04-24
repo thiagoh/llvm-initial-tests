@@ -59,9 +59,46 @@ arglist *newarglist(arglist *next_arg_list, arg* arg) {
   return newarg_list;
 }
 
+/// LogError* - These are little helper functions for error handling.
+ASTNode* logError(const char *str) {
+
+  char msg[1024];
+  sprintf(msg, "%s\n", str);
+  yyerror(msg);
+  // abort();
+  // fprintf(stderr, "Error: %s\n", str);
+  return NULL;
+}
+
+/// LogError* - These are little helper functions for error handling.
+FunctionDefNode* logErrorF(const char *str) {
+  logError(str);
+  return nullptr;
+}
+
 FunctionDefNode* new_function_def(ASTContext& context, const std::string& name, arglist* arg_list, explist* exp_list) {
   FunctionDefNode* node = new FunctionDefNode(name, std::move(arg_list), std::move(exp_list));
-  context.storeFunction(name, node);
-  // fprintf(stderr, "\n[stmt - assignment]: ");
+
+  ASTContext* parent = context.getParent();
+
+  FunctionDefNode* functionNode = parent->getFunction(name);
+  if (functionNode) {
+    return logErrorF("\nFunction already exists in this context!");
+  }
+  
+  parent->storeFunction(name, node);
+
+  fprintf(stderr, "\n[new_function_def]: %s", parent->getName().c_str());
+  fprintf(stderr, "\n[new_function_def]: %s", parent->getName().c_str());
+  fprintf(stderr, "\n[new_function_def]: %s", parent->getName().c_str());
   return node;
 }
+
+// FunctionDefNode* new_function_def(ASTContext& context, const std::string& name, arglist* arg_list, explist* exp_list) {
+//   FunctionDefNode* node = new FunctionDefNode(name, std::move(arg_list), std::move(exp_list));
+
+//   ASTContext* parent = context.getParent();
+//   parent.storeFunction(name, node);
+//   // fprintf(stderr, "\n[stmt - assignment]: ");
+//   return node;
+// }
