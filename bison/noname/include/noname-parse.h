@@ -36,6 +36,14 @@ void dump_bool(ostream &, int, bool);
 // typedef list_node<Case> Cases_class;
 // typedef Cases_class *Cases;
 
+#endif
+
+/**
+  * #############################
+  * ### BEGIN of noname.tab.h ###
+  * #############################
+  */
+
 /* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison interface for Yacc-like parsers in C
@@ -68,6 +76,8 @@ void dump_bool(ostream &, int, bool);
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
+#ifndef YY_YY_NONAME_TAB_H_INCLUDED
+# define YY_YY_NONAME_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 1
@@ -123,7 +133,7 @@ extern int yydebug;
     STR_CONST = 297,
     DOUBLE = 298,
     LONG = 299,
-    NEG = 310
+    NEG = 312
   };
 #endif
 /* Tokens.  */
@@ -169,7 +179,7 @@ extern int yydebug;
 #define STR_CONST 297
 #define DOUBLE 298
 #define LONG 299
-#define NEG 310
+#define NEG 312
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -190,7 +200,7 @@ union YYSTYPE
   ASTNode* node;
   char* error_msg;
 
-#line 156 "noname.tab.h" /* yacc.c:1915  */
+#line 158 "noname.tab.h" /* yacc.c:1915  */
 };
 
 typedef union YYSTYPE YYSTYPE;

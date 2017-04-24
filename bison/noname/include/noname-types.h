@@ -126,7 +126,6 @@ AssignmentNode* new_assignment_node(ASTContext* context, const std::string& name
 AssignmentNode* new_declaration_node(ASTContext* context, const std::string& name);
 FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, arglist* arg_list, stmtlist* stmt_list);
 
-
 class ASTNode {
  public:
   virtual ~ASTNode() = default;
@@ -139,8 +138,7 @@ struct is_of_type_impl {
   static inline bool doit(const From& from) {
     // fprintf(stderr, "\ncomparing %d with %d", from.getType(),
     // To::getClassType());
-    return from.getType() == To::getClassType() ||
-           std::is_base_of<To, From>::value;
+    return from.getType() == To::getClassType() || std::is_base_of<To, From>::value;
   }
 };
 
@@ -251,10 +249,8 @@ class UnaryExpNode : public ExpNode {
   std::unique_ptr<ASTNode> lhs;
 
  public:
-  UnaryExpNode(char op, std::unique_ptr<ASTNode> lhs)
-      : op(op), lhs(std::move(lhs)) {}
-  UnaryExpNode(char op, ASTNode* lhs)
-      : op(op), lhs(std::unique_ptr<ASTNode>(std::move(lhs))) {}
+  UnaryExpNode(char op, std::unique_ptr<ASTNode> lhs) : op(op), lhs(std::move(lhs)) {}
+  UnaryExpNode(char op, ASTNode* lhs) : op(op), lhs(std::unique_ptr<ASTNode>(std::move(lhs))) {}
 
   int getType() const override { return getClassType(); };
   static int getClassType() { return AST_NODE_TYPE_UNARY_EXP; };
@@ -268,13 +264,8 @@ class BinaryExpNode : public ExpNode {
   std::unique_ptr<ASTNode> lhs, rhs;
 
  public:
-  BinaryExpNode(char op, std::unique_ptr<ASTNode> lhs,
-                std::unique_ptr<ASTNode> rhs)
-      : op(op), lhs(std::move(lhs)), rhs(std::move(rhs)) {}
-  BinaryExpNode(char op, ASTNode* lhs, ASTNode* rhs)
-      : op(op),
-        lhs(std::unique_ptr<ASTNode>(std::move(lhs))),
-        rhs(std::unique_ptr<ASTNode>(std::move(rhs))) {}
+  BinaryExpNode(char op, std::unique_ptr<ASTNode> lhs, std::unique_ptr<ASTNode> rhs) : op(op), lhs(std::move(lhs)), rhs(std::move(rhs)) {}
+  BinaryExpNode(char op, ASTNode* lhs, ASTNode* rhs) : op(op), lhs(std::unique_ptr<ASTNode>(std::move(lhs))), rhs(std::unique_ptr<ASTNode>(std::move(rhs))) {}
 
   int getType() const override { return getClassType(); };
   static int getClassType() { return AST_NODE_TYPE_BINARY; };
@@ -289,12 +280,8 @@ class CallExprNode : public ExpNode {
   std::vector<std::unique_ptr<ASTNode>> args;
 
  public:
-  CallExprNode(const std::string& callee,
-               std::vector<std::unique_ptr<ASTNode>> args)
-      : callee(callee), args(std::move(args)) {}
-  CallExprNode(const std::string& callee, explist* exp_list)
-      : callee(callee), args(std::vector<std::unique_ptr<ASTNode>>()) {
-    
+  CallExprNode(const std::string& callee, std::vector<std::unique_ptr<ASTNode>> args) : callee(callee), args(std::move(args)) {}
+  CallExprNode(const std::string& callee, explist* exp_list) : callee(callee), args(std::vector<std::unique_ptr<ASTNode>>()) {
     if (exp_list->node) {
       args.push_back(std::unique_ptr<ASTNode>(std::move(exp_list->node)));
     }
@@ -322,10 +309,8 @@ class AssignmentNode : public ExpNode {
   std::unique_ptr<ASTNode> rhs;
 
  public:
-  AssignmentNode(const std::string& name, std::unique_ptr<ExpNode> rhs)
-      : name(name), rhs(std::move(rhs)) {}
-  AssignmentNode(const std::string& name, ExpNode* rhs)
-      : name(name), rhs(std::unique_ptr<ASTNode>(std::move(rhs))) {}
+  AssignmentNode(const std::string& name, std::unique_ptr<ExpNode> rhs) : name(name), rhs(std::move(rhs)) {}
+  AssignmentNode(const std::string& name, ExpNode* rhs) : name(name), rhs(std::unique_ptr<ASTNode>(std::move(rhs))) {}
 
   NodeValue* getValue() override { return 0; }
 };
@@ -339,16 +324,10 @@ class FunctionDefNode : public ASTNode {
   std::vector<std::unique_ptr<ASTNode>> body;
 
  public:
-  FunctionDefNode(const std::string& name,
-                  std::vector<std::unique_ptr<arg>> args,
-                  std::vector<std::unique_ptr<ASTNode>> body)
-      : name(name), 
-        args(std::move(args)), body(std::move(body)) {}
-  FunctionDefNode(const std::string& name, 
-                  arglist* arg_list, stmtlist* stmt_list)
-      : name(name), 
-        args(std::vector<std::unique_ptr<arg>>()),
-        body(std::vector<std::unique_ptr<ASTNode>>()) {
+  FunctionDefNode(const std::string& name, std::vector<std::unique_ptr<arg>> args, std::vector<std::unique_ptr<ASTNode>> body)
+      : name(name), args(std::move(args)), body(std::move(body)) {}
+  FunctionDefNode(const std::string& name, arglist* arg_list, stmtlist* stmt_list)
+      : name(name), args(std::vector<std::unique_ptr<arg>>()), body(std::vector<std::unique_ptr<ASTNode>>()) {
     if (arg_list->arg) {
       args.push_back(std::unique_ptr<arg>(std::move(arg_list->arg)));
     }
@@ -396,46 +375,33 @@ class ASTContext {
   std::map<std::string, FunctionDefNode*>::iterator itFunctions;
   std::map<std::string, AssignmentNode*> mVariables;
   std::map<std::string, AssignmentNode*>::iterator itVariables;
- public:
-  ASTContext(const std::string &name)
-    : name(name), parent(NULL) {
-    
-  }
-  ASTContext(const std::string &name, ASTContext* parent)
-    : name(name), parent(parent) {
-    
-  }
-  virtual ~ASTContext() = default;
-  std::string& getName() {
-    return name;
-  }
-  ASTContext* getParent() {
-    return parent;
-  }
-  // Functions
-  FunctionDefNode* getFunction(const std::string &name) {
 
+ public:
+  ASTContext(const std::string& name) : name(name), parent(NULL) {}
+  ASTContext(const std::string& name, ASTContext* parent) : name(name), parent(parent) {}
+  virtual ~ASTContext() = default;
+  std::string& getName() { return name; }
+  ASTContext* getParent() { return parent; }
+  // Functions
+  FunctionDefNode* getFunction(const std::string& name) {
     itFunctions = mFunctions.find(name);
     if (itFunctions != mFunctions.end()) {
       return mFunctions[name];
     }
-    
+
     ASTContext* parent = this->getParent();
 
     if (parent) {
       return parent->getFunction(name);
     }
-    
+
     return NULL;
   };
 
-  void store(const std::string name, FunctionDefNode* functionNode) {
-    mFunctions[name] = functionNode;
-  }
+  void store(const std::string name, FunctionDefNode* functionNode) { mFunctions[name] = functionNode; }
 
   // Variables
-  AssignmentNode* getVariable(const std::string &name) {
-
+  AssignmentNode* getVariable(const std::string& name) {
     itVariables = mVariables.find(name);
     if (itVariables != mVariables.end()) {
       return mVariables[name];
@@ -446,13 +412,11 @@ class ASTContext {
     if (parent) {
       return parent->getVariable(name);
     }
-    
+
     return NULL;
   };
 
-  void store(const std::string name, AssignmentNode* varNode) {
-    mVariables[name] = varNode;
-  }
+  void store(const std::string name, AssignmentNode* varNode) { mVariables[name] = varNode; }
 };
 
 #endif

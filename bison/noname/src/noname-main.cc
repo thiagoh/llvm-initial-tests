@@ -8,8 +8,8 @@
 #include <string>
 
 std::map<int, std::string> map;
-ASTContext* context;
-std::stack<ASTContext*> context_stack;
+ASTContext *context;
+std::stack<ASTContext *> context_stack;
 extern YYSTYPE yylval;
 extern int noname_yylex(void);
 extern int yyparse();
@@ -28,17 +28,13 @@ int yylex(void) {
 
   if (yydebug > 1) {
     if (token == LONG) {
-      fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %ld\n", token,
-              map[token].c_str(), yylval.long_v);
+      fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %ld\n", token, map[token].c_str(), yylval.long_v);
     } else if (token == DOUBLE) {
-      fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %lf\n", token,
-              map[token].c_str(), yylval.double_v);
+      fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %lf\n", token, map[token].c_str(), yylval.double_v);
     } else if (token == ID) {
-      fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %s\n", token,
-              map[token].c_str(), yylval.id_v);
+      fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %s\n", token, map[token].c_str(), yylval.id_v);
     } else {
-      fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %c\n", token,
-              map[token].c_str(), (char)token);
+      fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %c\n", token, map[token].c_str(), (char)token);
     }
   }
 
@@ -46,31 +42,26 @@ int yylex(void) {
 }
 
 void division_by_zero(YYLTYPE &yylloc) {
-  fprintf(stderr, "SEVERE ERROR %d:%d - %d:%d. Division by zero",
-          yylloc.first_line, yylloc.first_column, yylloc.last_line,
-          yylloc.last_column);
+  fprintf(stderr, "SEVERE ERROR %d:%d - %d:%d. Division by zero", yylloc.first_line, yylloc.first_column, yylloc.last_line, yylloc.last_column);
 }
 
-void yyerror(char const *s) {
-  fprintf(stderr, "\nERROR: %s\n", s); 
-}
+void yyerror(char const *s) { fprintf(stderr, "\nERROR: %s\n", s); }
 
-void eval(ASTNode* node) {
-
+void eval(ASTNode *node) {
   if (!node) {
     return;
   }
 
-  fprintf(stderr, "\neval: ASTNode %s %d\n", is_of_type<ASTNode>(*node) ? "true" : "false", node->getType()); 
-  // fprintf(stderr, "\neval: NumberNode %s %d\n", is_of_type<NumberNode>(*node) ? "true" : "false", node->getType()); 
-  // fprintf(stderr, "\neval: BinaryExpNode %s %d\n", is_of_type<BinaryExpNode>(*node) ? "true" : "false", node->getType()); 
-  // fprintf(stderr, "\neval: CallExprNode %s %d\n", is_of_type<CallExprNode>(*node) ? "true" : "false", node->getType()); 
+  fprintf(stderr, "\neval: ASTNode %s %d\n", is_of_type<ASTNode>(*node) ? "true" : "false", node->getType());
+  // fprintf(stderr, "\neval: NumberNode %s %d\n", is_of_type<NumberNode>(*node) ? "true" : "false", node->getType());
+  // fprintf(stderr, "\neval: BinaryExpNode %s %d\n", is_of_type<BinaryExpNode>(*node) ? "true" : "false", node->getType());
+  // fprintf(stderr, "\neval: CallExprNode %s %d\n", is_of_type<CallExprNode>(*node) ? "true" : "false", node->getType());
 
   if (is_of_type<CallExprNode>(*node)) {
-    CallExprNode* callExp = (CallExprNode*) node;
+    CallExprNode *callExp = (CallExprNode *)node;
 
-    FunctionDefNode* functionNode = context->getFunction(callExp->getCallee());
-    
+    FunctionDefNode *functionNode = context->getFunction(callExp->getCallee());
+
     if (functionNode) {
       fprintf(stderr, "\n\nThe called function was: '%s'\n", functionNode->getName().c_str());
     } else {
@@ -139,7 +130,7 @@ int main(int argc, char **argv) {
   map[297] = "STR_CONST";
   map[298] = "DOUBLE";
   map[299] = "LONG";
-  map[308] = "NEG";
+  map[312] = "NEG";
 
   yydebug = 2;
 

@@ -26,8 +26,6 @@ extern void yyerror(const char *error_msg);
 extern void division_by_zero(YYLTYPE &yylloc);
 extern void eval(ASTNode* node);
 
-// std::map<std::string, symrec*> symbol_table;
-// std::map<std::string, symrec*>::iterator symbol_table_it;
 %}
 
 //////////////////////////////////////////////////
@@ -262,6 +260,11 @@ exp:
       $$ = new BinaryExpNode(0, $2, NULL);
     }
   | ID '(' exp_list ')'        {
+
+      if ($exp_list == NULL) {
+        $exp_list = (explist*) malloc(sizeof(explist));
+      } 
+
       $$ = new CallExprNode($ID, $exp_list);
     }
   ;
