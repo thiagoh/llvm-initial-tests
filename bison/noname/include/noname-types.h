@@ -400,22 +400,44 @@ class ASTContext {
     return parent;
   }
   FunctionDefNode* getFunction(const std::string &name) {
+
     itFunctions = mFunctions.find(name);
-    if (itFunctions == mFunctions.end()) {
-      return NULL;
+    if (itFunctions != mFunctions.end()) {
+      return mFunctions[name];
     }
-    return mFunctions[name]; };
+    
+    ASTContext* parent = this->getParent();
+
+    if (parent) {
+      return parent->getFunction(name);
+    }
+    
+    return NULL;
+  };
 
   void storeFunction(const std::string name, FunctionDefNode* functionNode) {
     mFunctions[name] = functionNode;
   }
 
-  VarNode* getVariable(const std::string &name) { 
+  VarNode* getVariable(const std::string &name) {
+
     itVariables = mVariables.find(name);
-    if (itVariables == mVariables.end()) {
-      return NULL;
+    if (itVariables != mVariables.end()) {
+      return mVariables[name];
     }
-    return mVariables[name]; };
+
+    ASTContext* parent = this->getParent();
+
+    if (parent) {
+      return parent->getVariable(name);
+    }
+    
+    return NULL;
+  };
+
+  void storeVariable(const std::string name, VarNode* varNode) {
+    mVariables[name] = varNode;
+  }
 };
 
 FunctionDefNode* new_function_def(ASTContext& context, const std::string& name, arglist* arg_list, explist* exp_list);
