@@ -1607,7 +1607,7 @@ yyreduce:
       } 
       
       // $$ = new_function_def(*$<context>function_context, $ID, $arg_list, $exp_list);
-      (yyval.node) = new_function_def(*context, (yyvsp[-8].id_v), (yyvsp[-5].arg_list), (yyvsp[-1].exp_list));
+      (yyval.node) = new_function_def(context, (yyvsp[-8].id_v), (yyvsp[-5].arg_list), (yyvsp[-1].exp_list));
       context_stack.pop();
       context = context_stack.top();
     }
@@ -1743,49 +1743,49 @@ yyreduce:
 
   case 28:
 #line 257 "noname.y" /* yacc.c:1661  */
-    { fprintf(stderr, "\n[arglist processing]"); (yyval.arg_list) = newarglist(NULL, (yyvsp[0].arg)); }
+    { fprintf(stderr, "\n[arglist processing]"); (yyval.arg_list) = newarglist(context, NULL, (yyvsp[0].arg)); }
 #line 1748 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 29:
 #line 258 "noname.y" /* yacc.c:1661  */
-    { fprintf(stderr, "\n[arglist processing]"); (yyval.arg_list) = newarglist((yyvsp[-2].arg_list), (yyvsp[0].arg)); }
+    { fprintf(stderr, "\n[arglist processing]"); (yyval.arg_list) = newarglist(context, (yyvsp[-2].arg_list), (yyvsp[0].arg)); }
 #line 1754 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 30:
 #line 262 "noname.y" /* yacc.c:1661  */
-    { fprintf(stderr, "\n[ne_arg_list processing]"); (yyval.arg_list) = newarglist(NULL, (yyvsp[0].arg)); }
+    { fprintf(stderr, "\n[ne_arg_list processing]"); (yyval.arg_list) = newarglist(context, NULL, (yyvsp[0].arg)); }
 #line 1760 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 31:
 #line 263 "noname.y" /* yacc.c:1661  */
-    { fprintf(stderr, "\n[ne_arg_list processing]"); (yyval.arg_list) = newarglist((yyvsp[-2].arg_list), (yyvsp[0].arg)); }
+    { fprintf(stderr, "\n[ne_arg_list processing]"); (yyval.arg_list) = newarglist(context, (yyvsp[-2].arg_list), (yyvsp[0].arg)); }
 #line 1766 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 32:
 #line 267 "noname.y" /* yacc.c:1661  */
-    { (yyval.arg) = newarg((yyvsp[0].id_v), NULL); }
+    { (yyval.arg) = newarg(context, (yyvsp[0].id_v), NULL); }
 #line 1772 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 33:
 #line 268 "noname.y" /* yacc.c:1661  */
-    { (yyval.arg) = newarg((yyvsp[-2].id_v), (yyvsp[0].double_v)); }
+    { (yyval.arg) = newarg(context, (yyvsp[-2].id_v), (yyvsp[0].double_v)); }
 #line 1778 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 34:
 #line 269 "noname.y" /* yacc.c:1661  */
-    { (yyval.arg) = newarg((yyvsp[-2].id_v), (yyvsp[0].long_v)); }
+    { (yyval.arg) = newarg(context, (yyvsp[-2].id_v), (yyvsp[0].long_v)); }
 #line 1784 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 35:
 #line 270 "noname.y" /* yacc.c:1661  */
-    { (yyval.arg) = newarg((yyvsp[-2].id_v), (yyvsp[0].id_v)); }
+    { (yyval.arg) = newarg(context, (yyvsp[-2].id_v), (yyvsp[0].id_v)); }
 #line 1790 "noname.tab.c" /* yacc.c:1661  */
     break;
 
@@ -1797,25 +1797,25 @@ yyreduce:
 
   case 37:
 #line 275 "noname.y" /* yacc.c:1661  */
-    { (yyval.exp_list) = newexplist(NULL, (yyvsp[-1].node)); }
+    { (yyval.exp_list) = newexplist(context, NULL, (yyvsp[-1].node)); }
 #line 1802 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 38:
 #line 276 "noname.y" /* yacc.c:1661  */
-    { (yyval.exp_list) = newexplist((yyvsp[-2].exp_list), (yyvsp[-1].node)); }
+    { (yyval.exp_list) = newexplist(context, (yyvsp[-2].exp_list), (yyvsp[-1].node)); }
 #line 1808 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 39:
 #line 280 "noname.y" /* yacc.c:1661  */
-    { (yyval.exp_list) = newexplist(NULL, (yyvsp[-1].node)); }
+    { (yyval.exp_list) = newexplist(context, NULL, (yyvsp[-1].node)); }
 #line 1814 "noname.tab.c" /* yacc.c:1661  */
     break;
 
   case 40:
 #line 281 "noname.y" /* yacc.c:1661  */
-    { (yyval.exp_list) = newexplist((yyvsp[-2].exp_list), (yyvsp[-1].node)); }
+    { (yyval.exp_list) = newexplist(context, (yyvsp[-2].exp_list), (yyvsp[-1].node)); }
 #line 1820 "noname.tab.c" /* yacc.c:1661  */
     break;
 

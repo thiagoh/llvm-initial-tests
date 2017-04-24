@@ -191,7 +191,7 @@ function_def:
       } 
       
       // $$ = new_function_def(*$<context>function_context, $ID, $arg_list, $exp_list);
-      $$ = new_function_def(*context, $ID, $arg_list, $exp_list);
+      $$ = new_function_def(context, $ID, $arg_list, $exp_list);
       context_stack.pop();
       context = context_stack.top();
     }
@@ -254,31 +254,31 @@ exp:
 
 arg_list:
   %empty                   { $$ = NULL; } 
-  | arg                    { fprintf(stderr, "\n[arglist processing]"); $$ = newarglist(NULL, $1); }
-  | ne_arg_list ',' arg    { fprintf(stderr, "\n[arglist processing]"); $$ = newarglist($1, $3); }
+  | arg                    { fprintf(stderr, "\n[arglist processing]"); $$ = newarglist(context, NULL, $1); }
+  | ne_arg_list ',' arg    { fprintf(stderr, "\n[arglist processing]"); $$ = newarglist(context, $1, $3); }
 ;
 
 ne_arg_list:
-  arg                    { fprintf(stderr, "\n[ne_arg_list processing]"); $$ = newarglist(NULL, $1); }
-  | ne_arg_list ',' arg    { fprintf(stderr, "\n[ne_arg_list processing]"); $$ = newarglist($1, $3); }
+  arg                    { fprintf(stderr, "\n[ne_arg_list processing]"); $$ = newarglist(context, NULL, $1); }
+  | ne_arg_list ',' arg    { fprintf(stderr, "\n[ne_arg_list processing]"); $$ = newarglist(context, $1, $3); }
 ;
 
 arg:
-  ID                      { $$ = newarg($1, NULL); }
-  | ID ASSIGN DOUBLE      { $$ = newarg($1, $3); }
-  | ID ASSIGN LONG        { $$ = newarg($1, $3); }
-  | ID ASSIGN STR_CONST   { $$ = newarg($1, $3); }
+  ID                      { $$ = newarg(context, $1, NULL); }
+  | ID ASSIGN DOUBLE      { $$ = newarg(context, $1, $3); }
+  | ID ASSIGN LONG        { $$ = newarg(context, $1, $3); }
+  | ID ASSIGN STR_CONST   { $$ = newarg(context, $1, $3); }
 ;
 
 exp_list:
   %empty                     { $$ = NULL; }
-  | exp STMT_SEP             { $$ = newexplist(NULL, $1); }
-  | ne_exp_list exp STMT_SEP { $$ = newexplist($1, $2); }
+  | exp STMT_SEP             { $$ = newexplist(context, NULL, $1); }
+  | ne_exp_list exp STMT_SEP { $$ = newexplist(context, $1, $2); }
 ;
 
 ne_exp_list:
-  exp STMT_SEP               { $$ = newexplist(NULL, $1); }
-  | ne_exp_list exp STMT_SEP { $$ = newexplist($1, $2); }
+  exp STMT_SEP               { $$ = newexplist(context, NULL, $1); }
+  | ne_exp_list exp STMT_SEP { $$ = newexplist(context, $1, $2); }
 ;
 
 %%

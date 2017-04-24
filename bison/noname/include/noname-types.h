@@ -106,6 +106,13 @@ typedef struct explist explist;
 typedef struct arglist arglist;
 typedef struct arg arg;
 
+explist* newexplist(ASTContext* context, explist* next_exp_list, ASTNode* node);
+arg* newarg(ASTContext* context, char* arg, ASTNode* defaultValue);
+arg* newarg(ASTContext* context, char* arg, double defaultValue);
+arg* newarg(ASTContext* context, char* arg, long defaultValue);
+arg* newarg(ASTContext* context, char* arg, char* defaultValue);
+arglist* newarglist(ASTContext* context, arglist* next_arg_list, arg* arg);
+
 class ASTNode {
  public:
   virtual ~ASTNode() = default;
@@ -367,14 +374,6 @@ class DeclarationNode : public ASTNode {
   DeclarationNode(const std::string& name) : name(name) {}
 };
 
-explist* newexplist(explist* next_exp_list, ASTNode* node);
-arg* newarg(char* arg, ASTNode* defaultValue);
-arg* newarg(char* arg, double defaultValue);
-arg* newarg(char* arg, long defaultValue);
-arg* newarg(char* arg, char* defaultValue);
-arglist* newarglist(arglist* next_arg_list, arg* arg);
-
-
 class ASTContext {
  private:
   std::string name;
@@ -440,6 +439,6 @@ class ASTContext {
   }
 };
 
-FunctionDefNode* new_function_def(ASTContext& context, const std::string& name, arglist* arg_list, explist* exp_list);
+FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, arglist* arg_list, explist* exp_list);
 
 #endif
