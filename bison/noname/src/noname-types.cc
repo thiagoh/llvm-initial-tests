@@ -58,3 +58,10 @@ arglist *newarglist(arglist *next_arg_list, arg* arg) {
   newarg_list->arg = arg;
   return newarg_list;
 }
+
+FunctionDefNode* new_function_def(ASTContext& context, const std::string& name, arglist* arg_list, explist* exp_list) {
+  FunctionDefNode* node = new FunctionDefNode(name, std::move(arg_list), std::move(exp_list));
+  context.storeFunction(name, node);
+  // fprintf(stderr, "\n[stmt - assignment]: ");
+  return node;
+}

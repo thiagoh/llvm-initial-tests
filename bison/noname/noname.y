@@ -17,6 +17,7 @@
 #include "noname-parse.h"
 #include "noname-types.h"
 
+ASTContext context;
 extern int yylex(void);
 extern int yydebug;
 extern void yyerror(const char *error_msg);
@@ -160,7 +161,27 @@ stmt:
 function_def:
   DEF ID '(' arg_list ')' '{' exp_list '}' {
     // $$ = new AssignmentNode($1, $3);
-    $$ = new FunctionDefNode($ID, std::move($arg_list), std::move($exp_list));
+    $$ = new_function_def(context, $ID, $arg_list, $exp_list);
+    // new FunctionDefNode($ID, std::move($arg_list), std::move($exp_list));
+  }
+  | DEF ID '(' arg_list ')' '{' '}' {
+    // $$ = new AssignmentNode($1, $3);
+    explist* exp_list = (explist*) malloc(sizeof(explist));
+    $$ = new_function_def(context, $ID, $arg_list, std::move(exp_list));
+    // new FunctionDefNode($ID, std::move($arg_list), std::move($exp_list));
+  }
+  | DEF ID '(' ')' '{' exp_list '}' {
+    // $$ = new AssignmentNode($1, $3);
+    arglist* arg_list = (arglist*) malloc(sizeof(arglist));
+    $$ = new_function_def(context, $ID, arg_list, $exp_list);
+    // new FunctionDefNode($ID, std::move($arg_list), std::move($exp_list));
+  }
+  | DEF ID '(' ')' '{' '}' {
+    // $$ = new AssignmentNode($1, $3);
+    explist* exp_list = (explist*) malloc(sizeof(explist));
+    arglist* arg_list = (arglist*) malloc(sizeof(arglist));
+    $$ = new_function_def(context, $ID, arg_list, exp_list);
+    // new FunctionDefNode($ID, std::move($arg_list), std::move($exp_list));
   }
 ;
 
@@ -214,6 +235,10 @@ exp:
   | '(' exp ')'        {
       $$ = new BinaryExpNode(0, $2, NULL);
     }
+  | ID '(' ')'        {
+      explist* exp_list = (explist*) malloc(sizeof(explist));
+      $$ = new CallExprNode($ID, std::move(exp_list));
+    }
   | ID '(' exp_list ')'        {
       $$ = new CallExprNode($ID, $exp_list);
     }
@@ -232,8 +257,8 @@ arg:
 ;
 
 exp_list:
-  exp                   { $$ = newexplist(NULL, $1); }
-  | exp_list ',' exp    { $$ = newexplist($1, $3); }
+  exp STMT_SEP            { $$ = newexplist(NULL, $1); }
+  | exp_list exp STMT_SEP { $$ = newexplist($1, $2); }
 ;
 
 %%

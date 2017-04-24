@@ -35,7 +35,6 @@
 using namespace llvm;
 // using namespace llvm::orc;
 
-
 /* Token type.  */
 #ifndef YYTOKENTYPE
 #define YYTOKENTYPE
@@ -59,34 +58,39 @@ enum yytokentype {
 #ifndef AST_NODE_TYPE
 #define AST_NODE_TYPE
 enum ast_node_type {
-  AST_NODE_TYPE_AST_NODE =        32,
-  AST_NODE_TYPE_EXP_NODE =        33,
-  AST_NODE_TYPE_NUMBER =          34,
-  AST_NODE_TYPE_VARIABLE =        35,
-  AST_NODE_TYPE_STRING =          36,
-  AST_NODE_TYPE_UNARY_EXP =       37,
-  AST_NODE_TYPE_BINARY =          38,
-  AST_NODE_TYPE_CALL_EXP =        39,
+  AST_NODE_TYPE_AST_NODE = 32,
+  AST_NODE_TYPE_EXP_NODE = 33,
+  AST_NODE_TYPE_NUMBER = 34,
+  AST_NODE_TYPE_VARIABLE = 35,
+  AST_NODE_TYPE_STRING = 36,
+  AST_NODE_TYPE_UNARY_EXP = 37,
+  AST_NODE_TYPE_BINARY = 38,
+  AST_NODE_TYPE_CALL_EXP = 39,
+  AST_NODE_TYPE_DEF_FUNCTION = 40,
 };
 #endif
 
-#define AST_NODE_TYPE_AST_NODE    32
-#define AST_NODE_TYPE_EXP_NODE    33
-#define AST_NODE_TYPE_NUMBER      34
-#define AST_NODE_TYPE_VARIABLE    35
-#define AST_NODE_TYPE_STRING      36
-#define AST_NODE_TYPE_UNARY_EXP   37
-#define AST_NODE_TYPE_BINARY      38
-#define AST_NODE_TYPE_CALL_EXP    39
+#define AST_NODE_TYPE_AST_NODE 32
+#define AST_NODE_TYPE_EXP_NODE 33
+#define AST_NODE_TYPE_NUMBER 34
+#define AST_NODE_TYPE_VARIABLE 35
+#define AST_NODE_TYPE_STRING 36
+#define AST_NODE_TYPE_UNARY_EXP 37
+#define AST_NODE_TYPE_BINARY 38
+#define AST_NODE_TYPE_CALL_EXP 39
+#define AST_NODE_TYPE_DEF_FUNCTION 40
 
 class ASTNode;
 class ExpNode;
 class NodeValue;
+class VarNode;
+class FunctionDefNode;
+class ASTContext;
 
 /* list of symbols, for an argument list */
 struct explist {
   ASTNode* node;
-  struct explist *next;
+  struct explist* next;
 };
 /* list of args, for an argument list */
 struct arg {
@@ -95,7 +99,7 @@ struct arg {
 };
 struct arglist {
   struct arg* arg;
-  struct arglist *next;
+  struct arglist* next;
 };
 
 typedef struct explist explist;
@@ -105,29 +109,29 @@ typedef struct arg arg;
 class ASTNode {
  public:
   virtual ~ASTNode() = default;
-  virtual int getType() const {
-    return getClassType();
-  };
-  static int getClassType() {
-    return AST_NODE_TYPE_AST_NODE;
-  };
+  virtual int getType() const { return getClassType(); };
+  static int getClassType() { return AST_NODE_TYPE_AST_NODE; };
 };
 
 template <typename To, typename From>
 struct is_of_type_impl {
-  static inline bool doit(const From &from) {
-    // fprintf(stderr, "\ncomparing %d with %d", from.getType(), To::getClassType());
-    return from.getType() == To::getClassType() || std::is_base_of<To, From>::value;
+  static inline bool doit(const From& from) {
+    // fprintf(stderr, "\ncomparing %d with %d", from.getType(),
+    // To::getClassType());
+    return from.getType() == To::getClassType() ||
+           std::is_base_of<To, From>::value;
   }
 };
 
-template <class To, class From> inline bool is_of_type(const From &from) {
+template <class To, class From>
+inline bool is_of_type(const From& from) {
   return is_of_type_impl<To, From>::doit(from);
 }
 
 class NodeValue {
   int type;
   void* value;
+
  public:
   NodeValue(int value) : type(TYPE_INT), value(0) {
     this->value = new int;
@@ -141,31 +145,23 @@ class NodeValue {
     this->value = new long;
     memcpy(this->value, &value, sizeof(long));
   }
-  int getType() {
-    return type;
-  }
-  void* getValue() {
-    return value;
-  }
+  int getType() { return type; }
+  void* getValue() { return value; }
 };
 
 class ExpNode : public ASTNode {
-  public:
+ public:
   virtual ~ExpNode() = default;
 
   virtual NodeValue* getValue() = 0;
-  
-  virtual int getType() const {
-    return getClassType();
-  };
-  static int getClassType() {
-    return AST_NODE_TYPE_EXP_NODE;
-  };
+
+  virtual int getType() const { return getClassType(); };
+  static int getClassType() { return AST_NODE_TYPE_EXP_NODE; };
 };
 
 class NumberNode : public ExpNode {
  private:
-  void *value;
+  void* value;
   int type;
 
  public:
@@ -183,26 +179,21 @@ class NumberNode : public ExpNode {
   };
 
   NodeValue* getValue() override {
-
     if (type == TYPE_DOUBLE) {
-      return new NodeValue(*(double*) value);
+      return new NodeValue(*(double*)value);
     }
     if (type == TYPE_LONG) {
-      return new NodeValue(*(long*) value);
+      return new NodeValue(*(long*)value);
     }
     if (type == TYPE_INT) {
-      return new NodeValue(*(int*) value);
+      return new NodeValue(*(int*)value);
     }
     return NULL;
   }
 
-  int getType() const override {
-    return getClassType();
-  };
+  int getType() const override { return getClassType(); };
 
-  static int getClassType() {
-    return AST_NODE_TYPE_NUMBER;
-  };
+  static int getClassType() { return AST_NODE_TYPE_NUMBER; };
 };
 
 class StringNode : public ExpNode {
@@ -210,21 +201,13 @@ class StringNode : public ExpNode {
   std::string value;
 
  public:
-  StringNode(std::string &value) : value(value) {
-  };
-  StringNode(const char* value) : value(std::string(value)) {
-  };
+  StringNode(std::string& value) : value(value){};
+  StringNode(const char* value) : value(std::string(value)){};
 
-  int getType() const override {
-    return getClassType();
-  };
-  static int getClassType() {
-    return AST_NODE_TYPE_STRING;
-  };
+  int getType() const override { return getClassType(); };
+  static int getClassType() { return AST_NODE_TYPE_STRING; };
 
-  NodeValue* getValue() override {
-    return 0;
-  }
+  NodeValue* getValue() override { return 0; }
 };
 
 class VarNode : public ExpNode {
@@ -232,67 +215,50 @@ class VarNode : public ExpNode {
   std::string name;
 
  public:
-  VarNode(const std::string &name) : name(name) {}
-  const std::string &getName() const { return name; }
+  VarNode(const std::string& name) : name(name) {}
+  const std::string& getName() const { return name; }
 
-  int getType() const override {
-    return getClassType();
-  };
-  static int getClassType() {
-    return AST_NODE_TYPE_VARIABLE;
-  };
+  int getType() const override { return getClassType(); };
+  static int getClassType() { return AST_NODE_TYPE_VARIABLE; };
 
-  NodeValue* getValue() override {
-    return 0;
-  }
+  NodeValue* getValue() override { return 0; }
 };
 
 class UnaryExpNode : public ExpNode {
  private:
   char op;
   std::unique_ptr<ASTNode> lhs;
+
  public:
   UnaryExpNode(char op, std::unique_ptr<ASTNode> lhs)
       : op(op), lhs(std::move(lhs)) {}
   UnaryExpNode(char op, ASTNode* lhs)
       : op(op), lhs(std::unique_ptr<ASTNode>(std::move(lhs))) {}
 
-  int getType() const override {
-    return getClassType();
-  };
-  static int getClassType() {
-    return AST_NODE_TYPE_UNARY_EXP;
-  };
+  int getType() const override { return getClassType(); };
+  static int getClassType() { return AST_NODE_TYPE_UNARY_EXP; };
 
-  NodeValue* getValue() override {
-    return 0;
-  }
+  NodeValue* getValue() override { return 0; }
 };
 
 class BinaryExpNode : public ExpNode {
  private:
   char op;
   std::unique_ptr<ASTNode> lhs, rhs;
+
  public:
-  BinaryExpNode(char op, std::unique_ptr<ASTNode> lhs, std::unique_ptr<ASTNode> rhs)
-      : op(op), 
-      lhs(std::move(lhs)), 
-      rhs(std::move(rhs)) {}
+  BinaryExpNode(char op, std::unique_ptr<ASTNode> lhs,
+                std::unique_ptr<ASTNode> rhs)
+      : op(op), lhs(std::move(lhs)), rhs(std::move(rhs)) {}
   BinaryExpNode(char op, ASTNode* lhs, ASTNode* rhs)
-      : op(op), 
-      lhs(std::unique_ptr<ASTNode>(std::move(lhs))), 
-      rhs(std::unique_ptr<ASTNode>(std::move(rhs))) {}
+      : op(op),
+        lhs(std::unique_ptr<ASTNode>(std::move(lhs))),
+        rhs(std::unique_ptr<ASTNode>(std::move(rhs))) {}
 
-  int getType() const override {
-    return getClassType();
-  };
-  static int getClassType() {
-    return AST_NODE_TYPE_BINARY;
-  };
+  int getType() const override { return getClassType(); };
+  static int getClassType() { return AST_NODE_TYPE_BINARY; };
 
-  NodeValue* getValue() override {
-    return 0;
-  }
+  NodeValue* getValue() override { return 0; }
 };
 
 /// CallExprNode - Expression class for function calls.
@@ -301,12 +267,13 @@ class CallExprNode : public ExpNode {
   std::string callee;
   std::vector<std::unique_ptr<ASTNode>> args;
 
-public:
-  CallExprNode(const std::string &callee, std::vector<std::unique_ptr<ASTNode>> args)
+ public:
+  CallExprNode(const std::string& callee,
+               std::vector<std::unique_ptr<ASTNode>> args)
       : callee(callee), args(std::move(args)) {}
-  CallExprNode(const std::string &callee, explist* exp_list)
-      : callee(callee), args(std::vector<std::unique_ptr<ASTNode>>())  {
-
+  CallExprNode(const std::string& callee, explist* exp_list)
+      : callee(callee), args(std::vector<std::unique_ptr<ASTNode>>()) {
+    
     if (exp_list->node) {
       args.push_back(std::unique_ptr<ASTNode>(std::move(exp_list->node)));
     }
@@ -318,53 +285,49 @@ public:
         args.push_back(std::unique_ptr<ASTNode>(std::move(exp_list->node)));
       }
     }
+    free(exp_list);
   }
-  int getType() const override {
-    return getClassType();
-  };
-  static int getClassType() {
-    return AST_NODE_TYPE_CALL_EXP;
-  };
+  int getType() const override { return getClassType(); };
+  static int getClassType() { return AST_NODE_TYPE_CALL_EXP; };
 
-  const std::string &getCallee() const { return callee; }
+  const std::string& getCallee() const { return callee; }
 
-  NodeValue* getValue() override {
-    return 0;
-  }
+  NodeValue* getValue() override { return 0; }
 };
 
 class AssignmentNode : public ExpNode {
  private:
   std::string name;
   std::unique_ptr<ASTNode> rhs;
- public:
-  AssignmentNode(const std::string &name, std::unique_ptr<ASTNode> rhs)
-      : name(name), 
-      rhs(std::move(rhs)) {}
-  AssignmentNode(const std::string &name, ASTNode* rhs)
-      : name(name), 
-      rhs(std::unique_ptr<ASTNode>(std::move(rhs))) {}
 
-  NodeValue* getValue() override {
-    return 0;
-  }
+ public:
+  AssignmentNode(const std::string& name, std::unique_ptr<ASTNode> rhs)
+      : name(name), rhs(std::move(rhs)) {}
+  AssignmentNode(const std::string& name, ASTNode* rhs)
+      : name(name), rhs(std::unique_ptr<ASTNode>(std::move(rhs))) {}
+
+  NodeValue* getValue() override { return 0; }
 };
 
 // FunctionDefNode - Node class for function definition.
 class FunctionDefNode : public ASTNode {
  private:
   std::string name;
+
   std::vector<std::unique_ptr<arg>> args;
   std::vector<std::unique_ptr<ASTNode>> body;
 
-public:
-  FunctionDefNode(const std::string &name, std::vector<std::unique_ptr<arg>> args, 
-      std::vector<std::unique_ptr<ASTNode>> body) 
-      : name(name), args(std::move(args)), body(std::move(body)) {}
-  FunctionDefNode(const std::string &name, arglist* arg_list, explist* exp_list)
-      : name(name), args(std::vector<std::unique_ptr<arg>>()), 
-      body(std::vector<std::unique_ptr<ASTNode>>())  {
-
+ public:
+  FunctionDefNode(const std::string& name,
+                  std::vector<std::unique_ptr<arg>> args,
+                  std::vector<std::unique_ptr<ASTNode>> body)
+      : name(name), 
+        args(std::move(args)), body(std::move(body)) {}
+  FunctionDefNode(const std::string& name, 
+                  arglist* arg_list, explist* exp_list)
+      : name(name), 
+        args(std::vector<std::unique_ptr<arg>>()),
+        body(std::vector<std::unique_ptr<ASTNode>>()) {
     if (arg_list->arg) {
       args.push_back(std::unique_ptr<arg>(std::move(arg_list->arg)));
     }
@@ -390,29 +353,65 @@ public:
     }
   }
 
-  int getType() const override {
-    return getClassType();
-  };
-  static int getClassType() {
-    return AST_NODE_TYPE_CALL_EXP;
-  };
+  int getType() const override { return getClassType(); };
+  static int getClassType() { return AST_NODE_TYPE_DEF_FUNCTION; };
 
-  const std::string &getName() const { return name; }
+  const std::string& getName() const { return name; }
 };
 
 class DeclarationNode : public ASTNode {
  private:
   std::string name;
+
  public:
-  DeclarationNode(const std::string &name)
-      : name(name) {}
+  DeclarationNode(const std::string& name) : name(name) {}
 };
 
-explist *newexplist(explist *next_exp_list, ASTNode *node);
-arg *newarg(char* arg, ASTNode* defaultValue);
-arg *newarg(char* arg, double defaultValue);
-arg *newarg(char* arg, long defaultValue);
-arg *newarg(char* arg, char* defaultValue);
-arglist *newarglist(arglist *next_arg_list, arg* arg);
+explist* newexplist(explist* next_exp_list, ASTNode* node);
+arg* newarg(char* arg, ASTNode* defaultValue);
+arg* newarg(char* arg, double defaultValue);
+arg* newarg(char* arg, long defaultValue);
+arg* newarg(char* arg, char* defaultValue);
+arglist* newarglist(arglist* next_arg_list, arg* arg);
+
+
+class ASTContext {
+ private:
+  std::map<std::string, FunctionDefNode*> mFunctions;
+  std::map<std::string, FunctionDefNode*>::iterator itFunctions;
+  std::map<std::string, VarNode*> mVariables;
+  std::map<std::string, VarNode*>::iterator itVariables;
+  ASTContext* parent;
+ public:
+  ASTContext() {
+    
+  }
+  ASTContext(ASTContext* parent): parent(parent) {
+    
+  }
+  virtual ~ASTContext() = default;
+  ASTContext* getParent() {
+    return parent;
+  }
+  FunctionDefNode* getFunction(const std::string &name) {
+    itFunctions = mFunctions.find(name);
+    if (itFunctions == mFunctions.end()) {
+      return NULL;
+    }
+    return mFunctions[name]; };
+
+  void storeFunction(const std::string name, FunctionDefNode* functionNode) {
+    mFunctions[name] = functionNode;
+  }
+
+  VarNode* getVariable(const std::string &name) { 
+    itVariables = mVariables.find(name);
+    if (itVariables == mVariables.end()) {
+      return NULL;
+    }
+    return mVariables[name]; };
+};
+
+FunctionDefNode* new_function_def(ASTContext& context, const std::string& name, arglist* arg_list, explist* exp_list);
 
 #endif

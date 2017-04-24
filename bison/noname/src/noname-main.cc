@@ -8,6 +8,7 @@
 
 std::map<int, std::string> map;
 extern YYSTYPE yylval;
+extern ASTContext context;
 extern int noname_yylex(void);
 extern int yyparse();
 void yyerror(char const *s);
@@ -23,7 +24,7 @@ char *curr_filename = "<stdin>";  // this name is arbitrary
 int yylex(void) {
   int token = noname_yylex();
 
-  if (yydebug) {
+  if (yydebug > 1) {
     if (token == LONG) {
       fprintf(stderr, "\n#TOKEN %d[%s] yytext -> %ld\n", token,
               map[token].c_str(), yylval.long_v);
@@ -61,13 +62,20 @@ void eval(ASTNode* node) {
 
   if (is_of_type<CallExprNode>(*node)) {
     CallExprNode* callExp = (CallExprNode*) node;
-    fprintf(stderr, "\n\nThe called function was: '%s'\n", callExp->getCallee().c_str());
 
-    void* value = callExp->getValue();
-
-    if (callExp->getCallee().compare("echo") == 0) {
-      printf("\n[echoing because I was told to do so]\n");
+    FunctionDefNode* functionNode = context.getFunction(callExp->getCallee());
+    
+    if (functionNode) {
+      fprintf(stderr, "\n\nThe called function was: '%s'\n", functionNode->getName().c_str());
+    } else {
+      fprintf(stderr, "\n\nThe called function was: '%s' BUT it wan not found on the context\n", callExp->getCallee().c_str());
     }
+
+    // void* value = callExp->getValue();
+
+    // if (callExp->getCallee().compare("echo") == 0) {
+    //   printf("\n[echoing because I was told to do so]\n");
+    // }
   }
 }
 
@@ -80,51 +88,51 @@ int main(int argc, char **argv) {
   //   exit(1);
   // }
 
-  map[258] = "LINE_BREAK"; 
-  map[259] = "STMT_SEP"; 
-  map[260] = "LETTER"; 
-  map[261] = "DIGIT"; 
-  map[262] = "DIGITS"; 
-  map[263] = "DARROW"; 
-  map[264] = "ELSE"; 
-  map[265] = "FALSE"; 
-  map[266] = "IF"; 
-  map[267] = "IN"; 
-  map[268] = "LET"; 
-  map[269] = "DEF"; 
-  map[270] = "LOOP"; 
-  map[271] = "THEN"; 
-  map[272] = "WHILE"; 
-  map[273] = "BREAK"; 
-  map[274] = "CASE"; 
-  map[275] = "NEW"; 
-  map[276] = "NOT"; 
-  map[277] = "TRUE"; 
-  map[278] = "NEWLINE"; 
-  map[279] = "NOTNEWLINE"; 
-  map[280] = "WHITESPACE"; 
-  map[281] = "LE"; 
-  map[282] = "ASSIGN"; 
-  map[283] = "NULLCH"; 
-  map[284] = "BACKSLASH"; 
-  map[285] = "STAR"; 
-  map[286] = "NOTSTAR"; 
-  map[287] = "LEFTPAREN"; 
-  map[288] = "NOTLEFTPAREN"; 
-  map[289] = "RIGHTPAREN"; 
-  map[290] = "NOTRIGHTPAREN"; 
-  map[291] = "LINE_COMMENT"; 
-  map[292] = "START_COMMENT"; 
-  map[293] = "END_COMMENT"; 
-  map[294] = "QUOTES"; 
-  map[295] = "ERROR"; 
-  map[296] = "ID"; 
-  map[297] = "STR_CONST"; 
-  map[298] = "DOUBLE"; 
-  map[299] = "LONG"; 
-  map[308] = "NEG"; 
-  
-  yydebug = 1;
+  map[258] = "LINE_BREAK";
+  map[259] = "STMT_SEP";
+  map[260] = "LETTER";
+  map[261] = "DIGIT";
+  map[262] = "DIGITS";
+  map[263] = "DARROW";
+  map[264] = "ELSE";
+  map[265] = "FALSE";
+  map[266] = "IF";
+  map[267] = "IN";
+  map[268] = "LET";
+  map[269] = "DEF";
+  map[270] = "LOOP";
+  map[271] = "THEN";
+  map[272] = "WHILE";
+  map[273] = "BREAK";
+  map[274] = "CASE";
+  map[275] = "NEW";
+  map[276] = "NOT";
+  map[277] = "TRUE";
+  map[278] = "NEWLINE";
+  map[279] = "NOTNEWLINE";
+  map[280] = "WHITESPACE";
+  map[281] = "LE";
+  map[282] = "ASSIGN";
+  map[283] = "NULLCH";
+  map[284] = "BACKSLASH";
+  map[285] = "STAR";
+  map[286] = "NOTSTAR";
+  map[287] = "LEFTPAREN";
+  map[288] = "NOTLEFTPAREN";
+  map[289] = "RIGHTPAREN";
+  map[290] = "NOTRIGHTPAREN";
+  map[291] = "LINE_COMMENT";
+  map[292] = "START_COMMENT";
+  map[293] = "END_COMMENT";
+  map[294] = "QUOTES";
+  map[295] = "ERROR";
+  map[296] = "ID";
+  map[297] = "STR_CONST";
+  map[298] = "DOUBLE";
+  map[299] = "LONG";
+  map[308] = "NEG";
+
+  yydebug = 2;
 
   return yyparse();
 }

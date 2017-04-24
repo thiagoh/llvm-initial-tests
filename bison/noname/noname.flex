@@ -43,7 +43,8 @@ ELSE            [eE][lL][sS][eE]
 FALSE           f[aA][lL][sS][eE]
 IF              [iI][fF]
 IN              [iI][nN]
-LET             [lL][eE][tT]
+LET             let
+DEF             def
 LOOP            [lL][oO][oO][pP]
 THEN            [tT][hH][eE][nN]
 WHILE           [wW][hH][iI][lL][eE]
@@ -195,6 +196,7 @@ QUOTES          \"
 <INITIAL>{IF}                    { return (IF); }
 <INITIAL>{IN}                    { return (IN); }
 <INITIAL>{LET}                   { return (LET); }
+<INITIAL>{DEF}                   { return (DEF); }
 <INITIAL>{THEN}                  { return (THEN); }
 <INITIAL>{WHILE}                 { return (WHILE); }
 <INITIAL>{CASE}                  { return (CASE); }
