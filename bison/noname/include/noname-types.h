@@ -85,9 +85,16 @@ class ExpNode;
 class NodeValue;
 class VarNode;
 class FunctionDefNode;
+class AssignmentNode;
+class DeclarationNode;
 class ASTContext;
 
-/* list of symbols, for an argument list */
+/* list of statements */
+struct stmtlist {
+  ASTNode* node;
+  struct stmtlist* next;
+};
+/* list of expressions */
 struct explist {
   ASTNode* node;
   struct explist* next;
@@ -106,12 +113,19 @@ typedef struct explist explist;
 typedef struct arglist arglist;
 typedef struct arg arg;
 
+stmtlist* newstmtlist(ASTContext* context, stmtlist* next_exp_list, ASTNode* node);
 explist* newexplist(ASTContext* context, explist* next_exp_list, ASTNode* node);
 arg* newarg(ASTContext* context, char* arg, ASTNode* defaultValue);
 arg* newarg(ASTContext* context, char* arg, double defaultValue);
 arg* newarg(ASTContext* context, char* arg, long defaultValue);
 arg* newarg(ASTContext* context, char* arg, char* defaultValue);
 arglist* newarglist(ASTContext* context, arglist* next_arg_list, arg* arg);
+
+VarNode* new_var_node(ASTContext* context, const std::string& name);
+AssignmentNode* new_assignment_node(ASTContext* context, const std::string& name, ExpNode* node);
+AssignmentNode* new_declaration_node(ASTContext* context, const std::string& name);
+FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, arglist* arg_list, stmtlist* stmt_list);
+
 
 class ASTNode {
  public:
@@ -308,9 +322,9 @@ class AssignmentNode : public ExpNode {
   std::unique_ptr<ASTNode> rhs;
 
  public:
-  AssignmentNode(const std::string& name, std::unique_ptr<ASTNode> rhs)
+  AssignmentNode(const std::string& name, std::unique_ptr<ExpNode> rhs)
       : name(name), rhs(std::move(rhs)) {}
-  AssignmentNode(const std::string& name, ASTNode* rhs)
+  AssignmentNode(const std::string& name, ExpNode* rhs)
       : name(name), rhs(std::unique_ptr<ASTNode>(std::move(rhs))) {}
 
   NodeValue* getValue() override { return 0; }
@@ -331,7 +345,7 @@ class FunctionDefNode : public ASTNode {
       : name(name), 
         args(std::move(args)), body(std::move(body)) {}
   FunctionDefNode(const std::string& name, 
-                  arglist* arg_list, explist* exp_list)
+                  arglist* arg_list, stmtlist* stmt_list)
       : name(name), 
         args(std::vector<std::unique_ptr<arg>>()),
         body(std::vector<std::unique_ptr<ASTNode>>()) {
@@ -347,15 +361,15 @@ class FunctionDefNode : public ASTNode {
       }
     }
 
-    if (exp_list->node) {
-      body.push_back(std::unique_ptr<ASTNode>(std::move(exp_list->node)));
+    if (stmt_list->node) {
+      body.push_back(std::unique_ptr<ASTNode>(std::move(stmt_list->node)));
     }
 
-    while (exp_list->next) {
-      exp_list = exp_list->next;
+    while (stmt_list->next) {
+      stmt_list = stmt_list->next;
 
-      if (exp_list->node) {
-        body.push_back(std::unique_ptr<ASTNode>(std::move(exp_list->node)));
+      if (stmt_list->node) {
+        body.push_back(std::unique_ptr<ASTNode>(std::move(stmt_list->node)));
       }
     }
   }
@@ -380,8 +394,8 @@ class ASTContext {
   ASTContext* parent;
   std::map<std::string, FunctionDefNode*> mFunctions;
   std::map<std::string, FunctionDefNode*>::iterator itFunctions;
-  std::map<std::string, VarNode*> mVariables;
-  std::map<std::string, VarNode*>::iterator itVariables;
+  std::map<std::string, AssignmentNode*> mVariables;
+  std::map<std::string, AssignmentNode*>::iterator itVariables;
  public:
   ASTContext(const std::string &name)
     : name(name), parent(NULL) {
@@ -398,6 +412,7 @@ class ASTContext {
   ASTContext* getParent() {
     return parent;
   }
+  // Functions
   FunctionDefNode* getFunction(const std::string &name) {
 
     itFunctions = mFunctions.find(name);
@@ -414,11 +429,12 @@ class ASTContext {
     return NULL;
   };
 
-  void storeFunction(const std::string name, FunctionDefNode* functionNode) {
+  void store(const std::string name, FunctionDefNode* functionNode) {
     mFunctions[name] = functionNode;
   }
 
-  VarNode* getVariable(const std::string &name) {
+  // Variables
+  AssignmentNode* getVariable(const std::string &name) {
 
     itVariables = mVariables.find(name);
     if (itVariables != mVariables.end()) {
@@ -434,11 +450,9 @@ class ASTContext {
     return NULL;
   };
 
-  void storeVariable(const std::string name, VarNode* varNode) {
+  void store(const std::string name, AssignmentNode* varNode) {
     mVariables[name] = varNode;
   }
 };
-
-FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, arglist* arg_list, explist* exp_list);
 
 #endif

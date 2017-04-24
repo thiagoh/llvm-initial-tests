@@ -13,10 +13,26 @@ ASTNode* logError(const char *str) {
   return NULL;
 }
 
-/// LogError* - These are little helper functions for error handling.
 FunctionDefNode* logErrorF(const char *str) {
   logError(str);
   return nullptr;
+}
+
+AssignmentNode* logErrorV(const char *str) {
+  logError(str);
+  return nullptr;
+}
+
+stmtlist *newstmtlist(ASTContext* context, stmtlist *next_stmt_list, ASTNode *node) {
+  stmtlist *newexp_list = (stmtlist *) malloc(sizeof(stmtlist));
+
+  if (!newexp_list) {
+    yyerror("out of space");
+    exit(0);
+  }
+  newexp_list->next = next_stmt_list;
+  newexp_list->node = node;
+  return newexp_list;
 }
 
 explist *newexplist(ASTContext* context, explist *next_exp_list, ASTNode *node) {
@@ -76,8 +92,31 @@ arglist *newarglist(ASTContext* context, arglist *next_arg_list, arg* arg) {
   return newarg_list;
 }
 
-FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, arglist* arg_list, explist* exp_list) {
-  FunctionDefNode* node = new FunctionDefNode(name, std::move(arg_list), std::move(exp_list));
+VarNode* new_var_node(ASTContext* context, const std::string& name) {
+  VarNode* new_node = new VarNode(name);
+  return new_node;
+}
+AssignmentNode* new_assignment_node(ASTContext* context, const std::string& name, ExpNode* node) {
+  AssignmentNode* new_node = new AssignmentNode(name, node);
+  return new_node;
+}
+AssignmentNode* new_declaration_node(ASTContext* context, const std::string& name) {
+  AssignmentNode* new_node = new AssignmentNode(name, NULL);
+
+  AssignmentNode* temp_node = context->getVariable(name);
+  if (temp_node) {
+    return logErrorV("\nVariable already exists in this context!");
+  }
+  
+  context->store(name, new_node);
+
+  fprintf(stderr, "\n[new_assignment %s]", context->getName().c_str());
+  
+  return new_node;
+}
+
+FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, arglist* arg_list, stmtlist* stmt_list) {
+  FunctionDefNode* new_node = new FunctionDefNode(name, std::move(arg_list), std::move(stmt_list));
 
   ASTContext* parent = context->getParent();
 
@@ -86,19 +125,8 @@ FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, 
     return logErrorF("\nFunction already exists in this context!");
   }
   
-  parent->storeFunction(name, node);
+  parent->store(name, new_node);
 
-  fprintf(stderr, "\n[new_function_def]: %s", parent->getName().c_str());
-  fprintf(stderr, "\n[new_function_def]: %s", parent->getName().c_str());
-  fprintf(stderr, "\n[new_function_def]: %s", parent->getName().c_str());
-  return node;
+  fprintf(stderr, "\n[new_function_def %s]", parent->getName().c_str());
+  return new_node;
 }
-
-// FunctionDefNode* new_function_def(ASTContext& context, const std::string& name, arglist* arg_list, explist* exp_list) {
-//   FunctionDefNode* node = new FunctionDefNode(name, std::move(arg_list), std::move(exp_list));
-
-//   ASTContext* parent = context.getParent();
-//   parent.storeFunction(name, node);
-//   // fprintf(stderr, "\n[stmt - assignment]: ");
-//   return node;
-// }

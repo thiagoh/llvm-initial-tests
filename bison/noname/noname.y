@@ -39,6 +39,7 @@ extern void eval(ASTNode* node);
   double double_v;
   long long_v;
   ASTContext* context;
+  stmtlist* stmt_list;
   explist* exp_list;
   arglist* arg_list;
   arg* arg;
@@ -108,6 +109,8 @@ extern void eval(ASTNode* node);
 %type  <node> declaration       "declaration"
 %type  <node> exp               "expression"
 %type  <node> function_def      "function_def"
+%type  <stmt_list> stmt_list    "stmt_list"
+%type  <stmt_list> ne_stmt_list "ne_stmt_list"
 %type  <exp_list> exp_list      "exp_list"
 %type  <exp_list> ne_exp_list   "ne_exp_list"
 %type  <arg_list> arg_list      "arg_list"
@@ -134,6 +137,17 @@ prog:
     eval($2);
   } 
   | error STMT_SEP         { yyerrok; fprintf(stderr, "Error at %d:%d", @1.first_column, @1.last_column); }
+;
+
+stmt_list:
+  %empty                   { $$ = NULL; }
+  | stmt                   { $$ = newstmtlist(context, NULL, $1); }
+  | ne_stmt_list stmt      { $$ = newstmtlist(context, $1, $2); }
+;
+
+ne_stmt_list:
+  stmt                     { $$ = newstmtlist(context, NULL, $1); }
+  | ne_stmt_list stmt      { $$ = newstmtlist(context, $1, $2); }
 ;
 
 stmt:
@@ -179,19 +193,19 @@ function_def:
       }[function_context] '(' arg_list ')' {
         fprintf(stderr, "\n[processing function_def BEFORE exp_list]");
 
-      } '{' exp_list '}' {
+      } '{' stmt_list '}' {
       // ASTContext newContext(context);
 
       if ($arg_list == NULL) {
         $arg_list = (arglist*) malloc(sizeof(arglist));
       } 
 
-      if ($exp_list == NULL) {
-        $exp_list = (explist*) malloc(sizeof(explist));
+      if ($stmt_list == NULL) {
+        $stmt_list = (stmtlist*) malloc(sizeof(stmtlist));
       } 
       
-      // $$ = new_function_def(*$<context>function_context, $ID, $arg_list, $exp_list);
-      $$ = new_function_def(context, $ID, $arg_list, $exp_list);
+      // $$ = new_function_def(*$<context>function_context, $ID, $arg_list, $stmt_list);
+      $$ = new_function_def(context, $ID, $arg_list, $stmt_list);
       context_stack.pop();
       context = context_stack.top();
     }
@@ -200,10 +214,10 @@ function_def:
 assignment:
   ID ASSIGN exp {
     // $$ = new AssignmentNode($1, $3);
-    $$ = new AssignmentNode($ID, std::move($exp));
+    $$ = new AssignmentNode($ID, std::move((ExpNode*) $exp));
   }
   | LET ID ASSIGN exp {
-    $$ = new AssignmentNode($ID, std::move($exp));
+    $$ = new AssignmentNode($ID, std::move((ExpNode*) $exp));
   }
 ;
 

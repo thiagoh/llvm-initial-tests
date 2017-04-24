@@ -182,6 +182,7 @@ union YYSTYPE
   double double_v;
   long long_v;
   ASTContext* context;
+  stmtlist* stmt_list;
   explist* exp_list;
   arglist* arg_list;
   arg* arg;
