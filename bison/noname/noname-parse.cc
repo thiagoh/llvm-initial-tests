@@ -1648,7 +1648,7 @@ yyreduce:
 #line 213 "noname.y" /* yacc.c:1661  */
     {
     // $$ = new AssignmentNode($1, $3);
-    (yyval.node) = new AssignmentNode((yyvsp[-2].id_v), std::move((ExpNode*) (yyvsp[0].node)));
+    (yyval.node) = new AssignmentNode(context, (yyvsp[-2].id_v), std::move((ExpNode*) (yyvsp[0].node)));
   }
 #line 1654 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1656,7 +1656,7 @@ yyreduce:
   case 18:
 #line 217 "noname.y" /* yacc.c:1661  */
     {
-    (yyval.node) = new AssignmentNode((yyvsp[-2].id_v), std::move((ExpNode*) (yyvsp[0].node)));
+    (yyval.node) = new AssignmentNode(context, (yyvsp[-2].id_v), std::move((ExpNode*) (yyvsp[0].node)));
   }
 #line 1662 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1664,7 +1664,7 @@ yyreduce:
   case 19:
 #line 223 "noname.y" /* yacc.c:1661  */
     {
-    (yyval.node) = new DeclarationNode((yyvsp[0].id_v));
+    (yyval.node) = new DeclarationNode(context, (yyvsp[0].id_v));
   }
 #line 1670 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1672,7 +1672,7 @@ yyreduce:
   case 20:
 #line 229 "noname.y" /* yacc.c:1661  */
     {
-    (yyval.node) = new VarNode((yyvsp[0].id_v));
+    (yyval.node) = new VarNode(context, (yyvsp[0].id_v));
   }
 #line 1678 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1680,7 +1680,7 @@ yyreduce:
   case 21:
 #line 232 "noname.y" /* yacc.c:1661  */
     {
-    (yyval.node) = new StringNode((yyvsp[0].id_v));
+    (yyval.node) = new StringNode(context, (yyvsp[0].id_v));
   }
 #line 1686 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1688,7 +1688,7 @@ yyreduce:
   case 22:
 #line 235 "noname.y" /* yacc.c:1661  */
     {
-    (yyval.node) = new NumberNode((yyvsp[0].long_v));
+    (yyval.node) = new NumberNode(context, (yyvsp[0].long_v));
   }
 #line 1694 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1696,7 +1696,7 @@ yyreduce:
   case 23:
 #line 238 "noname.y" /* yacc.c:1661  */
     {
-    (yyval.node) = new NumberNode((yyvsp[0].double_v));
+    (yyval.node) = new NumberNode(context, (yyvsp[0].double_v));
   }
 #line 1702 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1704,7 +1704,7 @@ yyreduce:
   case 24:
 #line 241 "noname.y" /* yacc.c:1661  */
     {
-      (yyval.node) = new BinaryExpNode('+', (yyvsp[-2].node), (yyvsp[0].node));
+      (yyval.node) = new BinaryExpNode(context, '+', (yyvsp[-2].node), (yyvsp[0].node));
     }
 #line 1710 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1712,7 +1712,7 @@ yyreduce:
   case 25:
 #line 244 "noname.y" /* yacc.c:1661  */
     {
-      (yyval.node) = new BinaryExpNode('-', (yyvsp[-2].node), (yyvsp[0].node));
+      (yyval.node) = new BinaryExpNode(context, '-', (yyvsp[-2].node), (yyvsp[0].node));
     }
 #line 1718 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1720,7 +1720,7 @@ yyreduce:
   case 26:
 #line 247 "noname.y" /* yacc.c:1661  */
     {
-      (yyval.node) = new BinaryExpNode('*', (yyvsp[-2].node), (yyvsp[0].node));
+      (yyval.node) = new BinaryExpNode(context, '*', (yyvsp[-2].node), (yyvsp[0].node));
     }
 #line 1726 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1728,7 +1728,7 @@ yyreduce:
   case 27:
 #line 250 "noname.y" /* yacc.c:1661  */
     {
-      (yyval.node) = new BinaryExpNode('/', (yyvsp[-2].node), (yyvsp[0].node));
+      (yyval.node) = new BinaryExpNode(context, '/', (yyvsp[-2].node), (yyvsp[0].node));
     }
 #line 1734 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1736,7 +1736,7 @@ yyreduce:
   case 28:
 #line 253 "noname.y" /* yacc.c:1661  */
     {
-      (yyval.node) = new UnaryExpNode('-', (yyvsp[0].node));
+      (yyval.node) = new UnaryExpNode(context, '-', (yyvsp[0].node));
     }
 #line 1742 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1744,7 +1744,7 @@ yyreduce:
   case 29:
 #line 256 "noname.y" /* yacc.c:1661  */
     {
-      (yyval.node) = new BinaryExpNode('^', (yyvsp[-2].node), (yyvsp[0].node));
+      (yyval.node) = new BinaryExpNode(context, '^', (yyvsp[-2].node), (yyvsp[0].node));
     }
 #line 1750 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1752,7 +1752,7 @@ yyreduce:
   case 30:
 #line 259 "noname.y" /* yacc.c:1661  */
     {
-      (yyval.node) = new BinaryExpNode(0, (yyvsp[-1].node), NULL);
+      (yyval.node) = new BinaryExpNode(context, 0, (yyvsp[-1].node), NULL);
     }
 #line 1758 "noname.tab.c" /* yacc.c:1661  */
     break;
@@ -1765,7 +1765,7 @@ yyreduce:
         (yyvsp[-1].exp_list) = (explist*) malloc(sizeof(explist));
       } 
 
-      (yyval.node) = new CallExprNode((yyvsp[-3].id_v), (yyvsp[-1].exp_list));
+      (yyval.node) = new_call_node(context, (yyvsp[-3].id_v), (yyvsp[-1].exp_list));
     }
 #line 1771 "noname.tab.c" /* yacc.c:1661  */
     break;

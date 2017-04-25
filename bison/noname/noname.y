@@ -212,52 +212,52 @@ function_def:
 assignment:
   ID ASSIGN exp {
     // $$ = new AssignmentNode($1, $3);
-    $$ = new AssignmentNode($ID, std::move((ExpNode*) $exp));
+    $$ = new AssignmentNode(context, $ID, std::move((ExpNode*) $exp));
   }
   | LET ID ASSIGN exp {
-    $$ = new AssignmentNode($ID, std::move((ExpNode*) $exp));
+    $$ = new AssignmentNode(context, $ID, std::move((ExpNode*) $exp));
   }
 ;
 
 declaration:
   LET ID {
-    $$ = new DeclarationNode($ID);
+    $$ = new DeclarationNode(context, $ID);
   }
 ;
 
 exp:
   ID {
-    $$ = new VarNode($1);
+    $$ = new VarNode(context, $1);
   }
   | STR_CONST {
-    $$ = new StringNode($STR_CONST);
+    $$ = new StringNode(context, $STR_CONST);
   }
   | LONG {
-    $$ = new NumberNode($1);
+    $$ = new NumberNode(context, $1);
   }
   | DOUBLE {
-    $$ = new NumberNode($1);
+    $$ = new NumberNode(context, $1);
   }
   | exp '+' exp        {
-      $$ = new BinaryExpNode('+', $1, $3);
+      $$ = new BinaryExpNode(context, '+', $1, $3);
     }
   | exp '-' exp        {
-      $$ = new BinaryExpNode('-', $1, $3);
+      $$ = new BinaryExpNode(context, '-', $1, $3);
     }
   | exp '*' exp        {
-      $$ = new BinaryExpNode('*', $1, $3);
+      $$ = new BinaryExpNode(context, '*', $1, $3);
     }
   | exp '/' exp {
-      $$ = new BinaryExpNode('/', $1, $3);
+      $$ = new BinaryExpNode(context, '/', $1, $3);
     }
   | '-' exp  %prec NEG {
-      $$ = new UnaryExpNode('-', $2);
+      $$ = new UnaryExpNode(context, '-', $2);
     }
   | exp '^' exp        {
-      $$ = new BinaryExpNode('^', $1, $3);
+      $$ = new BinaryExpNode(context, '^', $1, $3);
     }
   | '(' exp ')'        {
-      $$ = new BinaryExpNode(0, $2, NULL);
+      $$ = new BinaryExpNode(context, 0, $2, NULL);
     }
   | ID '(' exp_list ')'        {
 
@@ -265,7 +265,7 @@ exp:
         $exp_list = (explist*) malloc(sizeof(explist));
       } 
 
-      $$ = new CallExprNode($ID, $exp_list);
+      $$ = new_call_node(context, $ID, $exp_list);
     }
   ;
 

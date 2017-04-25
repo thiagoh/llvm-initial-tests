@@ -64,15 +64,12 @@ void eval(ASTNode *node) {
 
     if (functionNode) {
       fprintf(stderr, "\n\nThe called function was: '%s'\n", functionNode->getName().c_str());
+
+      
+      
     } else {
       fprintf(stderr, "\n\nThe called function was: '%s' BUT it wan not found on the context\n", callExp->getCallee().c_str());
     }
-
-    // void* value = callExp->getValue();
-
-    // if (callExp->getCallee().compare("echo") == 0) {
-    //   printf("\n[echoing because I was told to do so]\n");
-    // }
   }
 }
 
@@ -81,12 +78,6 @@ int main(int argc, char **argv) {
 
   context = new ASTContext("root");
   context_stack.push(context);
-
-  // fin = fopen(argv[optind], "r");
-  // if (fin == NULL) {
-  //   cerr << "Could not open input file " << endl;
-  //   exit(1);
-  // }
 
   map[258] = "LINE_BREAK";
   map[259] = "STMT_SEP";
