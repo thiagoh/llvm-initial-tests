@@ -39,20 +39,21 @@ LONG            {DIGIT}+
 DOUBLE          {DIGIT}+(\.{DIGIT}+)?
 ID              {ALPHA}({ALPHA}|{DIGIT})*
 
-ELSE            [eE][lL][sS][eE]
-FALSE           f[aA][lL][sS][eE]
-IF              [iI][fF]
-IN              [iI][nN]
+ELSE            else
+FALSE           false
+IF              if
+IN              in
 LET             let
 DEF             def
-LOOP            [lL][oO][oO][pP]
-THEN            [tT][hH][eE][nN]
-WHILE           [wW][hH][iI][lL][eE]
-BREAK           [bB][rR][eE][aA][kK]
-CASE            [cC][aA][sS][eE]
-NEW             [nN][eE][wW]
-NOT             [nN][oO][tT]
-TRUE            t[rR][uU][eE]
+RETURN          return
+LOOP            loop
+THEN            then
+WHILE           while
+BREAK           break
+CASE            case
+NEW             new
+NOT             not
+TRUE            true
 NEWLINE         [\n]
 NOTNEWLINE      [^\n]
 NOTSTRING       [^\n\0\\\"]
@@ -196,6 +197,7 @@ QUOTES          \"
 <INITIAL>{IF}                    { return (IF); }
 <INITIAL>{IN}                    { return (IN); }
 <INITIAL>{LET}                   { return (LET); }
+<INITIAL>{RETURN}                { return (RETURN); }
 <INITIAL>{DEF}                   { return (DEF); }
 <INITIAL>{THEN}                  { return (THEN); }
 <INITIAL>{WHILE}                 { return (WHILE); }

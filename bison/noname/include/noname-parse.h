@@ -43,6 +43,8 @@ void dump_bool(ostream &, int, bool);
   * ### BEGIN of noname.tab.h ###
   * #############################
   */
+
+
 /* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison interface for Yacc-like parsers in C
@@ -109,30 +111,31 @@ extern int yydebug;
     CASE = 274,
     NEW = 275,
     NOT = 276,
-    TRUE = 277,
-    NEWLINE = 278,
-    NOTNEWLINE = 279,
-    WHITESPACE = 280,
-    LE = 281,
-    ASSIGN = 282,
-    NULLCH = 283,
-    BACKSLASH = 284,
-    STAR = 285,
-    NOTSTAR = 286,
-    LEFTPAREN = 287,
-    NOTLEFTPAREN = 288,
-    RIGHTPAREN = 289,
-    NOTRIGHTPAREN = 290,
-    LINE_COMMENT = 291,
-    START_COMMENT = 292,
-    END_COMMENT = 293,
-    QUOTES = 294,
-    ERROR = 295,
-    ID = 296,
-    STR_CONST = 297,
-    DOUBLE = 298,
-    LONG = 299,
-    NEG = 312
+    RETURN = 277,
+    TRUE = 278,
+    NEWLINE = 279,
+    NOTNEWLINE = 280,
+    WHITESPACE = 281,
+    LE = 282,
+    ASSIGN = 283,
+    NULLCH = 284,
+    BACKSLASH = 285,
+    STAR = 286,
+    NOTSTAR = 287,
+    LEFTPAREN = 288,
+    NOTLEFTPAREN = 289,
+    RIGHTPAREN = 290,
+    NOTRIGHTPAREN = 291,
+    LINE_COMMENT = 292,
+    START_COMMENT = 293,
+    END_COMMENT = 294,
+    QUOTES = 295,
+    ERROR = 296,
+    ID = 297,
+    STR_CONST = 298,
+    DOUBLE = 299,
+    LONG = 300,
+    NEG = 313
   };
 #endif
 /* Tokens.  */
@@ -155,37 +158,38 @@ extern int yydebug;
 #define CASE 274
 #define NEW 275
 #define NOT 276
-#define TRUE 277
-#define NEWLINE 278
-#define NOTNEWLINE 279
-#define WHITESPACE 280
-#define LE 281
-#define ASSIGN 282
-#define NULLCH 283
-#define BACKSLASH 284
-#define STAR 285
-#define NOTSTAR 286
-#define LEFTPAREN 287
-#define NOTLEFTPAREN 288
-#define RIGHTPAREN 289
-#define NOTRIGHTPAREN 290
-#define LINE_COMMENT 291
-#define START_COMMENT 292
-#define END_COMMENT 293
-#define QUOTES 294
-#define ERROR 295
-#define ID 296
-#define STR_CONST 297
-#define DOUBLE 298
-#define LONG 299
-#define NEG 312
+#define RETURN 277
+#define TRUE 278
+#define NEWLINE 279
+#define NOTNEWLINE 280
+#define WHITESPACE 281
+#define LE 282
+#define ASSIGN 283
+#define NULLCH 284
+#define BACKSLASH 285
+#define STAR 286
+#define NOTSTAR 287
+#define LEFTPAREN 288
+#define NOTLEFTPAREN 289
+#define RIGHTPAREN 290
+#define NOTRIGHTPAREN 291
+#define LINE_COMMENT 292
+#define START_COMMENT 293
+#define END_COMMENT 294
+#define QUOTES 295
+#define ERROR 296
+#define ID 297
+#define STR_CONST 298
+#define DOUBLE 299
+#define LONG 300
+#define NEG 313
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 
 union YYSTYPE
 {
-#line 35 "noname.y" /* yacc.c:1915  */
+#line 37 "noname.y" /* yacc.c:1915  */
 
   char* id_v;
   double double_v;
@@ -200,7 +204,7 @@ union YYSTYPE
   ExpNode* exp_node;
   char* error_msg;
 
-#line 159 "noname.tab.h" /* yacc.c:1915  */
+#line 161 "noname.tab.h" /* yacc.c:1915  */
 };
 
 typedef union YYSTYPE YYSTYPE;

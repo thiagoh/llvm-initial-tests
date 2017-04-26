@@ -143,21 +143,26 @@ typedef struct stmtlist stmtlist;
 typedef struct stmtlist_node stmtlist_node;
 typedef struct arg arg;
 
+stmtlist* new_stmt_list(ASTContext* context);
 stmtlist* new_stmt_list(ASTContext* context, ASTNode* node);
 stmtlist* new_stmt_list(ASTContext* context, stmtlist* head_exp_list, ASTNode* node);
+explist* new_exp_list(ASTContext* context);
 explist* new_exp_list(ASTContext* context, ExpNode* node);
 explist* new_exp_list(ASTContext* context, explist* head_exp_list, ExpNode* node);
-arg* newarg(ASTContext* context, char* arg, ASTNode* defaultValue);
-arg* newarg(ASTContext* context, char* arg, double defaultValue);
-arg* newarg(ASTContext* context, char* arg, long defaultValue);
-arg* newarg(ASTContext* context, char* arg, char* defaultValue);
-arglist* new_arg_list(ASTContext* context, arglist* next_arg_list, arg* arg);
+arg* new_arg(ASTContext* context, char* arg, ASTNode* defaultValue);
+arg* new_arg(ASTContext* context, char* arg, double defaultValue);
+arg* new_arg(ASTContext* context, char* arg, long defaultValue);
+arg* new_arg(ASTContext* context, char* arg, char* defaultValue);
+arglist* new_arg_list(ASTContext* context);
+arglist* new_arg_list(ASTContext* context, arglist* head_arg_list);
+arglist* new_arg_list(ASTContext* context, arglist* head_arg_list, arg* arg);
 
 VarNode* new_var_node(ASTContext* context, const std::string& name);
 AssignmentNode* new_assignment_node(ASTContext* context, const std::string& name, ExpNode* node);
 AssignmentNode* new_declaration_node(ASTContext* context, const std::string& name);
 CallExprNode* new_call_node(ASTContext* context, const std::string& name, explist* exp_list);
-FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, arglist* arg_list, stmtlist* stmt_list);
+FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, arglist* arg_list, stmtlist* stmt_list,
+                                  ASTNode* returnNode);
 
 class ASTNode {
  private:
@@ -391,17 +396,24 @@ class CallExprNode : public ExpNode {
       : ExpNode(context), callee(callee), args(std::move(args)) {}
   CallExprNode(ASTContext* context, const std::string& callee, explist* head_exp_list)
       : ExpNode(context), callee(callee), args(std::vector<std::unique_ptr<ExpNode>>()) {
-    explist_node* explist_node = head_exp_list->first;
+    if (head_exp_list) {
+      explist_node* explist_node = head_exp_list->first;
+      do {
+        fprintf(stderr, "\n[huuuuuuuuuuuuu 2222222]");
+        if (explist_node && explist_node->node) {
+          fprintf(stderr, "\n[huuuuuuuuuuuuu 333333333]");
 
-    do {
-      if (explist_node && explist_node->node) {
-        args.push_back(std::unique_ptr<ExpNode>(std::move(explist_node->node)));
-        explist_node = explist_node->next;
-      }
-    } while (explist_node);
+          args.push_back(std::unique_ptr<ExpNode>(std::move(explist_node->node)));
+          fprintf(stderr, "\n[huuuuuuuuuuuuu 4444444]");
+          explist_node = explist_node->next;
+          fprintf(stderr, "\n[huuuuuuuuuuuuu 5555555]");
+        }
+      } while (explist_node);
+      fprintf(stderr, "\n[huuuuuuuuuuuuu 666666666]");
 
-    // TODO: free all the expressions not just the head_exp_list one
-    free(head_exp_list);
+      // TODO: free all the expressions not just the head_exp_list one
+      // free(head_exp_list);
+    }
   }
   int getType() const override { return getClassType(); };
   static int getClassType() { return AST_NODE_TYPE_CALL_EXP; };
@@ -417,17 +429,24 @@ class FunctionDefNode : public ASTNode {
  private:
   std::string name;
   std::vector<std::unique_ptr<arg>> args;
-  std::vector<std::unique_ptr<ASTNode>> body;
+  std::vector<std::unique_ptr<ASTNode>> bodyNodes;
+  ASTNode* returnNode;
 
  public:
   FunctionDefNode(ASTContext* context, const std::string& name, std::vector<std::unique_ptr<arg>>& args,
-                  std::vector<std::unique_ptr<ASTNode>>& body)
-      : ASTNode(context), name(name), args(std::move(args)), body(std::move(body)) {}
-  FunctionDefNode(ASTContext* context, const std::string& name, arglist* head_arg_list, stmtlist* head_stmt_list)
+                  std::vector<std::unique_ptr<ASTNode>>& bodyNodes, ASTNode* returnNode)
+      : ASTNode(context),
+        name(name),
+        args(std::move(args)),
+        bodyNodes(std::move(bodyNodes)),
+        returnNode(std::move(returnNode)) {}
+  FunctionDefNode(ASTContext* context, const std::string& name, arglist* head_arg_list, stmtlist* head_stmt_list,
+                  ASTNode* returnNode)
       : ASTNode(context),
         name(name),
         args(std::vector<std::unique_ptr<arg>>()),
-        body(std::vector<std::unique_ptr<ASTNode>>()) {
+        bodyNodes(std::vector<std::unique_ptr<ASTNode>>()),
+        returnNode(std::move(returnNode)) {
     arglist_node* arglist_node = head_arg_list->first;
     stmtlist_node* stmtlist_node = head_stmt_list->first;
     do {
@@ -439,7 +458,7 @@ class FunctionDefNode : public ASTNode {
 
     do {
       if (stmtlist_node && stmtlist_node->node) {
-        body.push_back(std::unique_ptr<ASTNode>(std::move(stmtlist_node->node)));
+        bodyNodes.push_back(std::unique_ptr<ASTNode>(std::move(stmtlist_node->node)));
         stmtlist_node = stmtlist_node->next;
       }
     } while (stmtlist_node);
@@ -455,7 +474,8 @@ class FunctionDefNode : public ASTNode {
 
   const std::string& getName() const { return name; }
   std::vector<std::unique_ptr<arg>>& getArgs() { return args; }
-  std::vector<std::unique_ptr<ASTNode>>& getBody() { return body; }
+  std::vector<std::unique_ptr<ASTNode>>& getBodyNodes() { return bodyNodes; }
+  ASTNode* getReturnNode() { return returnNode; }
 };
 
 class AssignmentNode : public ExpNode {
@@ -484,5 +504,28 @@ class DeclarationNode : public ASTNode {
   int getType() const override { return getClassType(); };
   static int getClassType() { return AST_NODE_TYPE_DECLARATION; };
 };
+
+// class ReturnNode : public ExpNode {
+//  private:
+//   ExpNode* rhs;
+
+//  public:
+//   ReturnNode(ASTContext* context, ExpNode* rhs) : ExpNode(context), rhs(std::move(rhs)) {}
+
+//   NodeValue* getValue() override { return 0; }
+
+//   int getType() const override { return getClassType(); };
+//   static int getClassType() { return AST_NODE_TYPE_ASSIGNMENT; };
+// };
+// class DeclarationNode : public ASTNode {
+//  private:
+//   std::string name;
+
+//  public:
+//   DeclarationNode(ASTContext* context, const std::string& name) : ASTNode(context), name(name) {}
+
+//   int getType() const override { return getClassType(); };
+//   static int getClassType() { return AST_NODE_TYPE_DECLARATION; };
+// };
 
 #endif

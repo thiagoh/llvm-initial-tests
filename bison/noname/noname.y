@@ -77,6 +77,7 @@ extern void eval(ASTNode* ast_node);
 %token CASE                  "case"
 %token NEW                   "new"
 %token NOT                   "not"
+%token RETURN                "return"
 %token TRUE                  "true"
 %token NEWLINE               "newline"
 %token NOTNEWLINE            "notnewline"
@@ -102,21 +103,22 @@ extern void eval(ASTNode* ast_node);
 %token '*'                    "*"
 %token '^'                    "^"
 
-%token <id_v> ID                "identifier"
-%token <id_v> STR_CONST         "string_constant"
-%token <double_v> DOUBLE        "double"
-%token <long_v> LONG            "long"
+%token <id_v> ID                    "identifier"
+%token <id_v> STR_CONST             "string_constant"
+%token <double_v> DOUBLE            "double"
+%token <long_v> LONG                "long"
 %type  <ast_node> declaration       "declaration"
-%type  <exp_node> assignment    "assignment"
-%type  <exp_node> exp           "expression"
+%type  <exp_node> assignment        "assignment"
+%type  <exp_node> optional_ret_stmt "optional_ret_stmt"
+%type  <exp_node> exp               "expression"
 %type  <ast_node> function_def      "function_def"
-%type  <stmt_list> stmt_list    "stmt_list"
-%type  <stmt_list> ne_stmt_list "ne_stmt_list"
-%type  <exp_list> exp_list      "exp_list"
-%type  <exp_list> ne_exp_list   "ne_exp_list"
-%type  <arg_list> arg_list      "arg_list"
-%type  <arg_list> ne_arg_list   "ne_arg_list"
-%type  <arg> arg                "arg"
+%type  <stmt_list> stmt_list        "stmt_list"
+%type  <stmt_list> ne_stmt_list     "ne_stmt_list"
+%type  <exp_list> exp_list          "exp_list"
+%type  <exp_list> ne_exp_list       "ne_exp_list"
+%type  <arg_list> arg_list          "arg_list"
+%type  <arg_list> ne_arg_list       "ne_arg_list"
+%type  <arg> arg                    "arg"
 %type  <ast_node> stmt              "statement"
 
 %left '-' '+'
@@ -194,22 +196,27 @@ function_def:
       }[function_context] '(' arg_list ')' {
         fprintf(stderr, "\n[processing function_def BEFORE exp_list]");
 
-      } '{' stmt_list '}' {
+      } '{' stmt_list optional_ret_stmt '}' {
       // ASTContext newContext(context);
 
       if ($arg_list == NULL) {
-        $arg_list = (arglist*) malloc(sizeof(arglist));
+        $arg_list = new_arg_list(context);
       } 
 
       if ($stmt_list == NULL) {
-        $stmt_list = (stmtlist*) malloc(sizeof(stmtlist));
+        $stmt_list = new_stmt_list(context);
       } 
-      
+
       // $$ = new_function_def(*$<context>function_context, $ID, $arg_list, $stmt_list);
-      $$ = new_function_def(context, $ID, $arg_list, $stmt_list);
+      $$ = new_function_def(context, $ID, $arg_list, $stmt_list, $optional_ret_stmt);
       context_stack.pop();
       context = context_stack.top();
     }
+;
+
+optional_ret_stmt:
+  %empty                    { $$ = NULL; }
+  | RETURN exp STMT_SEP     { $$ = $exp; }
 ;
 
 assignment:
@@ -265,9 +272,8 @@ exp:
   | ID '(' exp_list ')'        {
 
       if ($exp_list == NULL) {
-        $exp_list = (explist*) malloc(sizeof(explist));
+        $exp_list = new_exp_list(context);
       } 
-
       $$ = new_call_node(context, $ID, $exp_list);
     }
   ;
@@ -284,10 +290,10 @@ ne_arg_list:
 ;
 
 arg:
-  ID                      { $$ = newarg(context, $1, NULL); }
-  | ID ASSIGN DOUBLE      { $$ = newarg(context, $1, $3); }
-  | ID ASSIGN LONG        { $$ = newarg(context, $1, $3); }
-  | ID ASSIGN STR_CONST   { $$ = newarg(context, $1, $3); }
+  ID                      { $$ = new_arg(context, $1, NULL); }
+  | ID ASSIGN DOUBLE      { $$ = new_arg(context, $1, $3); }
+  | ID ASSIGN LONG        { $$ = new_arg(context, $1, $3); }
+  | ID ASSIGN STR_CONST   { $$ = new_arg(context, $1, $3); }
 ;
 
 exp_list:

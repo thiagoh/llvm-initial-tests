@@ -54,6 +54,7 @@
         "complex": "cpp",
         "atomic": "cpp",
         "locale": "cpp",
-        "tuple": "cpp"
+        "tuple": "cpp",
+        "__locale": "cpp"
     }
 }

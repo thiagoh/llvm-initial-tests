@@ -33,6 +33,22 @@ AssignmentNode* logErrorV(const char* str) {
   return nullptr;
 }
 
+// ReturnNode* new_return(ASTContext* context, ExpNode* exp_node) {
+//   ReturnNode* new_node = new ReturnNode(context, exp_node);
+//   return new_node;
+// }
+
+stmtlist* new_stmt_list(ASTContext* context) {
+  stmtlist* head_stmt_list = (stmtlist*)malloc(sizeof(stmtlist));
+
+  if (!head_stmt_list) {
+    yyerror("out of space");
+    exit(0);
+  }
+  head_stmt_list->first = 0;
+  head_stmt_list->last = 0;
+  return head_stmt_list;
+}
 stmtlist* new_stmt_list(ASTContext* context, ASTNode* ast_node) {
   stmtlist* head_stmt_list = (stmtlist*)malloc(sizeof(stmtlist));
   stmtlist_node* new_node = (stmtlist_node*)malloc(sizeof(stmtlist_node));
@@ -58,6 +74,18 @@ stmtlist* new_stmt_list(ASTContext* context, stmtlist* head_stmt_list, ASTNode* 
   head_stmt_list->last->next = new_node;
   head_stmt_list->last = new_node;
   return head_stmt_list;
+}
+
+explist* new_exp_list(ASTContext* context) {
+  explist* head_exp_list = (explist*)malloc(sizeof(explist));
+
+  if (!head_exp_list) {
+    yyerror("out of space");
+    exit(0);
+  }
+  head_exp_list->first = 0;
+  head_exp_list->last = 0;
+  return head_exp_list;
 }
 
 explist* new_exp_list(ASTContext* context, ExpNode* exp_node) {
@@ -87,6 +115,18 @@ explist* new_exp_list(ASTContext* context, explist* head_exp_list, ExpNode* exp_
   return head_exp_list;
 }
 
+arglist* new_arg_list(ASTContext* context) {
+  arglist* head_arg_list = (arglist*)malloc(sizeof(arglist));
+
+  if (!head_arg_list) {
+    yyerror("out of space");
+    exit(0);
+  }
+  head_arg_list->first = 0;
+  head_arg_list->last = 0;
+  return head_arg_list;
+}
+
 arglist* new_arg_list(ASTContext* context, arg* arg) {
   arglist* head_arg_list = (arglist*)malloc(sizeof(arglist));
   arglist_node* new_node = (arglist_node*)malloc(sizeof(arglist_node));
@@ -113,7 +153,7 @@ arglist* new_arg_list(ASTContext* context, arglist* head_arg_list, arg* arg) {
   return head_arg_list;
 }
 
-arg* create_newarg(ASTContext* context, char* arg_name) {
+arg* create_new_arg(ASTContext* context, char* arg_name) {
   arg* new_arg = (arg*)malloc(sizeof(arg));
 
   if (!new_arg) {
@@ -124,24 +164,24 @@ arg* create_newarg(ASTContext* context, char* arg_name) {
   return new_arg;
 }
 
-arg* newarg(ASTContext* context, char* arg_name, ASTNode* defaultValue) {
-  arg* new_arg = create_newarg(context, arg_name);
+arg* new_arg(ASTContext* context, char* arg_name, ASTNode* defaultValue) {
+  arg* new_arg = create_new_arg(context, arg_name);
   new_arg->defaultValue = defaultValue;
   return new_arg;
 }
 
-arg* newarg(ASTContext* context, char* arg_name, double defaultValue) {
-  arg* new_arg = create_newarg(context, arg_name);
+arg* new_arg(ASTContext* context, char* arg_name, double defaultValue) {
+  arg* new_arg = create_new_arg(context, arg_name);
   new_arg->defaultValue = new NumberNode(context, defaultValue);
   return new_arg;
 }
-arg* newarg(ASTContext* context, char* arg_name, long defaultValue) {
-  arg* new_arg = create_newarg(context, arg_name);
+arg* new_arg(ASTContext* context, char* arg_name, long defaultValue) {
+  arg* new_arg = create_new_arg(context, arg_name);
   new_arg->defaultValue = new NumberNode(context, defaultValue);
   return new_arg;
 }
-arg* newarg(ASTContext* context, char* arg_name, char* defaultValue) {
-  arg* new_arg = create_newarg(context, arg_name);
+arg* new_arg(ASTContext* context, char* arg_name, char* defaultValue) {
+  arg* new_arg = create_new_arg(context, arg_name);
   new_arg->defaultValue = new StringNode(context, defaultValue);
   return new_arg;
 }
@@ -173,9 +213,9 @@ AssignmentNode* new_declaration_node(ASTContext* context, const std::string& nam
   return new_node;
 }
 
-FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, arglist* arg_list,
-                                  stmtlist* stmt_list) {
-  FunctionDefNode* new_node = new FunctionDefNode(context, name, std::move(arg_list), std::move(stmt_list));
+FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, arglist* arg_list, stmtlist* stmt_list,
+                                  ASTNode* returnNode) {
+  FunctionDefNode* new_node = new FunctionDefNode(context, name, arg_list, stmt_list, returnNode);
 
   ASTContext* parent = context->getParent();
 
@@ -205,7 +245,7 @@ NodeValue* CallExprNode::getValue() {
   std::vector<std::unique_ptr<ExpNode>>::iterator itValueArg = valueArgs->begin();
   std::vector<std::unique_ptr<arg>>* signatureArgs = &functionNode->getArgs();
   std::vector<std::unique_ptr<arg>>::iterator itSignatureArg = signatureArgs->begin();
-  std::vector<std::unique_ptr<ASTNode>>* bodyNodes = &functionNode->getBody();
+  std::vector<std::unique_ptr<ASTNode>>* bodyNodes = &functionNode->getBodyNodes();
   std::vector<std::unique_ptr<ASTNode>>::iterator itBodyNodes = bodyNodes->begin();
 
   for (; itSignatureArg != signatureArgs->end() || itValueArg != valueArgs->end();) {
