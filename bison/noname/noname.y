@@ -142,17 +142,13 @@ prog:
 
 stmt_list:
   %empty                   { $$ = NULL; }
-  | stmt                   { fprintf(stderr, "\n######################################### [stmt_list] new stmt_list"); 
-                              $$ = new_stmt_list(context, $1); }
-  | ne_stmt_list stmt      { fprintf(stderr, "\n######################################### [stmt_list] append to stmt_list"); 
-                              $$ = new_stmt_list(context, $1, $2); }
+  | stmt                   { $$ = new_stmt_list(context, $1); }
+  | ne_stmt_list stmt      { $$ = new_stmt_list(context, $1, $2); }
 ;
 
 ne_stmt_list:
-  stmt                     { fprintf(stderr, "\n######################################### [stmt_list] new stmt_list"); 
-                              $$ = new_stmt_list(context, $1); }
-  | ne_stmt_list stmt      { fprintf(stderr, "\n######################################### [stmt_list] append to stmt_list"); 
-                              $$ = new_stmt_list(context, $1, $2); }
+  stmt                     { $$ = new_stmt_list(context, $1); }
+  | ne_stmt_list stmt      { $$ = new_stmt_list(context, $1, $2); }
 ;
 
 stmt:
