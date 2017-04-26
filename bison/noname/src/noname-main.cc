@@ -42,7 +42,8 @@ int yylex(void) {
 }
 
 void division_by_zero(YYLTYPE &yylloc) {
-  fprintf(stderr, "SEVERE ERROR %d:%d - %d:%d. Division by zero", yylloc.first_line, yylloc.first_column, yylloc.last_line, yylloc.last_column);
+  fprintf(stderr, "SEVERE ERROR %d:%d - %d:%d. Division by zero", yylloc.first_line, yylloc.first_column,
+          yylloc.last_line, yylloc.last_column);
 }
 
 void yyerror(char const *s) { fprintf(stderr, "\nERROR: %s\n", s); }
@@ -52,10 +53,12 @@ void eval(ASTNode *node) {
     return;
   }
 
-  fprintf(stderr, "\neval: ASTNode %s %d\n", is_of_type<ASTNode>(*node) ? "true" : "false", node->getType());
+  fprintf(stderr, "\neval: ASTNode %s %d", is_of_type<ASTNode>(*node) ? "true" : "false", node->getType());
   // fprintf(stderr, "\neval: NumberNode %s %d\n", is_of_type<NumberNode>(*node) ? "true" : "false", node->getType());
-  // fprintf(stderr, "\neval: BinaryExpNode %s %d\n", is_of_type<BinaryExpNode>(*node) ? "true" : "false", node->getType());
-  // fprintf(stderr, "\neval: CallExprNode %s %d\n", is_of_type<CallExprNode>(*node) ? "true" : "false", node->getType());
+  // fprintf(stderr, "\neval: BinaryExpNode %s %d\n", is_of_type<BinaryExpNode>(*node) ? "true" : "false",
+  // node->getType());
+  // fprintf(stderr, "\neval: CallExprNode %s %d\n", is_of_type<CallExprNode>(*node) ? "true" : "false",
+  // node->getType());
 
   if (is_of_type<CallExprNode>(*node)) {
     CallExprNode *callExp = (CallExprNode *)node;
@@ -63,12 +66,12 @@ void eval(ASTNode *node) {
     FunctionDefNode *functionNode = context->getFunction(callExp->getCallee());
 
     if (functionNode) {
-      fprintf(stderr, "\n\nThe called function was: '%s'\n", functionNode->getName().c_str());
+      fprintf(stderr, "\nThe called function was: '%s'\n", functionNode->getName().c_str());
+      callExp->eval();
 
-      
-      
     } else {
-      fprintf(stderr, "\n\nThe called function was: '%s' BUT it wan not found on the context\n", callExp->getCallee().c_str());
+      fprintf(stderr, "\nThe called function was: '%s' BUT it wan not found on the context\n",
+              callExp->getCallee().c_str());
     }
   }
 }

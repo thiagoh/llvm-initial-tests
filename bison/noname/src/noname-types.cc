@@ -146,6 +146,11 @@ FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, 
   return new_node;
 }
 
+void CallExprNode::eval() {
+
+  NodeValue* node_value = getValue();
+}
+
 NodeValue* CallExprNode::getValue() {
   ASTContext* context = getContext();
   FunctionDefNode* functionNode = context->getFunction(getCallee());
@@ -159,17 +164,26 @@ NodeValue* CallExprNode::getValue() {
   std::vector<std::unique_ptr<ExpNode>>::iterator itValueArg = valueArgs->begin();
   std::vector<std::unique_ptr<arg>>* signatureArgs = &functionNode->getArgs();
   std::vector<std::unique_ptr<arg>>::iterator itSignatureArg = signatureArgs->begin();
-  std::vector<std::unique_ptr<ASTNode>>* body = &functionNode->getBody();
+  std::vector<std::unique_ptr<ASTNode>>* bodyNodes = &functionNode->getBody();
+  std::vector<std::unique_ptr<ASTNode>>::iterator itBodyNodes = bodyNodes->begin();
 
   for (; itSignatureArg != signatureArgs->end() || itValueArg != valueArgs->end();) {
-    std::unique_ptr<ExpNode> &valueArg = *itValueArg;
-    std::unique_ptr<arg> &signatureArg = *itSignatureArg;
+    std::unique_ptr<ExpNode>& valueArg = *itValueArg;
+    std::unique_ptr<arg>& signatureArg = *itSignatureArg;
 
     AssignmentNode* assignment_node = new AssignmentNode(context, signatureArg.get()->name, valueArg.get());
     context->store(signatureArg.get()->name, assignment_node);
 
     ++itSignatureArg;
     ++itValueArg;
+  }
+
+  for (; itBodyNodes != bodyNodes->end();) {
+    std::unique_ptr<ASTNode>& bodyNode = *itBodyNodes;
+    bodyNode.get()->eval();
+
+    fprintf(stderr, "\neval ASTNode of type %d\n", bodyNode.get()->getType());
+    ++itBodyNodes;
   }
 
   return 0;

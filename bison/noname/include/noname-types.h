@@ -384,7 +384,7 @@ class CallExprNode : public ExpNode {
   }
   int getType() const override { return getClassType(); };
   static int getClassType() { return AST_NODE_TYPE_CALL_EXP; };
-
+  void eval() override;
   NodeValue* getValue() override;
 
   const std::string& getCallee() const { return callee; }
@@ -420,7 +420,6 @@ class FunctionDefNode : public ASTNode {
       }
       stmt_list = stmt_list->next;
     } while (stmt_list && stmt_list->node);
-
 
     // TODO: free all the args not just the first one
     // free(first_arg);
