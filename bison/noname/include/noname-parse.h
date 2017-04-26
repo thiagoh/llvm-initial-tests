@@ -198,6 +198,7 @@ union YYSTYPE
   arg* arg;
 
   ASTNode* node;
+  ExpNode* exp_node;
   char* error_msg;
 
 #line 158 "noname.tab.h" /* yacc.c:1915  */

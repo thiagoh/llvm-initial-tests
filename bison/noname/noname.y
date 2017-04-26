@@ -43,6 +43,7 @@ extern void eval(ASTNode* node);
   arg* arg;
 
   ASTNode* node;
+  ExpNode* exp_node;
   char* error_msg;
 };
 
@@ -105,7 +106,7 @@ extern void eval(ASTNode* node);
 %token <long_v> LONG            "long"
 %type  <node> assignment        "assignment"
 %type  <node> declaration       "declaration"
-%type  <node> exp               "expression"
+%type  <exp_node> exp           "expression"
 %type  <node> function_def      "function_def"
 %type  <stmt_list> stmt_list    "stmt_list"
 %type  <stmt_list> ne_stmt_list "ne_stmt_list"

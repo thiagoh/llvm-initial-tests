@@ -45,7 +45,7 @@ stmtlist* newstmtlist(ASTContext* context, stmtlist* next_stmt_list, ASTNode* no
   return newexp_list;
 }
 
-explist* newexplist(ASTContext* context, explist* next_exp_list, ASTNode* node) {
+explist* newexplist(ASTContext* context, explist* next_exp_list, ExpNode* node) {
   explist* newexp_list = (explist*)malloc(sizeof(explist));
 
   if (!newexp_list) {
@@ -106,8 +106,8 @@ VarNode* new_var_node(ASTContext* context, const std::string& name) {
   VarNode* new_node = new VarNode(context, name);
   return new_node;
 }
-AssignmentNode* new_assignment_node(ASTContext* context, const std::string& name, ExpNode* node) {
-  AssignmentNode* new_node = new AssignmentNode(context, name, node);
+AssignmentNode* new_assignment_node(ASTContext* context, const std::string& name, ExpNode* exp) {
+  AssignmentNode* new_node = new AssignmentNode(context, name, exp);
   return new_node;
 }
 CallExprNode* new_call_node(ASTContext* context, const std::string& name, explist* exp_list) {
@@ -155,8 +155,22 @@ NodeValue* CallExprNode::getValue() {
     return 0;
   }
 
-  std::vector<std::unique_ptr<arg>>* args = &functionNode->getArgs();
+  std::vector<std::unique_ptr<ExpNode>>* valueArgs = &getArgs();
+  std::vector<std::unique_ptr<ExpNode>>::iterator itValueArg = valueArgs->begin();
+  std::vector<std::unique_ptr<arg>>* signatureArgs = &functionNode->getArgs();
+  std::vector<std::unique_ptr<arg>>::iterator itSignatureArg = signatureArgs->begin();
   std::vector<std::unique_ptr<ASTNode>>* body = &functionNode->getBody();
+
+  for (; itSignatureArg != signatureArgs->end() || itValueArg != valueArgs->end();) {
+    std::unique_ptr<ExpNode> &valueArg = *itValueArg;
+    std::unique_ptr<arg> &signatureArg = *itSignatureArg;
+
+    AssignmentNode* assignment_node = new AssignmentNode(context, signatureArg.get()->name, valueArg.get());
+    context->store(signatureArg.get()->name, assignment_node);
+
+    ++itSignatureArg;
+    ++itValueArg;
+  }
 
   return 0;
 }
