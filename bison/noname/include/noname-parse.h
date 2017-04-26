@@ -43,7 +43,6 @@ void dump_bool(ostream &, int, bool);
   * ### BEGIN of noname.tab.h ###
   * #############################
   */
-
 /* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison interface for Yacc-like parsers in C
@@ -197,11 +196,11 @@ union YYSTYPE
   arglist* arg_list;
   arg* arg;
 
-  ASTNode* node;
+  ASTNode* ast_node;
   ExpNode* exp_node;
   char* error_msg;
 
-#line 158 "noname.tab.h" /* yacc.c:1915  */
+#line 159 "noname.tab.h" /* yacc.c:1915  */
 };
 
 typedef union YYSTYPE YYSTYPE;

@@ -18,13 +18,15 @@
 #include "noname-parse.h"
 #include "noname-types.h"
 
+//# define YY_SYMBOL_PRINT(Title, Type, Value, Location) 
+
 extern ASTContext* context;
 extern std::stack<ASTContext*> context_stack;
 extern int yylex(void);
 extern int yydebug;
 extern void yyerror(const char *error_msg);
 extern void division_by_zero(YYLTYPE &yylloc);
-extern void eval(ASTNode* node);
+extern void eval(ASTNode* ast_node);
 
 %}
 
@@ -42,7 +44,7 @@ extern void eval(ASTNode* node);
   arglist* arg_list;
   arg* arg;
 
-  ASTNode* node;
+  ASTNode* ast_node;
   ExpNode* exp_node;
   char* error_msg;
 };
@@ -104,10 +106,10 @@ extern void eval(ASTNode* node);
 %token <id_v> STR_CONST         "string_constant"
 %token <double_v> DOUBLE        "double"
 %token <long_v> LONG            "long"
-%type  <node> assignment        "assignment"
-%type  <node> declaration       "declaration"
+%type  <ast_node> declaration       "declaration"
+%type  <exp_node> assignment    "assignment"
 %type  <exp_node> exp           "expression"
-%type  <node> function_def      "function_def"
+%type  <ast_node> function_def      "function_def"
 %type  <stmt_list> stmt_list    "stmt_list"
 %type  <stmt_list> ne_stmt_list "ne_stmt_list"
 %type  <exp_list> exp_list      "exp_list"
@@ -115,7 +117,7 @@ extern void eval(ASTNode* node);
 %type  <arg_list> arg_list      "arg_list"
 %type  <arg_list> ne_arg_list   "ne_arg_list"
 %type  <arg> arg                "arg"
-%type  <node> stmt              "statement"
+%type  <ast_node> stmt              "statement"
 
 %left '-' '+'
 %left '*' '/'
@@ -140,13 +142,17 @@ prog:
 
 stmt_list:
   %empty                   { $$ = NULL; }
-  | stmt                   { $$ = newstmtlist(context, NULL, $1); }
-  | ne_stmt_list stmt      { $$ = newstmtlist(context, $1, $2); }
+  | stmt                   { fprintf(stderr, "\n######################################### [stmt_list] new stmt_list"); 
+                              $$ = new_stmt_list(context, $1); }
+  | ne_stmt_list stmt      { fprintf(stderr, "\n######################################### [stmt_list] append to stmt_list"); 
+                              $$ = new_stmt_list(context, $1, $2); }
 ;
 
 ne_stmt_list:
-  stmt                     { $$ = newstmtlist(context, NULL, $1); }
-  | ne_stmt_list stmt      { $$ = newstmtlist(context, $1, $2); }
+  stmt                     { fprintf(stderr, "\n######################################### [stmt_list] new stmt_list"); 
+                              $$ = new_stmt_list(context, $1); }
+  | ne_stmt_list stmt      { fprintf(stderr, "\n######################################### [stmt_list] append to stmt_list"); 
+                              $$ = new_stmt_list(context, $1, $2); }
 ;
 
 stmt:
@@ -272,13 +278,13 @@ exp:
 
 arg_list:
   %empty                   { $$ = NULL; } 
-  | arg                    { fprintf(stderr, "\n[arglist processing]"); $$ = newarglist(context, NULL, $1); }
-  | ne_arg_list ',' arg    { fprintf(stderr, "\n[arglist processing]"); $$ = newarglist(context, $1, $3); }
+  | arg                    { fprintf(stderr, "\n[arglist processing]"); $$ = new_arg_list(context, NULL, $1); }
+  | ne_arg_list ',' arg    { fprintf(stderr, "\n[arglist processing]"); $$ = new_arg_list(context, $1, $3); }
 ;
 
 ne_arg_list:
-  arg                    { fprintf(stderr, "\n[ne_arg_list processing]"); $$ = newarglist(context, NULL, $1); }
-  | ne_arg_list ',' arg    { fprintf(stderr, "\n[ne_arg_list processing]"); $$ = newarglist(context, $1, $3); }
+  arg                    { fprintf(stderr, "\n[ne_arg_list processing]"); $$ = new_arg_list(context, NULL, $1); }
+  | ne_arg_list ',' arg    { fprintf(stderr, "\n[ne_arg_list processing]"); $$ = new_arg_list(context, $1, $3); }
 ;
 
 arg:
@@ -290,13 +296,13 @@ arg:
 
 exp_list:
   %empty                     { $$ = NULL; }
-  | exp STMT_SEP             { $$ = newexplist(context, NULL, $1); }
-  | ne_exp_list exp STMT_SEP { $$ = newexplist(context, $1, $2); }
+  | exp STMT_SEP             { $$ = new_exp_list(context, $1); }
+  | ne_exp_list exp STMT_SEP { $$ = new_exp_list(context, $1, $2); }
 ;
 
 ne_exp_list:
-  exp STMT_SEP               { $$ = newexplist(context, NULL, $1); }
-  | ne_exp_list exp STMT_SEP { $$ = newexplist(context, $1, $2); }
+  exp STMT_SEP               { $$ = new_exp_list(context, $1); }
+  | ne_exp_list exp STMT_SEP { $$ = new_exp_list(context, $1, $2); }
 ;
 
 %%

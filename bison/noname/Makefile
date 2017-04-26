@@ -20,7 +20,7 @@ CC=g++
 # CFLAGS= -g -Wall -Wno-unused -Wno-write-strings ${CPPINCLUDE}
 # `llvm-config --cxxflags --ldflags --system-libs --libs core`
 #CFLAGS= -g -std=c++11 `llvm-config --cxxflags` -Wall -Wno-unused -Wno-deprecated -Wno-write-strings ${CPPINCLUDE}
-CFLAGS= -g `llvm-config --cxxflags`  -Wall -Wno-unused -Wno-deprecated -Wno-write-strings ${CPPINCLUDE}
+CFLAGS= -g3 `llvm-config --cxxflags`  -Wall -Wno-unused -Wno-deprecated -Wno-write-strings ${CPPINCLUDE}
 FLEX= flex ${FLEX_FLAGS}
 BISON= bison ${BISON_FLAGS}
 DEPEND = ${CC} -MM `llvm-config --cxxflags` ${CPPINCLUDE}

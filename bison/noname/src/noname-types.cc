@@ -33,28 +33,84 @@ AssignmentNode* logErrorV(const char* str) {
   return nullptr;
 }
 
-stmtlist* newstmtlist(ASTContext* context, stmtlist* next_stmt_list, ASTNode* node) {
-  stmtlist* newexp_list = (stmtlist*)malloc(sizeof(stmtlist));
+stmtlist* new_stmt_list(ASTContext* context, ASTNode* ast_node) {
+  stmtlist* head_stmt_list = (stmtlist*)malloc(sizeof(stmtlist));
+  stmtlist_node* new_node = (stmtlist_node*)malloc(sizeof(stmtlist_node));
 
-  if (!newexp_list) {
+  if (!head_stmt_list || !new_node) {
     yyerror("out of space");
     exit(0);
   }
-  newexp_list->next = next_stmt_list;
-  newexp_list->node = node;
-  return newexp_list;
+  new_node->node = ast_node;
+  head_stmt_list->first = new_node;
+  head_stmt_list->last = new_node;
+  return head_stmt_list;
 }
 
-explist* newexplist(ASTContext* context, explist* next_exp_list, ExpNode* node) {
-  explist* newexp_list = (explist*)malloc(sizeof(explist));
+stmtlist* new_stmt_list(ASTContext* context, stmtlist* head_stmt_list, ASTNode* ast_node) {
+  stmtlist_node* new_node = (stmtlist_node*)malloc(sizeof(stmtlist_node));
 
-  if (!newexp_list) {
+  if (!new_node) {
     yyerror("out of space");
     exit(0);
   }
-  newexp_list->next = next_exp_list;
-  newexp_list->node = node;
-  return newexp_list;
+  new_node->node = ast_node;
+  head_stmt_list->last->next = new_node;
+  head_stmt_list->last = new_node;
+  return head_stmt_list;
+}
+
+explist* new_exp_list(ASTContext* context, ExpNode* exp_node) {
+  explist* head_exp_list = (explist*)malloc(sizeof(explist));
+  explist_node* new_node = (explist_node*)malloc(sizeof(explist_node));
+
+  if (!head_exp_list || !new_node) {
+    yyerror("out of space");
+    exit(0);
+  }
+  new_node->node = exp_node;
+  head_exp_list->first = new_node;
+  head_exp_list->last = new_node;
+  return head_exp_list;
+}
+
+explist* new_exp_list(ASTContext* context, explist* head_exp_list, ExpNode* exp_node) {
+  explist_node* new_node = (explist_node*)malloc(sizeof(explist_node));
+
+  if (!new_node) {
+    yyerror("out of space");
+    exit(0);
+  }
+  new_node->node = exp_node;
+  head_exp_list->last->next = new_node;
+  head_exp_list->last = new_node;
+  return head_exp_list;
+}
+
+arglist* new_arg_list(ASTContext* context, arg* arg) {
+  arglist* head_arg_list = (arglist*)malloc(sizeof(arglist));
+  arglist_node* new_node = (arglist_node*)malloc(sizeof(arglist_node));
+
+  if (!head_arg_list || !new_node) {
+    yyerror("out of space");
+    exit(0);
+  }
+  new_node->arg = arg;
+  head_arg_list->first = new_node;
+  head_arg_list->last = new_node;
+  return head_arg_list;
+}
+arglist* new_arg_list(ASTContext* context, arglist* head_arg_list, arg* arg) {
+  arglist_node* new_node = (arglist_node*)malloc(sizeof(arglist_node));
+
+  if (!new_node) {
+    yyerror("out of space");
+    exit(0);
+  }
+  new_node->arg = arg;
+  head_arg_list->last->next = new_node;
+  head_arg_list->last = new_node;
+  return head_arg_list;
 }
 
 arg* create_newarg(ASTContext* context, char* arg_name) {
@@ -88,18 +144,6 @@ arg* newarg(ASTContext* context, char* arg_name, char* defaultValue) {
   arg* new_arg = create_newarg(context, arg_name);
   new_arg->defaultValue = new StringNode(context, defaultValue);
   return new_arg;
-}
-
-arglist* newarglist(ASTContext* context, arglist* next_arg_list, arg* arg) {
-  arglist* newarg_list = (arglist*)malloc(sizeof(arglist));
-
-  if (!newarg_list) {
-    yyerror("out of space");
-    exit(0);
-  }
-  newarg_list->next = next_arg_list;
-  newarg_list->arg = arg;
-  return newarg_list;
 }
 
 VarNode* new_var_node(ASTContext* context, const std::string& name) {
@@ -146,10 +190,7 @@ FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, 
   return new_node;
 }
 
-void CallExprNode::eval() {
-
-  NodeValue* node_value = getValue();
-}
+void CallExprNode::eval() { NodeValue* node_value = getValue(); }
 
 NodeValue* CallExprNode::getValue() {
   ASTContext* context = getContext();
@@ -182,7 +223,7 @@ NodeValue* CallExprNode::getValue() {
     std::unique_ptr<ASTNode>& bodyNode = *itBodyNodes;
     bodyNode.get()->eval();
 
-    fprintf(stderr, "\neval ASTNode of type %d\n", bodyNode.get()->getType());
+    fprintf(stderr, "\nevaluating body: ASTNode of type %d\n", bodyNode.get()->getType());
     ++itBodyNodes;
   }
 
