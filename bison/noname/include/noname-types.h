@@ -143,6 +143,8 @@ typedef struct stmtlist stmtlist;
 typedef struct stmtlist_node stmtlist_node;
 typedef struct arg arg;
 
+void print_node_value(NodeValue& nodeValue);
+void print_node_value(FILE* file, NodeValue& nodeValue);
 stmtlist* new_stmt_list(ASTContext* context);
 stmtlist* new_stmt_list(ASTContext* context, ASTNode* node);
 stmtlist* new_stmt_list(ASTContext* context, stmtlist* head_exp_list, ASTNode* node);
@@ -162,7 +164,7 @@ AssignmentNode* new_assignment_node(ASTContext* context, const std::string& name
 AssignmentNode* new_declaration_node(ASTContext* context, const std::string& name);
 CallExprNode* new_call_node(ASTContext* context, const std::string& name, explist* exp_list);
 FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, arglist* arg_list, stmtlist* stmt_list,
-                                  ASTNode* returnNode);
+                                  ExpNode* returnNode);
 
 class ASTNode {
  private:
@@ -430,18 +432,18 @@ class FunctionDefNode : public ASTNode {
   std::string name;
   std::vector<std::unique_ptr<arg>> args;
   std::vector<std::unique_ptr<ASTNode>> bodyNodes;
-  ASTNode* returnNode;
+  ExpNode* returnNode;
 
  public:
   FunctionDefNode(ASTContext* context, const std::string& name, std::vector<std::unique_ptr<arg>>& args,
-                  std::vector<std::unique_ptr<ASTNode>>& bodyNodes, ASTNode* returnNode)
+                  std::vector<std::unique_ptr<ASTNode>>& bodyNodes, ExpNode* returnNode)
       : ASTNode(context),
         name(name),
         args(std::move(args)),
         bodyNodes(std::move(bodyNodes)),
         returnNode(std::move(returnNode)) {}
   FunctionDefNode(ASTContext* context, const std::string& name, arglist* head_arg_list, stmtlist* head_stmt_list,
-                  ASTNode* returnNode)
+                  ExpNode* returnNode)
       : ASTNode(context),
         name(name),
         args(std::vector<std::unique_ptr<arg>>()),
@@ -475,7 +477,7 @@ class FunctionDefNode : public ASTNode {
   const std::string& getName() const { return name; }
   std::vector<std::unique_ptr<arg>>& getArgs() { return args; }
   std::vector<std::unique_ptr<ASTNode>>& getBodyNodes() { return bodyNodes; }
-  ASTNode* getReturnNode() { return returnNode; }
+  ExpNode* getReturnNode() { return returnNode; }
 };
 
 class AssignmentNode : public ExpNode {

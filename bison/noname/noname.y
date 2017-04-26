@@ -188,13 +188,13 @@ stmt:
 function_def:
     DEF ID {
 
-        fprintf(stderr, "\n[processing function_def BEFORE arg_list]");
+        fprintf(stderr, "\n[############## processing function_def BEFORE arg_list ##############]");
         $<context>$ = new ASTContext(std::string($ID), context);
         context_stack.push($<context>$);
         context = $<context>$;
         
       }[function_context] '(' arg_list ')' {
-        fprintf(stderr, "\n[processing function_def BEFORE exp_list]");
+        fprintf(stderr, "\n[############## processing function_def BEFORE exp_list ##############]");
 
       } '{' stmt_list optional_ret_stmt '}' {
       // ASTContext newContext(context);
@@ -280,13 +280,17 @@ exp:
 
 arg_list:
   %empty                   { $$ = NULL; } 
-  | arg                    { fprintf(stderr, "\n[arglist processing]"); $$ = new_arg_list(context, NULL, $1); }
-  | ne_arg_list ',' arg    { fprintf(stderr, "\n[arglist processing]"); $$ = new_arg_list(context, $1, $3); }
+  | arg                    {  //fprintf(stderr, "\n[arglist processing]"); 
+                              $$ = new_arg_list(context, NULL, $1); }
+  | ne_arg_list ',' arg    {  //fprintf(stderr, "\n[arglist processing]"); 
+                              $$ = new_arg_list(context, $1, $3); }
 ;
 
 ne_arg_list:
-  arg                    { fprintf(stderr, "\n[ne_arg_list processing]"); $$ = new_arg_list(context, NULL, $1); }
-  | ne_arg_list ',' arg    { fprintf(stderr, "\n[ne_arg_list processing]"); $$ = new_arg_list(context, $1, $3); }
+  arg                      {  //fprintf(stderr, "\n[ne_arg_list processing]"); 
+                              $$ = new_arg_list(context, NULL, $1); }
+  | ne_arg_list ',' arg    {  //fprintf(stderr, "\n[ne_arg_list processing]"); 
+                              $$ = new_arg_list(context, $1, $3); }
 ;
 
 arg:

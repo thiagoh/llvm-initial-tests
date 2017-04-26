@@ -33,6 +33,21 @@ AssignmentNode* logErrorV(const char* str) {
   return nullptr;
 }
 
+void print_node_value(FILE* file, NodeValue& node_value) {
+  if (node_value.getType() == TYPE_INT) {
+    fprintf(file, "\n##########[print_node_value] %d", *(int*)node_value.getValue());
+  } else if (node_value.getType() == TYPE_LONG) {
+    fprintf(file, "\n##########[print_node_value] %ld", *(long*)node_value.getValue());
+  } else if (node_value.getType() == TYPE_DOUBLE) {
+    fprintf(file, "\n##########[print_node_value] %lf", *(double*)node_value.getValue());
+  } else if (node_value.getType() == TYPE_STRING) {
+    fprintf(file, "\n##########[print_node_value] %s", (*(std::string*)node_value.getValue()).c_str());
+  } else {
+    fprintf(file, "\n##########[print_node_value] could not print type %d", node_value.getType());
+  }
+}
+void print_node_value(NodeValue& node_value) { print_node_value(stdout, node_value); }
+
 // ReturnNode* new_return(ASTContext* context, ExpNode* exp_node) {
 //   ReturnNode* new_node = new ReturnNode(context, exp_node);
 //   return new_node;
@@ -214,7 +229,7 @@ AssignmentNode* new_declaration_node(ASTContext* context, const std::string& nam
 }
 
 FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, arglist* arg_list, stmtlist* stmt_list,
-                                  ASTNode* returnNode) {
+                                  ExpNode* returnNode) {
   FunctionDefNode* new_node = new FunctionDefNode(context, name, arg_list, stmt_list, returnNode);
 
   ASTContext* parent = context->getParent();
@@ -241,6 +256,7 @@ NodeValue* CallExprNode::getValue() {
     return 0;
   }
 
+  ExpNode* returnNode = functionNode->getReturnNode();
   std::vector<std::unique_ptr<ExpNode>>* valueArgs = &getArgs();
   std::vector<std::unique_ptr<ExpNode>>::iterator itValueArg = valueArgs->begin();
   std::vector<std::unique_ptr<arg>>* signatureArgs = &functionNode->getArgs();
@@ -263,9 +279,17 @@ NodeValue* CallExprNode::getValue() {
     std::unique_ptr<ASTNode>& bodyNode = *itBodyNodes;
     bodyNode.get()->eval();
 
-    fprintf(stderr, "\nevaluating body: ASTNode of type %d\n", bodyNode.get()->getType());
+    fprintf(stderr, "\n[## evaluating body: ASTNode of type %d]\n", bodyNode.get()->getType());
     ++itBodyNodes;
   }
 
-  return 0;
+  if (returnNode) {
+    fprintf(stderr, "\n[## evaluating return]\n");
+    return returnNode->getValue();
+  } else {
+    fprintf(stderr, "\n[## no return given]\n");
+  }
+
+
+  return nullptr;
 }

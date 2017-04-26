@@ -67,7 +67,11 @@ void eval(ASTNode *node) {
 
     if (functionNode) {
       fprintf(stderr, "\nThe called function was: '%s'\n", functionNode->getName().c_str());
-      callExp->eval();
+      NodeValue *return_value = callExp->getValue();
+
+      if (return_value) {
+        print_node_value(stderr, *return_value);
+      }
 
     } else {
       fprintf(stderr, "\nThe called function was: '%s' BUT it wan not found on the context\n",

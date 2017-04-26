@@ -55,6 +55,7 @@
         "atomic": "cpp",
         "locale": "cpp",
         "tuple": "cpp",
-        "__locale": "cpp"
+        "__locale": "cpp",
+        "algorithm": "cpp"
     }
 }
