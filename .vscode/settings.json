@@ -56,6 +56,11 @@
         "locale": "cpp",
         "tuple": "cpp",
         "__locale": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "__functional_base": "cpp",
+        "future": "cpp",
+        "istream": "cpp",
+        "utility": "cpp",
+        "propagate_const": "cpp"
     }
 }

@@ -216,12 +216,12 @@ CallExprNode* new_call_node(ASTContext* context, const std::string& name, explis
 AssignmentNode* new_declaration_node(ASTContext* context, const std::string& name) {
   AssignmentNode* new_node = new AssignmentNode(context, name, NULL);
 
-  AssignmentNode* temp_node = context->getVariable(name);
+  NodeValue* temp_node = context->getVariable(name);
   if (temp_node) {
     return logErrorV("\nVariable already exists in this context!");
   }
 
-  context->store(name, new_node);
+  context->store(name, temp_node);  // temp_node is null. It doesn't matter
 
   fprintf(stderr, "\n[new_assignment %s]", context->getName().c_str());
 
@@ -245,8 +245,35 @@ FunctionDefNode* new_function_def(ASTContext* context, const std::string& name, 
   return new_node;
 }
 
-void CallExprNode::eval() { NodeValue* node_value = getValue(); }
+// UNNECESSARY
+// void VarNode::eval() { NodeValue* node_value = getValue(); }
+NodeValue* VarNode::getValue() { return getContext()->getVariable(name); }
 
+// UNNECESSARY
+// void UnaryExpNode::eval() { NodeValue* node_value = getValue(); }
+NodeValue* UnaryExpNode::getValue() {
+  NodeValue* rhs_value = rhs.get()->getValue();
+  fprintf(stderr, "\n\n############ IMPLEMENT ME: UnaryExpNode::getValue ###########\n\n");
+  return rhs_value;
+}
+
+// UNNECESSARY
+// void BinaryExpNode::eval() { NodeValue* node_value = getValue(); }
+NodeValue* BinaryExpNode::getValue() {
+  NodeValue* lhs_value = lhs.get()->getValue();
+  NodeValue* rhs_value = rhs.get()->getValue();
+
+  if (op == '+') {
+  }
+
+  return 0;
+}
+
+void AssignmentNode::eval() { getContext()->store(name, getValue()); }
+NodeValue* AssignmentNode::getValue() { return rhs.get()->getValue(); }
+
+// UNNECESSARY
+// void CallExprNode::eval() { NodeValue* node_value = getValue(); }
 NodeValue* CallExprNode::getValue() {
   ASTContext* context = getContext();
   FunctionDefNode* functionNode = context->getFunction(getCallee());
@@ -268,8 +295,7 @@ NodeValue* CallExprNode::getValue() {
     std::unique_ptr<ExpNode>& valueArg = *itValueArg;
     std::unique_ptr<arg>& signatureArg = *itSignatureArg;
 
-    AssignmentNode* assignment_node = new AssignmentNode(context, signatureArg.get()->name, valueArg.get());
-    context->store(signatureArg.get()->name, assignment_node);
+    context->store(signatureArg.get()->name, valueArg.get()->getValue());
 
     ++itSignatureArg;
     ++itValueArg;
@@ -289,7 +315,6 @@ NodeValue* CallExprNode::getValue() {
   } else {
     fprintf(stderr, "\n[## no return given]\n");
   }
-
 
   return nullptr;
 }
